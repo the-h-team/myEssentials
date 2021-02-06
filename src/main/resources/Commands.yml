@@ -1,0 +1,16 @@
+fly-command:
+  command: fly
+  description: Enable the player to fly without creative
+  permission: mess.fly
+home-command:
+  command: home
+  description: Teleportation to a saved location
+  permission: mess.home
+sethome-command:
+  command: sethome
+  description: Save a location for later teleportation
+  permission: mess.sethome
+tpa-command:
+  command: tpa
+  description: Request teleport to another player
+  permission: mess.tpa

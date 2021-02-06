@@ -1,0 +1,6 @@
+name: mEss
+version: ${project.version}
+main: com.github.ms5984.malthadus.mess.MEss
+api-version: 1.15
+softdepend: [ Vault ]
+authors: [ ms5984 ]
