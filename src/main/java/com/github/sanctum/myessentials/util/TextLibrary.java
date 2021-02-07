@@ -1,4 +1,4 @@
-package com.github.ms5984.malthadus.mess.util;
+package com.github.sanctum.myessentials.util;
 
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;

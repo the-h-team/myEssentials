@@ -1,6 +1,6 @@
-package com.github.ms5984.malthadus.mess.model;
+package com.github.sanctum.myessentials.model;
 
-import com.github.ms5984.malthadus.mess.util.Messaging;
+import com.github.sanctum.myessentials.util.Messaging;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;

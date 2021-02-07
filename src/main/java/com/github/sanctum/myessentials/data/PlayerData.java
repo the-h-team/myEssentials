@@ -1,4 +1,4 @@
-package com.github.ms5984.malthadus.mess.data;
+package com.github.sanctum.myessentials.data;
 
 import org.bukkit.Location;
 import org.bukkit.configuration.file.YamlConfiguration;

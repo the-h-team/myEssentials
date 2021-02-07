@@ -1,6 +1,6 @@
-package com.github.ms5984.malthadus.mess.util;
+package com.github.sanctum.myessentials.util;
 
-import com.github.ms5984.malthadus.mess.MEss;
+import com.github.sanctum.myessentials.MEss;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;

@@ -1,13 +1,13 @@
-package com.github.ms5984.malthadus.mess;
+package com.github.sanctum.myessentials;
 
-import com.github.ms5984.malthadus.mess.commands.FlyCommand;
-import com.github.ms5984.malthadus.mess.commands.HomeCommand;
-import com.github.ms5984.malthadus.mess.commands.SetHomeCommand;
-import com.github.ms5984.malthadus.mess.commands.TpaCommand;
-import com.github.ms5984.malthadus.mess.data.PlayerData;
-import com.github.ms5984.malthadus.mess.model.CommandData;
-import com.github.ms5984.malthadus.mess.util.Messaging;
-import com.github.ms5984.malthadus.mess.util.TeleportUtil;
+import com.github.sanctum.myessentials.commands.HomeCommand;
+import com.github.sanctum.myessentials.data.PlayerData;
+import com.github.sanctum.myessentials.commands.FlyCommand;
+import com.github.sanctum.myessentials.commands.SetHomeCommand;
+import com.github.sanctum.myessentials.commands.TpaCommand;
+import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.util.Messaging;
+import com.github.sanctum.myessentials.util.TeleportUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class MEss extends JavaPlugin {

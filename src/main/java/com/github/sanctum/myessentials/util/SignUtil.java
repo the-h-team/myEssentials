@@ -1,4 +1,4 @@
-package com.github.ms5984.malthadus.mess.util;
+package com.github.sanctum.myessentials.util;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign; // Sign BlockState class

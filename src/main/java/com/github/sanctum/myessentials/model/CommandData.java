@@ -1,6 +1,6 @@
-package com.github.ms5984.malthadus.mess.model;
+package com.github.sanctum.myessentials.model;
 
-import com.github.ms5984.malthadus.mess.MEss;
+import com.github.sanctum.myessentials.MEss;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;

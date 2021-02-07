@@ -1,8 +1,8 @@
-package com.github.ms5984.malthadus.mess.commands;
+package com.github.sanctum.myessentials.commands;
 
-import com.github.ms5984.malthadus.mess.model.CommandData;
-import com.github.ms5984.malthadus.mess.model.CommandsBase;
-import com.github.ms5984.malthadus.mess.util.Messaging;
+import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.model.CommandsBase;
+import com.github.sanctum.myessentials.util.Messaging;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
