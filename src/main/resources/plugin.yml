@@ -1,6 +1,6 @@
 name: mEss
 version: ${project.version}
-main: com.github.sanctum.myessentials.MEss
+main: com.github.sanctum.myessentials.Essentials
 api-version: 1.15
 softdepend: [ Vault ]
 authors: [ ms5984 ]

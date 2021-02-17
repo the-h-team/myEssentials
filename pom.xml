@@ -9,7 +9,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>mEss</name>
+    <name>essentials</name>
     <description>myEssentials. Quality of life, revived.</description>
     <inceptionYear>2020</inceptionYear>
 
@@ -90,6 +90,13 @@
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+            <releases>
+                <updatePolicy>interval:15</updatePolicy>
+            </releases>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -98,6 +105,11 @@
             <artifactId>spigot-api</artifactId>
             <version>1.16.5-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.the-h-team</groupId>
+            <artifactId>Labyrinth</artifactId>
+            <version>1.2.5-R</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>

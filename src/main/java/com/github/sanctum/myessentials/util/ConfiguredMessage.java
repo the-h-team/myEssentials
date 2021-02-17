@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.util;
 
-import com.github.sanctum.myessentials.MEss;
+import com.github.sanctum.myessentials.Essentials;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -11,25 +11,18 @@ import java.io.*;
 import java.util.Objects;
 import java.util.Properties;
 
-public enum Messaging {
+public enum ConfiguredMessage {
     MUST_BE_PLAYER("must-be-player"),
     TRY_IN_SURVIVAL("try-in-survival"),
     // Fly messages
     FLIGHT_OFF("flight-off"),
-    FLIGHT_ON("flight-on"),
-    // Home messages
-    NO_HOME_SET("no-home-set"),
-    HOMES_LISTING("homes-listing"),
-    HOME_NOT_FOUND("home-not-found"),
-    // SetHome messages
-    HOME_SAVED("home-saved"),
-    HOME_NAME_SAVED("home-name-saved");
+    FLIGHT_ON("flight-on");
 
     private final String key;
 
     private static Properties properties;
 
-    Messaging(String s) {
+    ConfiguredMessage(String s) {
         this.key = s;
     }
 
@@ -61,21 +54,21 @@ public enum Messaging {
         return textComponent;
     }
 
-    public static void loadProperties(MEss mEss) {
+    public static void loadProperties(Essentials essentials) {
         final Properties defaults = new Properties();
-        final InputStream resource = mEss.getResource("messages.properties");
+        final InputStream resource = essentials.getResource("messages.properties");
         try {
             defaults.load(new InputStreamReader(Objects.requireNonNull(resource)));
         } catch (IOException e) {
             throw new IllegalStateException("Messages missing from the .jar!", e);
         }
-        final File file = new File(mEss.getDataFolder(), "messages.properties");
+        final File file = new File(essentials.getDataFolder(), "messages.properties");
         if (file.exists()) {
             properties = new Properties(defaults);
             try {
                 properties.load(new FileInputStream(file));
             } catch (IOException e) {
-                mEss.getLogger().severe("Unable to load external copy of messages.properties");
+                essentials.getLogger().severe("Unable to load external copy of messages.properties");
                 e.printStackTrace();
             }
             return;

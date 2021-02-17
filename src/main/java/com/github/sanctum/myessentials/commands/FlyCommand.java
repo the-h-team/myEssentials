@@ -1,8 +1,8 @@
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.model.CommandsBase;
-import com.github.sanctum.myessentials.util.Messaging;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
@@ -15,29 +15,31 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-public class FlyCommand extends CommandsBase {
+public class FlyCommand extends CommandBuilder {
     public FlyCommand() {
         super(CommandData.FLY_COMMAND);
     }
 
     @Override
-    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        if (!(sender instanceof Player)) {
-            sendMessage(sender, Messaging.MUST_BE_PLAYER);
-            return true;
-        }
+    public boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings) {
+        sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
+        return true;
+    }
+
+    @Override
+    public boolean playerView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         if (!testPermission(sender)) { // automatically sends no-perm message
             return true;
         }
         final Player player = (Player) sender;
         if (player.getGameMode() != GameMode.SURVIVAL) {
-            sendMessage(sender, Messaging.TRY_IN_SURVIVAL);
+            sendMessage(sender, ConfiguredMessage.TRY_IN_SURVIVAL);
             return true;
         }
         if (player.getAllowFlight()) {
             player.setFlying(false);
             player.setAllowFlight(false);
-            sendMessage(player, Messaging.FLIGHT_OFF);
+            sendMessage(player, ConfiguredMessage.FLIGHT_OFF);
             final Listener listener = new Listener() {
                 @EventHandler
                 public void onNextFallDamage(EntityDamageEvent e) {
@@ -69,7 +71,7 @@ public class FlyCommand extends CommandsBase {
         } else {
             player.setAllowFlight(true);
             player.setVelocity(player.getVelocity().add(new Vector(0d, 0.6, 0d)));
-            sendMessage(player, Messaging.FLIGHT_ON);
+            sendMessage(player, ConfiguredMessage.FLIGHT_ON);
             new BukkitRunnable() {
                 @Override
                 public void run() {

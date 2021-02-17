@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.util;
 
-import com.github.sanctum.myessentials.MEss;
+import com.github.sanctum.myessentials.Essentials;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TeleportUtil {
-    private static final JavaPlugin PLUGIN = JavaPlugin.getProvidingPlugin(TeleportUtil.class);
+public class TeleportHandler {
+    private static final JavaPlugin PLUGIN = JavaPlugin.getProvidingPlugin(TeleportHandler.class);
     private static final PluginManager PM = Bukkit.getPluginManager();
     private static final List<Listener> listeners = new ArrayList<>();
 
@@ -238,11 +238,11 @@ public class TeleportUtil {
         }
     }
 
-    public static void registerListeners(MEss mEss) {
+    public static void registerListeners(Essentials essentials) {
         listeners.add(new PendingTeleportEvent.PendingTeleportListener());
         listeners.add(new MEssTeleportEvent.TeleportListener());
         for (Listener listener : listeners) {
-            mEss.getServer().getPluginManager().registerEvents(listener, mEss);
+            essentials.getServer().getPluginManager().registerEvents(listener, essentials);
         }
     }
 
