@@ -31,7 +31,7 @@ public class FlyCommand extends CommandBuilder {
         if (!testPermission(p)) { // automatically sends no-perm message
             return true;
         }
-        final Player player = (Player) p;
+        final Player player = p;
         if (player.getGameMode() != GameMode.SURVIVAL) {
             sendMessage(p, ConfiguredMessage.TRY_IN_SURVIVAL);
             return true;

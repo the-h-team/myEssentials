@@ -46,7 +46,7 @@ public class TpaCommand extends CommandBuilder {
         if (!testPermission(p)) {
             return true;
         }
-        final Player player = (Player) p;
+        final Player player = p;
         if (args.length != 1) return false;
         Optional.ofNullable(Bukkit.getPlayerExact(args[0])).ifPresent(p2 -> {
             player.sendMessage("TP UP");
