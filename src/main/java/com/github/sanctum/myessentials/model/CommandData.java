@@ -73,13 +73,13 @@ public enum CommandData {
         return !sender.hasPermission(getPermissionNode());
     }
 
-    public static void reloadConfig(Essentials plugin) {
+    public static void defaultOrReload(Essentials plugin) {
         final InputStream resource = plugin.getResource("Commands.yml");
 
         if (commands != null && !commands.exists()) {
             Config.copy(resource, commands.getFile());
         }
-        if (commands != null && commands.exists()) {
+        if (commands != null && commands.exists() && !commands.getConfig().getKeys(false).isEmpty()) {
             commands.reload();
         }
     }

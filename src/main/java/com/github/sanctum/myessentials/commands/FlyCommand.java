@@ -27,13 +27,13 @@ public class FlyCommand extends CommandBuilder {
     }
 
     @Override
-    public boolean playerView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        if (!testPermission(sender)) { // automatically sends no-perm message
+    public boolean playerView(Player p, @NotNull String commandLabel, @NotNull String[] args) {
+        if (!testPermission(p)) { // automatically sends no-perm message
             return true;
         }
-        final Player player = (Player) sender;
+        final Player player = (Player) p;
         if (player.getGameMode() != GameMode.SURVIVAL) {
-            sendMessage(sender, ConfiguredMessage.TRY_IN_SURVIVAL);
+            sendMessage(p, ConfiguredMessage.TRY_IN_SURVIVAL);
             return true;
         }
         if (player.getAllowFlight()) {

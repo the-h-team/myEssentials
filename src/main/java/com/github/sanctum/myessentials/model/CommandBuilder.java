@@ -55,7 +55,7 @@ public abstract class CommandBuilder extends BukkitCommand {
         return StringUtils.translate(text);
     }
 
-    public abstract boolean playerView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings);
+    public abstract boolean playerView(Player p, @NotNull String s, @NotNull String[] strings);
 
     public abstract boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings);
 
@@ -64,6 +64,6 @@ public abstract class CommandBuilder extends BukkitCommand {
         if (!(sender instanceof Player)) {
             return consoleView(sender, s, strings);
         }
-        return playerView(sender, s, strings);
+        return playerView((Player) sender, s, strings);
     }
 }

@@ -1,6 +1,5 @@
 package com.github.sanctum.myessentials;
 
-import com.github.sanctum.labyrinth.data.EconomyProvision;
 import com.github.sanctum.labyrinth.event.EventBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.util.BaseExecutor;
@@ -13,7 +12,7 @@ public final class Essentials extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        CommandData.reloadConfig(this);
+        CommandData.defaultOrReload(this);
         ConfiguredMessage.loadProperties(this);
         TeleportHandler.registerListeners(this);
         BaseExecutor.compileFields(this, "com.github.sanctum.myessentials.commands");
