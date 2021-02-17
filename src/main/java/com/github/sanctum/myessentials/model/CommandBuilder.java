@@ -3,6 +3,9 @@ package com.github.sanctum.myessentials.model;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandMap;
@@ -18,9 +21,11 @@ import org.jetbrains.annotations.NotNull;
 public abstract class CommandBuilder extends BukkitCommand {
     protected static final Plugin PLUGIN = JavaPlugin.getProvidingPlugin(CommandBuilder.class);
     protected final CommandData commandData;
+    private static final LinkedList<CommandData> internalMap = new LinkedList<>();
 
     public CommandBuilder(CommandData commandData) {
         super(commandData.getLabel());
+        internalMap.add(commandData);
         setDescription(commandData.getDescription());
         setPermission(commandData.getPermissionNode());
         setPermissionMessage(ChatColor.RED + "You do not have permission to perform this command!");
@@ -66,4 +71,17 @@ public abstract class CommandBuilder extends BukkitCommand {
         }
         return playerView((Player) sender, s, strings);
     }
+
+    public static LinkedList<CommandData> getInternalMap() {
+        return internalMap;
+    }
+
+    public static LinkedList<String> getCommandList() {
+        LinkedList<String> array = new LinkedList<>();
+        for (CommandData data : internalMap) {
+            array.add(data.getLabel() + " - " + data.getDescription());
+        }
+        return array;
+    }
+
 }
