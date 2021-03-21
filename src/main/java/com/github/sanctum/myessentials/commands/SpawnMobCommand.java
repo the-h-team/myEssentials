@@ -6,13 +6,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class SpawnMobCommand extends CommandBuilder {
+public final class SpawnMobCommand extends CommandBuilder {
 	public SpawnMobCommand() {
 		super(CommandData.SPAWNMOB_COMMAND);
 	}
 
 	@Override
-	public boolean playerView(Player p, @NotNull String s, @NotNull String[] strings) {
+	public boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] strings) {
 		return false;
 	}
 

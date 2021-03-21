@@ -60,7 +60,7 @@ public abstract class CommandBuilder extends BukkitCommand {
         return StringUtils.translate(text);
     }
 
-    public abstract boolean playerView(Player p, @NotNull String s, @NotNull String[] strings);
+    public abstract boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] strings);
 
     public abstract boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings);
 

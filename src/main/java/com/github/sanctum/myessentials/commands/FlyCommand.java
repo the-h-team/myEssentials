@@ -15,7 +15,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-public class FlyCommand extends CommandBuilder {
+public final class FlyCommand extends CommandBuilder {
     public FlyCommand() {
         super(CommandData.FLY_COMMAND);
     }
@@ -27,7 +27,7 @@ public class FlyCommand extends CommandBuilder {
     }
 
     @Override
-    public boolean playerView(Player p, @NotNull String commandLabel, @NotNull String[] args) {
+    public boolean playerView(@NotNull Player p, @NotNull String commandLabel, @NotNull String[] args) {
         if (!testPermission(p)) { // automatically sends no-perm message
             return true;
         }

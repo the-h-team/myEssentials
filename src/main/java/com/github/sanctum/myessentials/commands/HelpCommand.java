@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class HelpCommand extends CommandBuilder {
+public final class HelpCommand extends CommandBuilder {
 	public HelpCommand() {
 		super(CommandData.HELP_COMMAND);
 	}
@@ -21,12 +21,12 @@ public class HelpCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(Player p, @NotNull String s, @NotNull String[] args) {
+	public boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] args) {
 
 		int length = args.length;
 
 		if (length == 0) {
-			helpMenu(p).export(1);
+			helpMenu(player).export(1);
 			return true;
 		}
 
@@ -36,7 +36,7 @@ public class HelpCommand extends CommandBuilder {
 			} catch (NumberFormatException e) {
 				return true;
 			}
-			helpMenu(p).export(Integer.parseInt(args[0]));
+			helpMenu(player).export(Integer.parseInt(args[0]));
 			return true;
 		}
 

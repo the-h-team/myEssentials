@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-public class TpaCommand extends CommandBuilder {
+public final class TpaCommand extends CommandBuilder {
     private final PluginManager pm = Bukkit.getPluginManager();
     public TpaCommand() {
         super(CommandData.TPA_COMMAND);
@@ -42,7 +42,7 @@ public class TpaCommand extends CommandBuilder {
     }
 
     @Override
-    public boolean playerView(Player p, @NotNull String commandLabel, @NotNull String[] args) {
+    public boolean playerView(@NotNull Player p, @NotNull String commandLabel, @NotNull String[] args) {
         if (!testPermission(p)) {
             return true;
         }

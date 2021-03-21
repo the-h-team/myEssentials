@@ -6,13 +6,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class BrodcastCommand extends CommandBuilder {
-	public BrodcastCommand() {
-		super(CommandData.BROADCAST_COMMAND);
+public final class OnlineListCommand extends CommandBuilder {
+	public OnlineListCommand() {
+		super(CommandData.ONLINELIST_COMMAND);
 	}
 
 	@Override
-	public boolean playerView(Player p, @NotNull String s, @NotNull String[] strings) {
+	public boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] strings) {
 		return false;
 	}
 

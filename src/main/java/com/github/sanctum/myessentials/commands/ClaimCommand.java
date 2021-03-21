@@ -6,13 +6,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public class ClaimCommand extends CommandBuilder {
+public final class ClaimCommand extends CommandBuilder {
 	public ClaimCommand() {
 		super(CommandData.CLAIM_COMMAND);
 	}
 
 	@Override
-	public boolean playerView(Player p, @NotNull String s, @NotNull String[] strings) {
+	public boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] strings) {
 		return false;
 	}
 
