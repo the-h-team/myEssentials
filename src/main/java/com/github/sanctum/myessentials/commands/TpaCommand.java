@@ -3,7 +3,8 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
-import com.github.sanctum.myessentials.util.TeleportHandler;
+import com.github.sanctum.myessentials.util.teleportation.PendingTeleportToPlayerEvent;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +51,7 @@ public final class TpaCommand extends CommandBuilder {
         if (args.length != 1) return false;
         Optional.ofNullable(Bukkit.getPlayerExact(args[0])).ifPresent(p2 -> {
             player.sendMessage("TP UP");
-            pm.callEvent(new TeleportHandler.PendingTeleportToEntityEvent<>(player, p2));
+            pm.callEvent(new PendingTeleportToPlayerEvent(player, p2));
             p2.sendMessage("INCOMING");
         });
         return true;
