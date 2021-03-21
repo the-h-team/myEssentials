@@ -1,14 +1,14 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
-import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.model.InternalCommandData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class GamemodeCommand extends CommandBuilder {
 	public GamemodeCommand() {
-		super(CommandData.GAMEMODE_COMMAND);
+		super(InternalCommandData.GAMEMODE_COMMAND);
 	}
 
 	@Override

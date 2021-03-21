@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.TeleportHandler;
 import java.util.Date;
@@ -19,7 +19,7 @@ import java.util.Optional;
 public final class TpaCommand extends CommandBuilder {
     private final PluginManager pm = Bukkit.getPluginManager();
     public TpaCommand() {
-        super(CommandData.TPA_COMMAND);
+        super(InternalCommandData.TPA_COMMAND);
     }
 
     private final Map<UUID, Date> request = new HashMap<>();

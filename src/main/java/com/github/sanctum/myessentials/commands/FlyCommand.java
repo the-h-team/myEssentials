@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
-import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class FlyCommand extends CommandBuilder {
     public FlyCommand() {
-        super(CommandData.FLY_COMMAND);
+        super(InternalCommandData.FLY_COMMAND);
     }
 
     @Override

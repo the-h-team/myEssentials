@@ -1,14 +1,14 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.InternalCommandData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class MessageCommand extends CommandBuilder {
 	public MessageCommand() {
-		super(CommandData.MESSAGE_COMMAND);
+		super(InternalCommandData.MESSAGE_COMMAND);
 	}
 
 	@Override

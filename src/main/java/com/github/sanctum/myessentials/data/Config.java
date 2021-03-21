@@ -48,16 +48,16 @@ public class Config {
         return (d == null) ? "" : d;
     }
 
-    public static Config get(final String n, final String d) {
+    public static Config get(final String n, final String d) throws IllegalArgumentException {
         for (final Config c : Config.configs) {
             if (c.getName().equals(n) && c.getDescription().equals(d)) {
                 return c;
             }
         }
-        if (n != null && !n.isEmpty()) {
-            return new Config(n, d);
-        } else
-        return null;
+        if (n == null || n.isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be null/empty!");
+        }
+        return new Config(n, d);
     }
 
     public boolean delete() {
@@ -82,6 +82,7 @@ public class Config {
             this.file = new File(this.getDataFolder(), this.getName() + ".yml"); //create method get data folder
             if(!this.file.exists()) {
                 try {
+                    //noinspection ResultOfMethodCallIgnored
                     this.file.createNewFile();
                 }catch(final IOException e) {
                     e.printStackTrace();
@@ -107,6 +108,7 @@ public class Config {
             d = new File(dir.getParentFile().getPath(), Essentials.getInstance().getName());
         }
         if (!d.exists()) {
+            //noinspection ResultOfMethodCallIgnored
             d.mkdirs();
         }
         return d;
@@ -116,6 +118,7 @@ public class Config {
         this.file = new File(getDataFolder(), getName() + ".yml");
         if (!this.file.exists())
             try {
+                //noinspection ResultOfMethodCallIgnored
                 this.file.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();

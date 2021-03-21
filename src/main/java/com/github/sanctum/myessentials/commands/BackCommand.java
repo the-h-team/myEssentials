@@ -1,14 +1,14 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.InternalCommandData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class BackCommand extends CommandBuilder {
 	public BackCommand() {
-		super(CommandData.BACK_COMMAND);
+		super(InternalCommandData.BACK_COMMAND);
 	}
 
 	@Override

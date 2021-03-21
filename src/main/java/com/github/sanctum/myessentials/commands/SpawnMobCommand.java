@@ -1,14 +1,14 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
-import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.model.InternalCommandData;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class SpawnMobCommand extends CommandBuilder {
 	public SpawnMobCommand() {
-		super(CommandData.SPAWNMOB_COMMAND);
+		super(InternalCommandData.SPAWNMOB_COMMAND);
 	}
 
 	@Override
