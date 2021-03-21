@@ -9,7 +9,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>essentials</name>
+    <name>myEssentials</name>
     <description>myEssentials. Quality of life, revived.</description>
     <inceptionYear>2020</inceptionYear>
 
