@@ -2,6 +2,6 @@ name: myEssentials
 version: 1.0.0
 main: com.github.sanctum.myessentials.Essentials
 api-version: 1.13
-authors: [ "${organization.name}" ]
+author: ${organization.name}
 description: ${project.description}
 website: ${organization.url}
