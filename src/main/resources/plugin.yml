@@ -1,7 +1,6 @@
-name: mEss
-version: ${project.version}
+name: Essentials
+version: 1.0.0
 main: com.github.sanctum.myessentials.Essentials
-api-version: 1.15
-softdepend: [ Vault ]
+api-version: 1.13
 authors: [ ms5984 ]
-description: ${project.description}
+description: The only essentials you need.
