@@ -16,10 +16,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class TeleportHandler {
-    private static final JavaPlugin PLUGIN = JavaPlugin.getProvidingPlugin(TeleportHandler.class);
+public final class TeleportHandler {
     private static final PluginManager PM = Bukkit.getPluginManager();
-    private static final List<Listener> listeners = new ArrayList<>();
+    private static TeleportHandler instance;
+    private final JavaPlugin plugin;
+    private final List<Listener> listeners = new ArrayList<>();
+
+    private TeleportHandler(Essentials essentials) {
+        if (instance != null) throw new IllegalStateException("Already initialized!");
+        instance = this;
+        plugin = essentials;
+    }
 
     public abstract static class Destination<T> implements Supplier<T> {
         protected final Supplier<Location> toLoc;
@@ -119,7 +126,7 @@ public class TeleportHandler {
                     public void run() {
                         PM.callEvent(new MEssTeleportEvent(e.player, e.player.getLocation(), e.getDestination().toLocation()));
                     }
-                }.runTaskLater(PLUGIN, e.delay);
+                }.runTaskLater(instance.plugin, e.delay);
             }
 
             /**
@@ -133,7 +140,7 @@ public class TeleportHandler {
                     public void run() {
                         PM.callEvent(new MEssTeleportEvent(e.getPlayer(), e.getPlayer().getLocation(), e.getDestination().toLocation()));
                     }
-                }.runTaskLater(PLUGIN, e.delay);
+                }.runTaskLater(instance.plugin, e.delay);
             }
         }
     }
@@ -239,14 +246,16 @@ public class TeleportHandler {
     }
 
     public static void registerListeners(Essentials essentials) {
-        listeners.add(new PendingTeleportEvent.PendingTeleportListener());
-        listeners.add(new MEssTeleportEvent.TeleportListener());
-        for (Listener listener : listeners) {
+        new TeleportHandler(essentials);
+        instance.listeners.add(new PendingTeleportEvent.PendingTeleportListener());
+        instance.listeners.add(new MEssTeleportEvent.TeleportListener());
+        for (Listener listener : instance.listeners) {
             essentials.getServer().getPluginManager().registerEvents(listener, essentials);
         }
     }
 
     public static void unregisterListeners() {
-        listeners.clear();
+        instance.listeners.clear();
+        instance = null;
     }
 }
