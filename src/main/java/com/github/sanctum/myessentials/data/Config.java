@@ -1,6 +1,5 @@
 package com.github.sanctum.myessentials.data;
 
-import com.github.sanctum.myessentials.Essentials;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,17 +10,31 @@ import java.util.List;
 import java.util.Objects;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
+/**
+ * Encapsulates config file operations.
+ */
 public class Config {
-    private final String n;
-    private final String d;
-    private FileConfiguration fc;
-    private File file;
+    protected final String n;
+    protected final String d;
+    protected final File file;
+    protected FileConfiguration fc;
     private static final List<Config> configs = new ArrayList<>();
 
-    public Config(final String n, final String d) {
+    public Config(@NotNull final String n, final String d) {
         this.n = n;
         this.d = d;
+        // Get the data directory of the plugin that is providing this Config implementation
+        final File pluginDataDir = JavaPlugin.getProvidingPlugin(getClass()).getDataFolder();
+        // If d is null or empty, use plugin's data folder. If not get the file describing the subdirectory.
+        final File parent = (d == null || d.isEmpty()) ? pluginDataDir : new File(pluginDataDir, d);
+        if (!parent.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            parent.mkdir();
+        }
+        this.file = new File(parent, n.concat(".yml"));
         configs.add(this);
     }
 
@@ -61,80 +74,47 @@ public class Config {
     }
 
     public boolean delete() {
-        Config.configs.removeIf(c -> c.equals(this));
-        return this.getFile().delete();
+        return file.delete();
     }
 
     public boolean exists() {
-        if (this.file == null) {
-            final File temp = new File(this.getDataFolder(), this.getName() + ".yml");
-            if (!temp.exists()) {
-                return false;
-            } else {
-                this.file = temp;
-            }
-        }
-        return true;
+        return file.exists();
     }
 
     public File getFile() {
-        if(this.file == null) {
-            this.file = new File(this.getDataFolder(), this.getName() + ".yml"); //create method get data folder
-            if(!this.file.exists()) {
-                try {
-                    //noinspection ResultOfMethodCallIgnored
-                    this.file.createNewFile();
-                }catch(final IOException e) {
-                    e.printStackTrace();
-                }
+        if(!file.exists()) {
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                file.createNewFile();
+            } catch(final IOException e) {
+                throw new IllegalStateException("Unable to create file! See log:", e);
             }
         }
-        return this.file;
+        return file;
     }
 
     public FileConfiguration getConfig() {
         if(this.fc == null) {
-            this.fc = YamlConfiguration.loadConfiguration(this.getFile());
+            // fast exit with new blank configuration in the case of nonexistent file
+            if (!file.exists()) return new YamlConfiguration();
+            // load configuration from file
+            this.fc = YamlConfiguration.loadConfiguration(file);
         }
         return this.fc;
     }
 
-    public File getDataFolder() {
-        final File dir = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " "));
-        File d;
-        if (this.d != null) {
-            d = new File(dir.getParentFile().getPath(), Essentials.getInstance().getName() + "/" + this.d + "/");
-        } else {
-            d = new File(dir.getParentFile().getPath(), Essentials.getInstance().getName());
-        }
-        if (!d.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            d.mkdirs();
-        }
-        return d;
-    }
-
     public void reload() {
-        this.file = new File(getDataFolder(), getName() + ".yml");
-        if (!this.file.exists())
-            try {
-                //noinspection ResultOfMethodCallIgnored
-                this.file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (!this.file.exists()) {
+            this.fc = new YamlConfiguration();
+        }
         this.fc = YamlConfiguration.loadConfiguration(this.file);
-        File defConfigStream = new File(getDataFolder(), getName() + ".yml");
-        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
-        this.fc.setDefaults(defConfig);
-        configs.removeIf(c -> c.getName().equals(n));
     }
 
     public void saveConfig() {
         try {
-            this.getConfig().save(this.getFile());
+            getConfig().save(file);
         } catch (final IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Unable to save configuration file!", e);
         }
     }
 
@@ -144,7 +124,7 @@ public class Config {
         if (!(o instanceof Config)) return false;
         Config config = (Config) o;
         return n.equals(config.n) &&
-                d.equals(config.d) &&
+                Objects.equals(d, config.d) &&
                 Objects.equals(fc, config.fc) &&
                 Objects.equals(getFile(), config.getFile());
     }
