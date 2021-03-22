@@ -56,7 +56,7 @@ public final class FlyCommand extends CommandBuilder {
                     e.getHandlers().unregister(this);
                 }
             };
-            Bukkit.getServer().getPluginManager().registerEvents(listener, PLUGIN);
+            Bukkit.getServer().getPluginManager().registerEvents(listener, plugin);
             new BukkitRunnable() { // If they haven't taken fall damage within 10 seconds cancel one-time immunity
                 @Override
                 public void run() {
@@ -65,9 +65,9 @@ public final class FlyCommand extends CommandBuilder {
                         public void run() {
                             EntityDamageEvent.getHandlerList().unregister(listener);
                         }
-                    }.runTask(PLUGIN);
+                    }.runTask(plugin);
                 }
-            }.runTaskLaterAsynchronously(PLUGIN, 200L);
+            }.runTaskLaterAsynchronously(plugin, 200L);
         } else {
             player.setAllowFlight(true);
             player.setVelocity(player.getVelocity().add(new Vector(0d, 0.6, 0d)));
@@ -77,7 +77,7 @@ public final class FlyCommand extends CommandBuilder {
                 public void run() {
                     player.setFlying(true);
                 }
-            }.runTaskLater(PLUGIN, 1L);
+            }.runTaskLater(plugin, 1L);
         }
         return true;
     }

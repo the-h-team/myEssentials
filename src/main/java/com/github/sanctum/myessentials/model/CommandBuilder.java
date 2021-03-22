@@ -2,22 +2,25 @@ package com.github.sanctum.myessentials.model;
 
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
+import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+
 import java.util.LinkedList;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
+
 import org.jetbrains.annotations.NotNull;
 
-public abstract class CommandBuilder extends BukkitCommand {
-    protected static final Plugin PLUGIN = JavaPlugin.getProvidingPlugin(CommandBuilder.class);
+public abstract class CommandBuilder extends Command {
+    protected final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
     protected final CommandData commandData;
     private static final LinkedList<CommandData> internalMap = new LinkedList<>();
 
@@ -68,10 +71,6 @@ public abstract class CommandBuilder extends BukkitCommand {
             return consoleView(sender, s, strings);
         }
         return playerView((Player) sender, s, strings);
-    }
-
-    public static LinkedList<CommandData> getInternalMap() {
-        return internalMap;
     }
 
     public static LinkedList<String> getCommandList() {

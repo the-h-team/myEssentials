@@ -1,6 +1,7 @@
 package com.github.sanctum.myessentials.model;
 
 import com.github.sanctum.myessentials.Essentials;
+import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.data.Config;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;

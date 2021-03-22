@@ -1,4 +1,4 @@
-package com.github.sanctum.myessentials.model;
+package com.github.sanctum.myessentials.api;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
