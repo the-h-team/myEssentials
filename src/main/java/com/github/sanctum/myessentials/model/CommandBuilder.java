@@ -3,9 +3,10 @@ package com.github.sanctum.myessentials.model;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.CommandData;
-import com.github.sanctum.myessentials.util.ConfiguredMessage;
 
 import java.util.LinkedList;
+
+import com.github.sanctum.myessentials.util.ProvidedMessage;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -41,7 +42,7 @@ public abstract class CommandBuilder extends Command {
         }
     }
 
-    protected void sendMessage(CommandSender sender, ConfiguredMessage message) {
+    protected void sendMessage(CommandSender sender, ProvidedMessage message) {
         if (!(sender instanceof Player)) {
             new Message("[Essentials]").info(message.toString());
         } else {
