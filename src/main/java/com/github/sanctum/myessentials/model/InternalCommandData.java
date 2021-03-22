@@ -49,9 +49,8 @@ public enum InternalCommandData implements CommandData {
     WORLD_COMMAND("world-command");
 
 
+    private static final Config CONFIG = Config.get("commands", null);
     public String configNode;
-
-    private static final Config commands = Config.get("commands", null);
 
     InternalCommandData(String configNode) {
         this.configNode = configNode;
@@ -59,17 +58,17 @@ public enum InternalCommandData implements CommandData {
 
     @Override
     public @NotNull String getLabel() {
-        return Objects.requireNonNull(commands.getConfig().getString(configNode + ".command"));
+        return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".command"));
     }
 
     @Override
     public @NotNull String getDescription() {
-        return Objects.requireNonNull(commands.getConfig().getString(configNode + ".description"));
+        return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".description"));
     }
 
     @Override
     public @Nullable String getPermissionNode() {
-        return commands.getConfig().getString(configNode + ".permission");
+        return CONFIG.getConfig().getString(configNode + ".permission");
     }
 
     public boolean testNoPermission(CommandSender sender) {
@@ -79,13 +78,15 @@ public enum InternalCommandData implements CommandData {
     }
 
     public static void defaultOrReload(Essentials plugin) {
-        final InputStream resource = plugin.getResource("commands.yml");
-
-        if (!commands.exists()) {
-            Config.copy(resource, commands.getFile());
+        if (!CONFIG.exists()) {
+            final InputStream resource = plugin.getResource("commands.yml");
+            if (resource == null) {
+                throw new IllegalStateException("Unable to load internal command data from the jar! something is very wrong");
+            }
+            Config.copy(resource, CONFIG.getFile());
         }
-        if (commands.exists() && !commands.getConfig().getKeys(false).isEmpty()) {
-            commands.reload();
+        if (CONFIG.exists() && !CONFIG.getConfig().getKeys(false).isEmpty()) {
+            CONFIG.reload();
         }
     }
 }

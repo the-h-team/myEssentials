@@ -4,6 +4,7 @@ import com.github.sanctum.labyrinth.event.EventBuilder;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -18,6 +19,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     public void onEnable() {
         InternalCommandData.defaultOrReload(this);
         ConfiguredMessage.loadProperties(this);
+        CommandRegistration.compileFields(this, "com.github.sanctum.myessentials.commands");
         TeleportationManager.registerListeners(this);
         new EventBuilder(this).
                 compileFields("com.github.sanctum.myessentials.listeners");
@@ -26,5 +28,10 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public void onDisable() {
         TeleportationManager.unregisterListeners();
+    }
+
+    @Override
+    public Set<CommandData> getRegisteredCommands() {
+        return registeredCommands;
     }
 }

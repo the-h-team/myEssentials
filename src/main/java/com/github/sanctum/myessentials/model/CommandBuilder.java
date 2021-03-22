@@ -17,17 +17,20 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
+import java.util.stream.Collectors;
 
 import org.jetbrains.annotations.NotNull;
 
 public abstract class CommandBuilder extends Command {
     protected final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
     protected final CommandData commandData;
-    private static final LinkedList<CommandData> internalMap = new LinkedList<>();
+    private static final LinkedList<InternalCommandData> internalMap = new LinkedList<>();
 
     public CommandBuilder(CommandData commandData) {
         super(commandData.getLabel());
-        internalMap.add(commandData);
+        if (commandData instanceof InternalCommandData) {
+            internalMap.add((InternalCommandData) commandData);
+        }
         setDescription(commandData.getDescription());
         setPermission(commandData.getPermissionNode());
         setPermissionMessage(ChatColor.RED + "You do not have permission to perform this command!");
@@ -75,11 +78,9 @@ public abstract class CommandBuilder extends Command {
     }
 
     public static LinkedList<String> getCommandList() {
-        LinkedList<String> array = new LinkedList<>();
-        for (CommandData data : internalMap) {
-            array.add(data.getLabel() + " - " + data.getDescription());
-        }
-        return array;
+        return internalMap.stream()
+                .map(data -> data.getLabel() + " - " + data.getDescription())
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
 }
