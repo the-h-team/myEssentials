@@ -29,7 +29,7 @@ public abstract class CommandBuilder extends Command {
     protected final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
     protected final CommandData commandData;
     private static final LinkedList<InternalCommandData> internalMap = new LinkedList<>();
-    private static final Map<String, Command> commandMapping = new HashMap<>();
+    private static final Map<CommandData, Command> commandMapping = new HashMap<>();
     private Field commandMapField;
     private static CommandMap commandMap;
 
@@ -52,7 +52,7 @@ public abstract class CommandBuilder extends Command {
         this.commandData = commandData;
         commandMapField.setAccessible(true);
         commandMap.register(getLabel(), plugin.getName(), this);
-        commandMapping.put(getLabel(), this);
+        commandMapping.put(commandData, this);
     }
 
     protected void sendMessage(CommandSender sender, ProvidedMessage message) {
@@ -91,8 +91,8 @@ public abstract class CommandBuilder extends Command {
         return commandMap;
     }
 
-    public static Command getRegistration(String command) {
-        return commandMapping.getOrDefault(command, null);
+    public static Command getRegistration(CommandData data) {
+        return commandMapping.getOrDefault(data, null);
     }
 
     public static LinkedList<String> getCommandList(Player p) {

@@ -121,7 +121,7 @@ public class AddonQuery {
 			Essentials.getInstance().getLogger().info("- Failed to un-register events. Addon not currently running.");
 			DATA_LOG.add(" - Failed to un-register events. Addon not currently running.");
 		}
-		for (String command : e.getCommands().keySet()) {
+		for (CommandData command : e.getCommands().keySet()) {
 			Command c = CommandBuilder.getRegistration(command);
 			c.unregister(CommandBuilder.getCommandMap());
 		}

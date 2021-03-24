@@ -58,7 +58,7 @@ public abstract class EssentialsAddon {
 	 *
 	 * @return The collection of {@link CommandBuilder} classes for this addon.
 	 */
-	public abstract Map<String, Class<? extends CommandBuilder>> getCommands();
+	public abstract Map<CommandData, Class<? extends CommandBuilder>> getCommands();
 
 	protected abstract void apply();
 
