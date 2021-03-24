@@ -5,9 +5,11 @@ import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.CommandData;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import com.github.sanctum.myessentials.util.ProvidedMessage;
+import java.util.Map;
 import java.util.Objects;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
@@ -27,9 +29,18 @@ public abstract class CommandBuilder extends Command {
     protected final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
     protected final CommandData commandData;
     private static final LinkedList<InternalCommandData> internalMap = new LinkedList<>();
+    private static final Map<String, Command> commandMapping = new HashMap<>();
+    private Field commandMapField;
+    private static CommandMap commandMap;
 
     public CommandBuilder(CommandData commandData) {
         super(commandData.getLabel());
+        try {
+            commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
         if (commandData instanceof InternalCommandData) {
             internalMap.add((InternalCommandData) commandData);
         } else {
@@ -39,14 +50,9 @@ public abstract class CommandBuilder extends Command {
         setPermission(commandData.getPermissionNode());
         setPermissionMessage(ChatColor.RED + "You do not have permission to perform this command!");
         this.commandData = commandData;
-        try {
-            final Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            commandMapField.setAccessible(true);
-            final CommandMap commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
-            commandMap.register(getLabel(), plugin.getName(), this);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        commandMapField.setAccessible(true);
+        commandMap.register(getLabel(), plugin.getName(), this);
+        commandMapping.put(getLabel(), this);
     }
 
     protected void sendMessage(CommandSender sender, ProvidedMessage message) {
@@ -79,6 +85,14 @@ public abstract class CommandBuilder extends Command {
             return consoleView(sender, s, strings);
         }
         return playerView((Player) sender, s, strings);
+    }
+
+    public static CommandMap getCommandMap() {
+        return commandMap;
+    }
+
+    public static Command getRegistration(String command) {
+        return commandMapping.getOrDefault(command, null);
     }
 
     public static LinkedList<String> getCommandList(Player p) {

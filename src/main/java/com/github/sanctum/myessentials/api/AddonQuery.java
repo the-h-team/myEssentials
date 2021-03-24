@@ -20,6 +20,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -96,7 +97,7 @@ public class AddonQuery {
 
 	/**
 	 * Manually un-register listeners from an addon.
-	 * *NOTE: Requires initial pickup.
+	 * *NOTE: Requires initial pickup and registration.
 	 *
 	 * @param e The addon to un-register.
 	 */
@@ -119,6 +120,10 @@ public class AddonQuery {
 		} else {
 			Essentials.getInstance().getLogger().info("- Failed to un-register events. Addon not currently running.");
 			DATA_LOG.add(" - Failed to un-register events. Addon not currently running.");
+		}
+		for (String command : e.getCommands().keySet()) {
+			Command c = CommandBuilder.getRegistration(command);
+			c.unregister(CommandBuilder.getCommandMap());
 		}
 	}
 
@@ -144,7 +149,7 @@ public class AddonQuery {
 			}
 		}
 		int count2 = 0;
-		for (Class<? extends CommandBuilder> command : e.getCommands()) {
+		for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
 			try {
 				CommandRegistration.inject(command);
 				count2++;
@@ -277,7 +282,7 @@ public class AddonQuery {
 						Essentials.getInstance().getLogger().info("- [" + addon.getAddonName() + "] (-1) EventHandler " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
 					}
 				}
-				for (Class<? extends CommandBuilder> command : addon.getCommands()) {
+				for (Class<? extends CommandBuilder> command : addon.getCommands().values()) {
 					try {
 						CommandRegistration.inject(command);
 						Essentials.getInstance().getLogger().info("- [" + addon.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
@@ -298,7 +303,7 @@ public class AddonQuery {
 				for (Listener addition : addon.getListeners()) {
 					Essentials.getInstance().getLogger().info("- [" + addon.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
 				}
-				for (Class<? extends CommandBuilder> command : addon.getCommands()) {
+				for (Class<? extends CommandBuilder> command : addon.getCommands().values()) {
 					Essentials.getInstance().getLogger().info("- [" + addon.getAddonName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
 				}
 			}
@@ -378,7 +383,7 @@ public class AddonQuery {
 						Essentials.getInstance().getLogger().info("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
 					}
 				}
-				for (Class<? extends CommandBuilder> command : e.getCommands()) {
+				for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
 					try {
 						CommandRegistration.inject(command);
 						Essentials.getInstance().getLogger().info("- [" + e.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
@@ -399,7 +404,7 @@ public class AddonQuery {
 				for (Listener addition : e.getListeners()) {
 					Essentials.getInstance().getLogger().info("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
 				}
-				for (Class<? extends CommandBuilder> command : e.getCommands()) {
+				for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
 					Essentials.getInstance().getLogger().info("- [" + e.getAddonName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
 				}
 			}

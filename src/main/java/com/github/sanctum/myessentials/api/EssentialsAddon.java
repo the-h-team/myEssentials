@@ -5,6 +5,7 @@ import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import java.util.Collection;
+import java.util.Map;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredListener;
@@ -57,7 +58,7 @@ public abstract class EssentialsAddon {
 	 *
 	 * @return The collection of {@link CommandBuilder} classes for this addon.
 	 */
-	public abstract Collection<Class<? extends CommandBuilder>> getCommands();
+	public abstract Map<String, Class<? extends CommandBuilder>> getCommands();
 
 	protected abstract void apply();
 
