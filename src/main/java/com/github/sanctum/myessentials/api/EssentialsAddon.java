@@ -60,6 +60,13 @@ public abstract class EssentialsAddon {
 	 */
 	public abstract Map<CommandData, Class<? extends CommandBuilder>> getCommands();
 
+	/**
+	 * Get the collection of applied data from the addon.
+	 *
+	 * @return The collection of specified data from within the addon.
+	 */
+	public abstract Map<Object, Object> getData();
+
 	protected abstract void apply();
 
 	protected final void register() {

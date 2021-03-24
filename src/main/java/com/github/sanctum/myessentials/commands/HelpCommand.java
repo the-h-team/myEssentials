@@ -3,6 +3,11 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.labyrinth.formatting.string.PaginatedAssortment;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -13,9 +18,11 @@ public final class HelpCommand extends CommandBuilder {
 	}
 
 	private PaginatedAssortment helpMenu(Player p) {
-		return new PaginatedAssortment(p, CommandBuilder.getCommandList(p)).
+		List<String> collection = new ArrayList<>(CommandBuilder.getCommandList(p));
+		Collections.sort(collection);
+		return new PaginatedAssortment(p, collection).
 				setNavigateCommand("help").
-				setListTitle("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &fmEssentials ({PAGE}/{TOTAL}) &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").
+				setListTitle("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &fmEssentials ({PAGE}/{TOTAL}) &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").
 				setListBorder("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").
 				setLinesPerPage(10);
 	}
