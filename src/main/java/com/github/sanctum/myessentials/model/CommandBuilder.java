@@ -2,6 +2,7 @@ package com.github.sanctum.myessentials.model;
 
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
+import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.CommandData;
 
@@ -16,6 +17,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,17 +33,9 @@ public abstract class CommandBuilder extends Command {
     protected final CommandData commandData;
     private static final LinkedList<InternalCommandData> internalMap = new LinkedList<>();
     private static final Map<CommandData, Command> commandMapping = new HashMap<>();
-    private Field commandMapField;
-    private static CommandMap commandMap;
 
     public CommandBuilder(CommandData commandData) {
         super(commandData.getLabel());
-        try {
-            commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-            commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
         if (commandData instanceof InternalCommandData) {
             internalMap.add((InternalCommandData) commandData);
         } else {
@@ -50,7 +45,8 @@ public abstract class CommandBuilder extends Command {
         setPermission(commandData.getPermissionNode());
         setPermissionMessage(ChatColor.RED + "You do not have permission to perform this command!");
         this.commandData = commandData;
-        commandMapField.setAccessible(true);
+        SimpleCommandMap commandMap = getCommandMap();
+        assert commandMap != null;
         commandMap.register(getLabel(), plugin.getName(), this);
         commandMapping.put(commandData, this);
     }
@@ -87,12 +83,48 @@ public abstract class CommandBuilder extends Command {
         return playerView((Player) sender, s, strings);
     }
 
-    public static CommandMap getCommandMap() {
-        return commandMap;
+    public static SimpleCommandMap getCommandMap() {
+        try {
+            final Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
+            commandMapField.setAccessible(true);
+            return (SimpleCommandMap) commandMapField.get(Bukkit.getServer());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static Command getRegistration(CommandData data) {
         return commandMapping.getOrDefault(data, null);
+    }
+
+    private static Object getPrivateField(Object object, String field)throws SecurityException,
+            NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+        Class<?> clazz = object.getClass();
+        Field objectField = clazz.getDeclaredField(field);
+        objectField.setAccessible(true);
+        Object result = objectField.get(object);
+        objectField.setAccessible(false);
+        return result;
+    }
+
+    public static void unregister(Command command) {
+        try {
+            SimpleCommandMap commandMap = getCommandMap();
+            assert commandMap != null;
+            Field knownMap = commandMap.getClass().getSuperclass().getDeclaredField("knownCommands");
+            knownMap.setAccessible(true);
+            HashMap<String, Command> knownCommands = (HashMap<String, Command>) knownMap.get(commandMap);
+            knownCommands.remove(command.getName());
+            for (String alias : command.getAliases()){
+                if(knownCommands.containsKey(alias) && knownCommands.get(alias).getAliases().contains(alias)){
+                    knownCommands.remove(alias);
+                }
+            }
+            command.unregister(commandMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static LinkedList<String> getCommandList(Player p) {

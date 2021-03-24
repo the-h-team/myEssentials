@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.jar.JarEntry;
@@ -63,8 +64,14 @@ public class AddonQuery {
 		List<String> array = new ArrayList<>();
 		for (EssentialsAddon e : ESSENTIALS_ADDONS) {
 			List<Listener> a = HandlerList.getRegisteredListeners(Essentials.getInstance()).stream().sequential().filter(r -> e.getListeners().contains(r.getListener())).map(RegisteredListener::getListener).collect(Collectors.toList());
-			if (a.isEmpty()) {
-				array.add(e.getAddonName());
+			for (CommandData command : e.getCommands().keySet()) {
+				Command c = CommandBuilder.getRegistration(command);
+				if (!c.isRegistered()) {
+					if (a.isEmpty()) {
+						array.add(e.getAddonName());
+					}
+					break;
+				}
 			}
 		}
 		return array;
@@ -81,6 +88,13 @@ public class AddonQuery {
 			List<Listener> a = HandlerList.getRegisteredListeners(Essentials.getInstance()).stream().sequential().filter(r -> e.getListeners().contains(r.getListener())).map(RegisteredListener::getListener).collect(Collectors.toList());
 			if (!a.isEmpty()) {
 				array.add(e.getAddonName());
+			}
+			for (CommandData command : e.getCommands().keySet()) {
+				Command c = CommandBuilder.getRegistration(command);
+				if (c.isRegistered()) {
+					array.add(e.getAddonName());
+					break;
+				}
 			}
 		}
 		return array;
@@ -118,12 +132,19 @@ public class AddonQuery {
 				DATA_LOG.add(" - (+" + count + ") Listener(s) found and un-registered");
 			}
 		} else {
-			Essentials.getInstance().getLogger().info("- Failed to un-register events. Addon not currently running.");
-			DATA_LOG.add(" - Failed to un-register events. Addon not currently running.");
+			Essentials.getInstance().getLogger().info("- Failed to un-register events. None currently running.");
+			DATA_LOG.add(" - Failed to un-register events. None currently running.");
 		}
 		for (CommandData command : e.getCommands().keySet()) {
 			Command c = CommandBuilder.getRegistration(command);
-			c.unregister(CommandBuilder.getCommandMap());
+			if (c.isRegistered()) {
+				CommandBuilder.unregister(c);
+				Essentials.getInstance().getLogger().info("- Successfully un-registered command " + c.getClass().getSimpleName());
+				DATA_LOG.add(" - Successfully un-registered command " + c.getClass().getSimpleName());
+			} else {
+				Essentials.getInstance().getLogger().info("- Failed to un-register command " + c.getClass().getSimpleName());
+				DATA_LOG.add(" - Failed to un-register command " + c.getClass().getSimpleName());
+			}
 		}
 	}
 
