@@ -2,11 +2,13 @@ package com.github.sanctum.myessentials.model;
 
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
+import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.CommandData;
 
 import java.util.LinkedList;
 
 import com.github.sanctum.myessentials.util.ProvidedMessage;
+import java.util.Objects;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -30,6 +32,8 @@ public abstract class CommandBuilder extends Command {
         super(commandData.getLabel());
         if (commandData instanceof InternalCommandData) {
             internalMap.add((InternalCommandData) commandData);
+        } else {
+            Essentials.getInstance().registeredCommands.add(commandData);
         }
         setDescription(commandData.getDescription());
         setPermission(commandData.getPermissionNode());
@@ -39,7 +43,7 @@ public abstract class CommandBuilder extends Command {
             final Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
             commandMapField.setAccessible(true);
             final CommandMap commandMap = (CommandMap) commandMapField.get(Bukkit.getServer());
-            commandMap.register(getLabel(), this);
+            commandMap.register(getLabel(), plugin.getName(), this);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -77,9 +81,16 @@ public abstract class CommandBuilder extends Command {
         return playerView((Player) sender, s, strings);
     }
 
+    public static LinkedList<String> getCommandList(Player p) {
+        return internalMap.stream()
+                .filter(data -> p.hasPermission(Objects.requireNonNull(data.getPermissionNode())))
+                .map(data -> data.getUsage() + " &r- " + data.getDescription())
+                .collect(Collectors.toCollection(LinkedList::new));
+    }
+
     public static LinkedList<String> getCommandList() {
         return internalMap.stream()
-                .map(data -> data.getLabel() + " - " + data.getDescription())
+                .map(data -> data.getUsage() + " &r- " + data.getDescription())
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 

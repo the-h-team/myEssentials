@@ -1,6 +1,9 @@
 package com.github.sanctum.myessentials.util.teleportation;
 
 import com.github.sanctum.myessentials.Essentials;
+import com.github.sanctum.myessentials.util.events.MEssPendingTeleportToLocationEvent;
+import com.github.sanctum.myessentials.util.events.MEssPendingTeleportToPlayerEvent;
+import com.github.sanctum.myessentials.util.events.MEssTeleportEvent;
 import org.bukkit.event.*;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.PluginManager;
@@ -47,24 +50,24 @@ public final class TeleportationManager {
     private class PendingTeleportListener implements Listener {
         // Prepare teleport to a Location
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-        public void onPendingPlayerTeleportToLocation(PendingTeleportToLocationEvent e) {
+        public void onPendingPlayerTeleportToLocation(MEssPendingTeleportToLocationEvent e) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    pluginManager.callEvent(new MEssTeleportEvent(e.player, e.player.getLocation(), e.destination.toLocation()));
+                    pluginManager.callEvent(new MEssTeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation()));
                 }
-            }.runTaskLater(plugin, e.delay);
+            }.runTaskLater(plugin, e.getDelay());
         }
 
         // Prepare teleport to a target Player
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-        public void onPendingPlayerTeleportToPlayer(PendingTeleportToPlayerEvent e) {
+        public void onPendingPlayerTeleportToPlayer(MEssPendingTeleportToPlayerEvent e) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    pluginManager.callEvent(new MEssTeleportEvent(e.player, e.player.getLocation(), e.destination.toLocation()));
+                    pluginManager.callEvent(new MEssTeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation()));
                 }
-            }.runTaskLater(plugin, e.delay);
+            }.runTaskLater(plugin, e.getDelay());
         }
     }
 
@@ -77,7 +80,7 @@ public final class TeleportationManager {
     private static class TeleportListener implements Listener {
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
         public void onMEssTeleportEvent(MEssTeleportEvent e) {
-            e.player.teleport(e.to, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN);
 //                e.player.sendMessage("TP call sent"); // Use a separate EventHandler for messages
         }
     }

@@ -13,10 +13,10 @@ public final class HelpCommand extends CommandBuilder {
 	}
 
 	private PaginatedAssortment helpMenu(Player p) {
-		return new PaginatedAssortment(p, CommandBuilder.getCommandList()).
+		return new PaginatedAssortment(p, CommandBuilder.getCommandList(p)).
 				setNavigateCommand("help").
-				setListTitle("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ mEssentials ]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").
-				setListBorder("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").
+				setListTitle("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &fmEssentials ({PAGE}/{TOTAL}) &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").
+				setListBorder("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").
 				setLinesPerPage(10);
 	}
 

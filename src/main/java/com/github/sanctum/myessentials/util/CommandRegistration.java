@@ -1,6 +1,7 @@
 package com.github.sanctum.myessentials.util;
 
 import com.github.sanctum.labyrinth.Labyrinth;
+import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -15,9 +16,9 @@ import org.bukkit.plugin.Plugin;
 public final class CommandRegistration {
 
 	/**
-	 * Look for any compatible object types representative of Command within
+	 * Look for any compatible object types representative of {@link CommandBuilder} within
 	 * a desired package location and automatically instantiate each of them
-	 * individually if possible.
+	 * individually if possible for registration.
 	 *
 	 * @param packageName The location to query.
 	 * @throws IllegalStateException if the plugin jar cannot be accessed
@@ -57,6 +58,19 @@ public final class CommandRegistration {
 				e.printStackTrace();
 				break;
 			}
+		}
+	}
+
+	/**
+	 * Instantiate and register a specified command builder class.
+	 *
+	 * @param command The class to register.
+	 */
+	public static void inject(Class<? extends CommandBuilder> command) {
+		try {
+			command.newInstance();
+		} catch (IllegalAccessException | InstantiationException e) {
+			e.printStackTrace();
 		}
 	}
 

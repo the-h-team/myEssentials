@@ -16,6 +16,13 @@ public interface CommandData {
     @NotNull String getLabel();
 
     /**
+     * How to use the command.
+     *
+     * @return The brief usage description.
+     */
+    @NotNull String getUsage();
+
+    /**
      * A description for the command.
      *
      * @return description for command

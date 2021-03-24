@@ -1,4 +1,4 @@
-package com.github.sanctum.myessentials.util.teleportation;
+package com.github.sanctum.myessentials.util.events;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

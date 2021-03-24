@@ -1,55 +1,53 @@
 package com.github.sanctum.myessentials.model;
 
+import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.CommandData;
-import com.github.sanctum.myessentials.data.Config;
+import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import java.io.InputStream;
+import java.util.Objects;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.InputStream;
-import java.util.Objects;
-
 public enum InternalCommandData implements CommandData {
-    FLY_COMMAND("fly-command"),
-    TPA_COMMAND("tpa-command"),
-    BACK_COMMAND("back-command"),
-    BAN_COMMAND("ban-command"),
-    BROADCAST_COMMAND("broadcast-command"),
-    CLAIM_COMMAND("claim-command"),
-    DAY_COMMAND("day-command"),
-    FEED_COMMAND("feed-command"),
-    GAMEMODE_COMMAND("gamemode-command"),
-    GIVE_COMMAND("give-command"),
-    GMA_COMMAND("gma-command"),
-    GMC_COMMAND("gmc-command"),
-    GMS_COMMAND("gms-command"),
-    GMSP_COMMAND("gmsp-command"),
-    GOD_COMMAND("god-command"),
-    HEAL_COMMAND("heal-command"),
-    HELP_COMMAND("heal-command"),
-    INVSEE_COMMAND("invsee-command"),
-    ITEM_COMMAND("item-command"),
-    KICKALL_COMMAND("kickall-command"),
-    KICK_COMMAND("kick-command"),
-    MESSAGE_COMMAND("message-command"),
-    MUTECHAT_COMMAND("mutechat-command"),
-    NIGHT_COMMAND("night-command"),
-    ONLINELIST_COMMAND("onlinelist-command"),
-    POWERTOOL_COMMAND("powertool-command"),
-    RELOAD_COMMAND("reload-command"),
-    REPLY_COMMAND("reply-command"),
-    SOCIALSPY_COMMAND("socialspy-command"),
-    SPAWNMOB_COMMAND("spawnmob-command"),
-    STAFF_COMMAND("staff-command"),
-    TELEPORT_COMMAND("teleport-command"),
-    UNBAN_COMMAND("unban-command"),
-    UPDATE_COMMAND("update-command"),
-    WHOIS_COMMAND("whois-command"),
-    WORLD_COMMAND("world-command");
+    FLY_COMMAND("fly"),
+    TPA_COMMAND("tpa"),
+    BACK_COMMAND("back"),
+    BAN_COMMAND("ban"),
+    BROADCAST_COMMAND("broadcast"),
+    DAY_COMMAND("day"),
+    FEED_COMMAND("feed"),
+    GAMEMODE_COMMAND("gamemode"),
+    GIVE_COMMAND("give"),
+    GMA_COMMAND("gma"),
+    GMC_COMMAND("gmc"),
+    GMS_COMMAND("gms"),
+    GMSP_COMMAND("gmsp"),
+    GOD_COMMAND("god"),
+    HEAL_COMMAND("heal"),
+    HELP_COMMAND("help"),
+    INVSEE_COMMAND("invsee"),
+    ITEM_COMMAND("item"),
+    KICKALL_COMMAND("kickall"),
+    KICK_COMMAND("kick"),
+    MESSAGE_COMMAND("message"),
+    NIGHT_COMMAND("night"),
+    ONLINELIST_COMMAND("online"),
+    POWERTOOL_COMMAND("powertool"),
+    RELOAD_COMMAND("reload"),
+    REPLY_COMMAND("reply"),
+    SOCIALSPY_COMMAND("socialspy"),
+    SPAWNMOB_COMMAND("spawnmob"),
+    STAFF_COMMAND("staff"),
+    TELEPORT_COMMAND("teleport"),
+    UNBAN_COMMAND("unban"),
+    UPDATE_COMMAND("update"),
+    WHOIS_COMMAND("whois"),
+    WORLD_COMMAND("world");
 
 
-    private static final Config CONFIG = Config.get("commands", null);
+    private static final FileManager CONFIG = MyEssentialsAPI.getInstance().getFileList().find("commands", null);
     public String configNode;
 
     InternalCommandData(String configNode) {
@@ -58,7 +56,12 @@ public enum InternalCommandData implements CommandData {
 
     @Override
     public @NotNull String getLabel() {
-        return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".command"));
+        return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".label"));
+    }
+
+    @Override
+    public @NotNull String getUsage() {
+        return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".usage"));
     }
 
     @Override
@@ -83,7 +86,7 @@ public enum InternalCommandData implements CommandData {
             if (resource == null) {
                 throw new IllegalStateException("Unable to load internal command data from the jar! something is very wrong");
             }
-            Config.copy(resource, CONFIG.getFile());
+            FileManager.copy(resource, CONFIG.getFile());
         }
         if (CONFIG.exists() && !CONFIG.getConfig().getKeys(false).isEmpty()) {
             CONFIG.reload();

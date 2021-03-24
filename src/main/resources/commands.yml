@@ -1,16 +1,170 @@
-fly-command:
-  command: fly
-  description: Enable the player to fly without creative
-  permission: mess.fly
-home-command:
-  command: home
-  description: Teleportation to a saved location
-  permission: mess.home
-sethome-command:
-  command: sethome
-  description: Save a location for later teleportation
-  permission: mess.sethome
-tpa-command:
-  command: tpa
-  description: Request teleport to another player
-  permission: mess.tpa
+back:
+  label: back
+  usage: '&6/back&r'
+  description: 'Go back to your previous location'
+  permission: 'mess.staff.back'
+ban:
+  label: ban
+  usage: '&6/ban&r <&cplayerName&r>'
+  description: 'Ban a specified player from the server'
+  permission: 'mess.staff.ban'
+broadcast:
+  label: broadcast
+  usage: '&6/broadcast&r <&etext...&r>'
+  description: 'Broadcast a color translated message to the global channel'
+  permission: 'mess.staff.broadcast'
+day:
+  label: day
+  usage: '&6/day&r'
+  description: 'Change the time of day to 0 ticks'
+  permission: 'mess.staff.day'
+feed:
+  label: feed
+  usage: '&6/feed&r &7| optional [playerName]'
+  description: 'Feed a specified player'
+  permission: 'mess.staff.feed'
+fly:
+  label: fly
+  usage: '&6/fly&r &7| optional [playerName]'
+  description: 'Toggle flight for yourself or a specified player'
+  permission: 'mess.staff.fly'
+gamemode:
+  label: gamemode
+  usage: '&6/gamemode&r <&eplayerName&r> <&egamemode&r>'
+  description: 'Change a specified players gamemode.'
+  permission: 'mess.staff.gamemode.other'
+give:
+  label: give
+  usage: '&6/give&r <&eplayerName&r> <&eitemName&r> &7| optional [amount]'
+  description: 'Give a specified player an item of choosing.'
+  permission: 'mess.staff.give'
+gma:
+  label: gma
+  usage: '&6/gma&r &7| optional [playerName]'
+  description: 'Change yourself or another player to adventure gamemode.'
+  permission: 'mess.staff.gamemode.adventure'
+gmc:
+  label: gmc
+  usage: '&6/gmc&r &7| optional [playerName]'
+  description: 'Change yourself or another player to creative gamemode.'
+  permission: 'mess.staff.gamemode.creative'
+gms:
+  label: gms
+  usage: '&6/gms&r &7| optional [playerName]'
+  description: 'Change yourself or another player to survival gamemode.'
+  permission: 'mess.staff.gamemode.survival'
+gmsp:
+  label: gmsp
+  usage: '&6/gmsp&r &7| optional [playerName]'
+  description: 'Change yourself or another player to spectator gamemode.'
+  permission: 'mess.staff.gamemode.spectator'
+god:
+  label: god
+  usage: '&6/god&r &7| optional [playerName]'
+  description: 'Give yourself or another player god mode.'
+  permission: 'mess.staff.god'
+heal:
+  label: heal
+  usage: '&6/heal&r &7| optional [playerName]'
+  description: 'Heal yourself or another player.'
+  permission: 'mess.staff.heal'
+help:
+  label: help
+  usage: '&6/help&r &7| optional [page#]'
+  description: 'Gain general command knowledge.'
+  permission: 'mess.staff.help'
+invsee:
+  label: invsee
+  usage: '&6/invsee&r <&eplayerName&r>'
+  description: 'Live view another player''s inventory'
+  permission: 'mess.staff.invsee'
+item:
+  label: item
+  usage: '&6/item&r <&eitemName&r> &7| optional [amount]'
+  description: 'Give yourself an item of specification.'
+  permission: 'mess.staff.item'
+kickall:
+  label: kickall
+  usage: '&6/kickall&r'
+  description: 'Kick all online players from the server.'
+  permission: 'mess.staff.kickall'
+kick:
+  label: kick
+  usage: '&6/kick&r <&eplayerName&r> &7| optional [reason]'
+  description: 'Kick a player of specification from the server.'
+  permission: 'mess.staff.kick'
+message:
+  label: message
+  usage: '&6/message&r <&eplayerName&r> <&etext...&r>'
+  description: 'Message an online player'
+  permission: 'mess.staff.message'
+night:
+  label: night
+  usage: '&6/night&r'
+  description: 'Change the time of day to 18000 ticks'
+  permission: 'mess.staff.night'
+online:
+  label: online
+  usage: '&6/online&r'
+  description: 'View the online player list by rank'
+  permission: 'mess.staff.online'
+powertool:
+  label: powertool
+  usage: '&6/powertool&r'
+  description: 'Create an items that run commands for you on interaction.'
+  permission: 'mess.staff.powertool'
+reload:
+  label: myload
+  usage: '&6/reload&r'
+  description: 'Reload all configuration for the plugin.'
+  permission: 'mess.staff.reload'
+reply:
+  label: reply
+  usage: '&6/reply&r <&etext...&r>'
+  description: 'Reply to a recently received message'
+  permission: 'mess.staff.reply'
+socialspy:
+  label: socialspy
+  usage: '&6/socialspy&r'
+  description: 'Toggle the ability to see every time a player gets messaged'
+  permission: 'mess.staff.socialspy'
+spawnmob:
+  label: spawnmob
+  usage: '&6/spawnmob&r <&emobs...&r> &7| optional [amount]'
+  description: 'Spawn or stack mob''s of your choosing'
+  permission: 'mess.staff.spawnmob'
+staff:
+  label: staff
+  usage: '&6/staff&r'
+  description: 'Give yourself the quick-access moderation tools.'
+  permission: 'mess.staff.utility'
+teleport:
+  label: teleport
+  usage: '&6/teleport&r <&eplayerName&r> <&etargetName&r> &7| <x> <y> <z>'
+  description: 'Teleport a specified player to another player or location'
+  permission: 'mess.staff.teleport'
+tpa:
+  label: tpa
+  usage: '&6/tpa&r <&eplayerName&r>'
+  description: 'Go back to your previous location'
+  permission: 'mess.teleport.request'
+unban:
+  label: unban
+  usage: '&6/unban&r <&eplayerName&r>'
+  description: 'Unban a specified player from the server.'
+  permission: 'mess.staff.unban'
+update:
+  label: mydate
+  usage: '&6/mydate&r'
+  description: 'Update the configuration if possible (Resets data)'
+  permission: 'mess.staff.update'
+whois:
+  label: whois
+  usage: '&6/whois&r <&eplayerName&r>'
+  description: 'View the player information of a user.'
+  permission: 'mess.staff.whois'
+world:
+  label: world
+  usage: '&6/world&r <&eworldName&r>'
+  description: 'Teleport to a world of specification.'
+  permission: 'mess.staff.world'

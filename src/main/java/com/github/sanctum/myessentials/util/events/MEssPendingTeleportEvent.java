@@ -1,5 +1,7 @@
-package com.github.sanctum.myessentials.util.teleportation;
+package com.github.sanctum.myessentials.util.events;
 
+import com.github.sanctum.myessentials.util.events.MEssTeleportEvent;
+import com.github.sanctum.myessentials.util.teleportation.Destination;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -11,21 +13,21 @@ import org.jetbrains.annotations.NotNull;
  * This class cannot be directly listened to and serves
  * only as a base for pending teleport event types.
  */
-public abstract class PendingTeleportEvent extends Event implements Cancellable {
+public abstract class MEssPendingTeleportEvent extends Event implements Cancellable {
     protected final Player player;
     protected final Destination destination;
     protected long delay;
     protected boolean cancelled;
 
-    protected PendingTeleportEvent(@NotNull Player player, @NotNull Location location) {
+    protected MEssPendingTeleportEvent(@NotNull Player player, @NotNull Location location) {
         this(player, new Destination(location), 0L);
     }
 
-    protected PendingTeleportEvent(@NotNull Player player, @NotNull Player targetPlayer) {
+    protected MEssPendingTeleportEvent(@NotNull Player player, @NotNull Player targetPlayer) {
         this(player, new Destination(targetPlayer), 0L);
     }
 
-    protected PendingTeleportEvent(@NotNull Player player, Destination destination, long delay) {
+    protected MEssPendingTeleportEvent(@NotNull Player player, Destination destination, long delay) {
         this.player = player;
         this.destination = destination;
         this.delay = delay;
