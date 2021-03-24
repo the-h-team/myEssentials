@@ -59,7 +59,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
     @Override
     public FileManager getAddonFile(String name, String directory) {
-        return getFileList().find(name, "Addons/" + directory);
+        return getFileList().find(name, "/Addons/" + directory + "/");
     }
 
     public static Essentials getInstance() {
