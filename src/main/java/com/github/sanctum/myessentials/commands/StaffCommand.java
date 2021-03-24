@@ -16,7 +16,7 @@ public final class StaffCommand extends CommandBuilder {
 	public boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] strings) {
 
 		if (strings.length == 0) {
-			MenuList.select(MenuList.Singular.ADDON_REGISTRATION).open(player);
+			MenuList.SingleMenu.ADDON_REGISTRATION.get().open(player);
 			return true;
 		}
 

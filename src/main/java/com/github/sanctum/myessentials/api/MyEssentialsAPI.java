@@ -1,6 +1,7 @@
 package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.data.FileList;
+import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.myessentials.Essentials;
 import java.util.Set;
 import java.util.UUID;
@@ -26,5 +27,7 @@ public interface MyEssentialsAPI {
     FileList getFileList();
 
     Location getPreviousLocation(UUID id);
+
+    FileManager getAddonFile(String name, String directory);
 
 }

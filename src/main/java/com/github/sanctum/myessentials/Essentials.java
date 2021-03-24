@@ -1,6 +1,7 @@
 package com.github.sanctum.myessentials;
 
 import com.github.sanctum.labyrinth.data.FileList;
+import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.event.EventBuilder;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.api.CommandData;
@@ -54,6 +55,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public Location getPreviousLocation(UUID id) {
         return previousLocation.get(id);
+    }
+
+    @Override
+    public FileManager getAddonFile(String name, String directory) {
+        return getFileList().find(name, "Addons/" + directory);
     }
 
     public static Essentials getInstance() {
