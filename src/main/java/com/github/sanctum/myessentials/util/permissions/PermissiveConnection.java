@@ -2,11 +2,13 @@ package com.github.sanctum.myessentials.util.permissions;
 
 import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
+import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
+@SuppressWarnings("unchecked")
 public class PermissiveConnection {
 
 	public static boolean trusted() {
@@ -18,7 +20,7 @@ public class PermissiveConnection {
 			EssentialsAddon addon = AddonQuery.find("myPermissions");
 			Map<Object, Object> map = addon.getData();
 
-			Map<String, Integer> GROUP_MAP = (Map<String, Integer>) map.get("GROUP");
+			Map<String, Integer> GROUP_MAP = Collections.unmodifiableMap((Map<String, Integer>) map.get("GROUP"));
 
 			Map<UUID, String> USER_MAP = (Map<UUID, String>) map.get("USER");
 
@@ -31,7 +33,7 @@ public class PermissiveConnection {
 		if (AddonQuery.find("myPermissions") != null) {
 			EssentialsAddon addon = AddonQuery.find("myPermissions");
 			Map<Object, Object> map = addon.getData();
-			Map<String, Integer> GROUP_MAP = (Map<String, Integer>) map.get("GROUP");
+			Map<String, Integer> GROUP_MAP = Collections.unmodifiableMap((Map<String, Integer>) map.get("GROUP"));
 
 			return GROUP_MAP.get(group);
 		}
@@ -42,7 +44,7 @@ public class PermissiveConnection {
 		if (AddonQuery.find("myPermissions") != null) {
 			EssentialsAddon addon = AddonQuery.find("myPermissions");
 			Map<Object, Object> map = addon.getData();
-			Map<UUID, String> USER_MAP = (Map<UUID, String>) map.get("USER");
+			Map<UUID, String> USER_MAP = Collections.unmodifiableMap((Map<UUID, String>) map.get("USER"));
 			return USER_MAP.get(player.getUniqueId());
 		}
 		return "Unknown";

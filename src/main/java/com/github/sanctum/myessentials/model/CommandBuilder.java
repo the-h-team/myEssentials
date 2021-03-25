@@ -93,6 +93,7 @@ public abstract class CommandBuilder extends Command {
 		return commandMapping.getOrDefault(data, null);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void unregister(Command command) {
 		try {
 			SimpleCommandMap commandMap = getCommandMap();
@@ -113,6 +114,7 @@ public abstract class CommandBuilder extends Command {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static LinkedList<String> getCommandList(Player p) {
 		LinkedList<String> append = internalMap.stream()
 				.filter(data -> p.hasPermission(Objects.requireNonNull(data.getPermissionNode())))
