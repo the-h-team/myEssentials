@@ -93,16 +93,6 @@ public abstract class CommandBuilder extends Command {
 		return commandMapping.getOrDefault(data, null);
 	}
 
-	private static Object getPrivateField(Object object, String field) throws SecurityException,
-			NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-		Class<?> clazz = object.getClass();
-		Field objectField = clazz.getDeclaredField(field);
-		objectField.setAccessible(true);
-		Object result = objectField.get(object);
-		objectField.setAccessible(false);
-		return result;
-	}
-
 	public static void unregister(Command command) {
 		try {
 			SimpleCommandMap commandMap = getCommandMap();
@@ -117,6 +107,7 @@ public abstract class CommandBuilder extends Command {
 				}
 			}
 			command.unregister(commandMap);
+			// doesnt remove tab completions
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

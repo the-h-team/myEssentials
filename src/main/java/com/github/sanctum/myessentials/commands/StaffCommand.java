@@ -8,6 +8,7 @@ import com.github.sanctum.myessentials.util.gui.MenuList;
 import com.github.sanctum.myessentials.util.permissions.PermissiveConnection;
 import java.util.Map;
 import java.util.UUID;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -24,7 +25,7 @@ public final class StaffCommand extends CommandBuilder {
 			// myPermissions enabled, get the data.
 			if (PermissiveConnection.trusted()) {
 				sendMessage(player, PermissiveConnection.getGroup(player) + " is your group and your weight is " + PermissiveConnection.getWeight(player));
-				// If the rank priority is high enough let them open the menu.
+				 //If the rank priority is high enough let them open the menu.
 				if (PermissiveConnection.getWeight(player) > 0) {
 					MenuList.SingleMenu.ADDON_REGISTRATION.get().open(player);
 				}
