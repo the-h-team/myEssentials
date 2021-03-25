@@ -4,7 +4,8 @@
  *  This file is part of myEssentials.
  *
  *  This software is currently in development and its licensing has not
- *  yet been chosen.
+ *  yet been chosen. However, this class directly extends a component
+ *  of Bukkit API, and thus its license must be LGPL-compatible.
  */
 package com.github.sanctum.myessentials.util.events;
 

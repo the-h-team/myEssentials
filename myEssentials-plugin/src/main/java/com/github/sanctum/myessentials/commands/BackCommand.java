@@ -21,13 +21,13 @@ import org.jetbrains.annotations.NotNull;
 public final class BackCommand extends CommandBuilder {
 	public BackCommand() {
 		super(InternalCommandData.BACK_COMMAND);
+		command.setPermissionMessage(color("&cYou don't have permission: &f" + getData().getPermissionNode()));
 	}
 
 	@Override
 	public boolean playerView(@NotNull Player p, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
-			if (!p.hasPermission(InternalCommandData.BACK_COMMAND.getPermissionNode())) {
-				sendMessage(p, "&cYou don't have permission: &f" + InternalCommandData.BACK_COMMAND.getPermissionNode());
+			if (!testPermission(p)) {
 				return true;
 			}
 			Location previous = MyEssentialsAPI.getInstance().getPreviousLocation(p.getUniqueId());
