@@ -39,6 +39,11 @@ public abstract class CommandBuilder {
         return commandData;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean testPermission(CommandSender sender) {
+        return command.testPermission(sender);
+    }
+
     protected void sendMessage(CommandSender sender, ProvidedMessage message) {
         if (!(sender instanceof Player)) {
             JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(message.toString());
