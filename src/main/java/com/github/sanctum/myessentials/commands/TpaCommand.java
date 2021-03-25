@@ -37,7 +37,7 @@ public final class TpaCommand extends CommandBuilder {
 
 
     @Override
-    public boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings) {
+    public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
         return true;
     }

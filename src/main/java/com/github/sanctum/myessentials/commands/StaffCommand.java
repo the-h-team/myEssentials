@@ -19,9 +19,9 @@ public final class StaffCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] strings) {
+	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
-		if (strings.length == 0) {
+		if (args.length == 0) {
 			// myPermissions enabled, get the data.
 			if (PermissiveConnection.trusted()) {
 				sendMessage(player, PermissiveConnection.getGroup(player) + " is your group and your weight is " + PermissiveConnection.getWeight(player));
@@ -39,7 +39,7 @@ public final class StaffCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings) {
+	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }

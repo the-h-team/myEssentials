@@ -12,12 +12,12 @@ public final class GMSPCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] strings) {
+	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings) {
+	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }

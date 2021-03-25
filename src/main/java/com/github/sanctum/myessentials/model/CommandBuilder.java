@@ -66,16 +66,16 @@ public abstract class CommandBuilder extends Command {
 		return StringUtils.translate(text);
 	}
 
-	public abstract boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] strings);
+	public abstract boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args);
 
-	public abstract boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings);
+	public abstract boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args);
 
 	@Override
-	public boolean execute(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings) {
+	public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		if (!(sender instanceof Player)) {
-			return consoleView(sender, s, strings);
+			return consoleView(sender, commandLabel, args);
 		}
-		return playerView((Player) sender, s, strings);
+		return playerView((Player) sender, commandLabel, args);
 	}
 
 	public static SimpleCommandMap getCommandMap() {

@@ -14,7 +14,7 @@ public final class BackCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player p, @NotNull String s, @NotNull String[] args) {
+	public boolean playerView(@NotNull Player p, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
 			if (!p.hasPermission(InternalCommandData.BACK_COMMAND.getPermissionNode())) {
 				sendMessage(p, "&cYou don't have permission: &f" + InternalCommandData.BACK_COMMAND.getPermissionNode());
@@ -34,7 +34,7 @@ public final class BackCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings) {
+	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }

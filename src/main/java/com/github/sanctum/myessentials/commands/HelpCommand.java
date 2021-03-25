@@ -28,7 +28,7 @@ public final class HelpCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String s, @NotNull String[] args) {
+	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
 		int length = args.length;
 
@@ -51,7 +51,7 @@ public final class HelpCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String s, @NotNull String[] strings) {
+	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }
