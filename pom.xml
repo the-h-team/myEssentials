@@ -4,14 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.the_h_team</groupId>
-    <artifactId>my-essentials</artifactId>
+    <groupId>com.github.the_h_team.my-essentials</groupId>
+    <artifactId>myessentials</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <modules>
+        <module>myEssentials-plugin</module>
+        <module>myEssentials-addons</module>
+        <module>myEssentials-api</module>
+    </modules>
+    <packaging>pom</packaging>
 
     <name>myEssentials</name>
     <description>myEssentials. Quality of life, revived.</description>
-    <inceptionYear>2020</inceptionYear>
+    <inceptionYear>2021</inceptionYear>
 
     <properties>
         <java.version>1.8</java.version>
@@ -22,7 +27,7 @@
         <license>
             <name>GNU General Public License v3.0 or later</name>
             <url>https://www.gnu.org/licenses/gpl-3.0-standalone.html</url>
-            <distribution>manual</distribution>
+            <distribution>repo</distribution>
         </license>
     </licenses>
 
@@ -45,7 +50,6 @@
     </developers>
 
     <build>
-        <finalName>${project.name}-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -56,29 +60,7 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-shade-plugin</artifactId>-->
-<!--                <version>3.2.4</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>package</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>shade</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <createDependencyReducedPom>false</createDependencyReducedPom>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
         </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
 
     <repositories>
@@ -94,7 +76,7 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
             <releases>
-                <updatePolicy>interval:15</updatePolicy>
+                <updatePolicy>interval:30</updatePolicy>
             </releases>
         </repository>
     </repositories>
