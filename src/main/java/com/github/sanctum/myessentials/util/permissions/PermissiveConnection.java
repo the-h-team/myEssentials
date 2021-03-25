@@ -17,7 +17,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 @SuppressWarnings("unchecked")
-public class PermissiveConnection {
+public final class PermissiveConnection {
+
+	// Utility class - no instantiation
+	private PermissiveConnection() {
+		throw new IllegalStateException("This class should not be instantiated!");
+	}
 
 	public static boolean trusted() {
 		return AddonQuery.find("myPermissions") != null;

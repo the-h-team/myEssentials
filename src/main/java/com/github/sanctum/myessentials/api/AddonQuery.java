@@ -36,11 +36,16 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredListener;
 import org.jetbrains.annotations.NotNull;
 
-public class AddonQuery {
+public final class AddonQuery {
 
 	private static final Collection<EssentialsAddon> ESSENTIALS_ADDONS = new HashSet<>();
 
 	private static final List<String> DATA_LOG = new ArrayList<>();
+
+	// Utility class - no instantiation
+	private AddonQuery() {
+		throw new IllegalStateException("This class should not be instantiated!");
+	}
 
 	/**
 	 * Get the collection of persistently picked up addons.

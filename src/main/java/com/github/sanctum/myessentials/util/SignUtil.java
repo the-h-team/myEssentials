@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class SignUtil {
+public final class SignUtil {
     private final Block block;
 
     public enum SignLine {
