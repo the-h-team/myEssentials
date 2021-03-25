@@ -24,6 +24,20 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:my-essentials-addons</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>*:my-essentials-api</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
                     </execution>
@@ -55,7 +69,7 @@
         <profile>
             <id>spigot-build</id>
             <build>
-                <finalName>${parent.name}-${parent.version}</finalName>
+                <finalName>${project.parent.name}-${project.parent.version}</finalName>
             </build>
         </profile>
     </profiles>
