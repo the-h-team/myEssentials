@@ -11,7 +11,6 @@ package com.github.sanctum.myessentials.model;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.CommandData;
-import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import java.io.InputStream;
 import java.util.Objects;
 import org.bukkit.command.CommandSender;
@@ -55,7 +54,7 @@ public enum InternalCommandData implements CommandData {
     WORLD_COMMAND("world");
 
 
-    private static final FileManager CONFIG = MyEssentialsAPI.getInstance().getFileList().find("commands", null);
+    private static FileManager CONFIG;
     public String configNode;
 
     InternalCommandData(String configNode) {
@@ -89,6 +88,7 @@ public enum InternalCommandData implements CommandData {
     }
 
     public static void defaultOrReload(Essentials plugin) {
+        if (CONFIG == null) CONFIG = plugin.getFileList().find("commands", null);
         if (!CONFIG.exists()) {
             final InputStream resource = plugin.getResource("commands.yml");
             if (resource == null) {

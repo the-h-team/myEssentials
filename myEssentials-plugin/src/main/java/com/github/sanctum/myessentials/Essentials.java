@@ -30,6 +30,7 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.function.Supplier;
@@ -49,6 +50,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public void onEnable() {
         instance = this;
+        Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
         EventBuilder events = new EventBuilder(this);
         InternalCommandData.defaultOrReload(this);
         ConfiguredMessage.loadProperties(this);
