@@ -11,6 +11,7 @@
         <module>myEssentials-plugin</module>
         <module>myEssentials-addons</module>
         <module>myEssentials-api</module>
+        <module>myEssentials-events</module>
     </modules>
     <packaging>pom</packaging>
 
