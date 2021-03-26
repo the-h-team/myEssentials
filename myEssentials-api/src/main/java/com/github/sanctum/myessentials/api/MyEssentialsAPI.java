@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -45,6 +46,13 @@ public interface MyEssentialsAPI {
     Location getPreviousLocation(UUID id);
 
     FileManager getAddonFile(String name, String directory);
+
+    /**
+     * Get a variety of utilities relating to the teleportation of players.
+     *
+     * @return teleport runner
+     */
+    TeleportRunner getTeleportRunner();
 
     void logInfo(String toLog);
 

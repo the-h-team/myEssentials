@@ -20,6 +20,8 @@ import com.github.sanctum.myessentials.model.CommandImpl;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
+import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
 
 import java.lang.reflect.Field;
@@ -46,11 +48,13 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     public final Set<CommandData> registeredCommands = new HashSet<>();
 
     public final Map<UUID, Location> previousLocation = new HashMap<>();
+    private TeleportRunner teleportRunner;
 
     @Override
     public void onEnable() {
         instance = this;
         Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
+        this.teleportRunner = new TeleportRunnerImpl(this);
         EventBuilder events = new EventBuilder(this);
         InternalCommandData.defaultOrReload(this);
         ConfiguredMessage.loadProperties(this);
@@ -108,6 +112,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public FileManager getAddonFile(String name, String directory) {
         return getFileList().find(name, "/Addons/" + directory + "/");
+    }
+
+    @Override
+    public TeleportRunner getTeleportRunner() {
+        return teleportRunner;
     }
 
     @Override

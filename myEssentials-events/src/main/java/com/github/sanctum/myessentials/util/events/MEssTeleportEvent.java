@@ -9,10 +9,13 @@
  */
 package com.github.sanctum.myessentials.util.events;
 
+import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 /**
  * Facilitates and carries out the final teleportation.
@@ -23,12 +26,18 @@ public final class MEssTeleportEvent extends Event implements Cancellable {
     protected final Location from;
     protected final Location to;
     protected final Player player;
+    protected final TeleportRequest request;
     private boolean cancelled = false;
 
     public MEssTeleportEvent(@NotNull Player who, @NotNull Location from, @NotNull Location to) {
+        this(who, from, to, null);
+    }
+
+    public MEssTeleportEvent(@NotNull Player who, @NotNull Location from, @NotNull Location to, TeleportRequest request) {
         this.player = who;
         this.from = from;
         this.to = to;
+        this.request = request;
     }
 
     /**
@@ -56,6 +65,15 @@ public final class MEssTeleportEvent extends Event implements Cancellable {
      */
     public @NotNull Location getTo() {
         return to;
+    }
+
+    /**
+     * Get the TeleportRequest associated with this event if there was one.
+     *
+     * @return an Optional to describe TeleportRequest for this event
+     */
+    public Optional<TeleportRequest> getRequest() {
+        return Optional.ofNullable(request);
     }
 
     @Override
