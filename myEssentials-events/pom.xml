@@ -11,6 +11,15 @@
 
     <artifactId>my-essentials-events</artifactId>
 
+    <licenses>
+        <!-- Basically non-negotiable as we are extending Event from Bukkit. -->
+        <license>
+            <name>GNU Lesser General Public License v3.0 or later</name>
+            <url>https://www.gnu.org/licenses/lgpl-3.0-standalone.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <dependencies>
         <dependency>
             <groupId>com.github.the_h_team.my-essentials</groupId>

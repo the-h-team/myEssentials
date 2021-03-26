@@ -11,14 +11,12 @@
 
     <artifactId>my-essentials-addons</artifactId>
 
-    <!--TODO: determine licensing (likely LGPL or MIT)-->
-<!--    <licenses>-->
-<!--        <license>-->
-<!--            <name>GNU Lesser General Public License v3.0 or later</name>-->
-<!--            <url>https://www.gnu.org/licenses/lgpl-3.0-standalone.html</url>-->
-<!--            <distribution>manual</distribution>-->
-<!--        </license>-->
-<!--    </licenses>-->
+    <!--TODO: determine licensing (likely MIT/CC)-->
+    <licenses>
+        <license>
+            <name>To be determined. No license yet.</name>
+        </license>
+    </licenses>
 
     <dependencies>
         <dependency>

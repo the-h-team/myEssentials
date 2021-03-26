@@ -14,6 +14,12 @@
         <module>myEssentials-events</module>
     </modules>
     <packaging>pom</packaging>
+    <!-- Guide to import submodules through Jitpack: -->
+    <!-- groupId = com.github.the_h_team.myEssentials (Normal username syntax+Repo name) -->
+    <!-- artifactId = any of [my-essentials,my-essentials-api,my-essentials-addons,my-essentials-events] -->
+
+    <!-- if normal com.github.the_h_team:myEssentials format is used it's an artifact of all components -->
+    <!-- I have no idea if that's functional though, safest bet is the my-essentials (plugin) submodule -->
 
     <name>myEssentials</name>
     <description>myEssentials. Quality of life, revived.</description>
@@ -102,4 +108,23 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <!-- This profile adds the current commit hash to every artifact in the project. -->
+            <!-- In theory, this should allow you to inspect the produced jar and be able
+             to better tell what commit it was generated from. -->
+            <id>jitpack-build</id>
+            <activation>
+                <property>
+                    <name>env.JITPACK</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <!--suppress MavenModelInspection -->
+                <finalName>${project.artifactId}-${project.version}-${env.GIT_COMMIT}</finalName>
+            </build>
+        </profile>
+    </profiles>
 </project>
