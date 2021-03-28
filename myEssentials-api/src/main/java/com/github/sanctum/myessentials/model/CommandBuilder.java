@@ -13,12 +13,18 @@ import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.util.ProvidedMessage;
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang.Validate;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class CommandBuilder {
     protected final MyEssentialsAPI api = MyEssentialsAPI.getInstance();
@@ -32,8 +38,36 @@ public abstract class CommandBuilder {
         this.command = api.registerCommand(this);
     }
 
+    public abstract @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException;
+
     public abstract boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args);
+
     public abstract boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args);
+
+    protected final @NotNull List<String> defaultCompletion(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) {
+        Validate.notNull(sender, "Sender cannot be null");
+        Validate.notNull(args, "Arguments cannot be null");
+        Validate.notNull(alias, "Alias cannot be null");
+
+        if (args.length == 0) {
+            return ImmutableList.of();
+        }
+
+        String lastWord = args[args.length - 1];
+
+        Player senderPlayer = sender instanceof Player ? (Player) sender : null;
+
+        ArrayList<String> matchedPlayers = new ArrayList<String>();
+        for (Player player : sender.getServer().getOnlinePlayers()) {
+            String name = player.getName();
+            if ((senderPlayer == null || senderPlayer.canSee(player)) && StringUtil.startsWithIgnoreCase(name, lastWord)) {
+                matchedPlayers.add(name);
+            }
+        }
+
+        matchedPlayers.sort(String.CASE_INSENSITIVE_ORDER);
+        return matchedPlayers;
+    }
 
     public CommandData getData() {
         return commandData;

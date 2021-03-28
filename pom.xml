@@ -6,7 +6,7 @@
 
     <groupId>com.github.the_h_team.my-essentials</groupId>
     <artifactId>myessentials</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT-R2</version>
     <modules>
         <module>myEssentials-plugin</module>
         <module>myEssentials-addons</module>

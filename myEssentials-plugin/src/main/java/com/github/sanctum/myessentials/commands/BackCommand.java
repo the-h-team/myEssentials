@@ -13,15 +13,22 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class BackCommand extends CommandBuilder {
 	public BackCommand() {
 		super(InternalCommandData.BACK_COMMAND);
 		command.setPermissionMessage(color("&cYou don't have permission: &f" + getData().getPermissionNode()));
+	}
+
+	@Override
+	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+		return null;
 	}
 
 	@Override

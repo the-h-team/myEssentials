@@ -14,13 +14,21 @@ import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.gui.MenuList;
 import com.github.sanctum.myessentials.util.permissions.PermissiveConnection;
+import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class StaffCommand extends CommandBuilder {
 	public StaffCommand() {
 		super(InternalCommandData.STAFF_COMMAND);
+	}
+
+	@Override
+	public @Nullable
+	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+		return null;
 	}
 
 	@Override
@@ -30,7 +38,7 @@ public final class StaffCommand extends CommandBuilder {
 			// myPermissions enabled, get the data.
 			if (PermissiveConnection.trusted()) {
 				sendMessage(player, PermissiveConnection.getGroup(player) + " is your group and your weight is " + PermissiveConnection.getWeight(player));
-				 //If the rank priority is high enough let them open the menu.
+				//If the rank priority is high enough let them open the menu.
 				if (PermissiveConnection.getWeight(player) > 0) {
 					MenuList.SingleMenu.ADDON_REGISTRATION.get().open(player);
 				}

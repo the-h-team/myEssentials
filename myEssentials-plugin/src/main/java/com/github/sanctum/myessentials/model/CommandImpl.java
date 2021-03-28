@@ -9,6 +9,7 @@
  */
 package com.github.sanctum.myessentials.model;
 
+import java.util.List;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -28,6 +29,15 @@ public final class CommandImpl extends Command {
         setDescription(this.commandBuilder.commandData.getDescription());
         setPermission(this.commandBuilder.commandData.getPermissionNode());
         setPermissionMessage(ChatColor.RED + "You do not have permission to perform this command!");
+    }
+
+    @Override
+    public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+        List<String> completions = commandBuilder.tabComplete((Player) sender, alias, args);
+        if (completions != null) {
+            return completions;
+        }
+        return commandBuilder.defaultCompletion(sender, alias, args);
     }
 
     @Override

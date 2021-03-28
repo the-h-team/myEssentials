@@ -14,28 +14,33 @@ import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.MEssPendingTeleportToPlayerEvent;
-
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
+import org.jetbrains.annotations.Nullable;
 
 public final class TpaCommand extends CommandBuilder {
     private final PluginManager pm = Bukkit.getPluginManager();
+
     public TpaCommand() {
         super(InternalCommandData.TPA_COMMAND);
     }
 
     private final Map<UUID, Date> request = new HashMap<>();
 
-
+    @Override
+    public @Nullable
+    List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+        return null;
+    }
 
     private Date getRequest(Player p) {
         if (!request.containsKey(p.getUniqueId())) {

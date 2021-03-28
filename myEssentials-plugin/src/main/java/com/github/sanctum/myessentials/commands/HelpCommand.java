@@ -21,10 +21,16 @@ import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public final class HelpCommand extends CommandBuilder {
 	public HelpCommand() {
 		super(InternalCommandData.HELP_COMMAND);
+	}
+
+	@Override
+	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+		return null;
 	}
 
 	private PaginatedAssortment helpMenu(Player p) {
