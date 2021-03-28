@@ -33,11 +33,11 @@ public final class CommandImpl extends Command {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-        List<String> completions = commandBuilder.tabComplete((Player) sender, alias, args);
+        final List<String> completions = commandBuilder.tabComplete((Player) sender, alias, args);
         if (completions != null) {
             return completions;
         }
-        return commandBuilder.defaultCompletion(sender, alias, args);
+        return super.tabComplete(sender, alias, args);
     }
 
     @Override
