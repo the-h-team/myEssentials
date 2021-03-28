@@ -56,8 +56,10 @@ import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
@@ -210,8 +212,13 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     }
 
     @Override
-    public Location getPreviousLocation(UUID id) {
-        return previousLocation.get(id);
+    public @Nullable Location getPreviousLocation(Player player) {
+        return previousLocation.get(player.getUniqueId());
+    }
+
+    @Override
+    public @Nullable Location getPreviousLocationOffline(UUID uuid) {
+        return previousLocation.get(uuid);
     }
 
     @Override

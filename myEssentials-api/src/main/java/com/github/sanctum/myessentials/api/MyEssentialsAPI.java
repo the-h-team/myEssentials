@@ -19,6 +19,7 @@ import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 public interface MyEssentialsAPI {
@@ -43,7 +44,25 @@ public interface MyEssentialsAPI {
 
     FileList getFileList();
 
-    Location getPreviousLocation(UUID id);
+    /**
+     * Get the most recent location recorded for this player before they
+     * teleported.
+     *
+     * @param player a player
+     * @return last location
+     */
+    @Nullable
+    Location getPreviousLocation(Player player);
+
+    /**
+     * Get the last known location of an offline player based on
+     * their unique id.
+     *
+     * @param uuid the uniqueId of a player
+     * @return last location
+     */
+    @Nullable
+    Location getPreviousLocationOffline(UUID uuid);
 
     FileManager getAddonFile(String name, String directory);
 

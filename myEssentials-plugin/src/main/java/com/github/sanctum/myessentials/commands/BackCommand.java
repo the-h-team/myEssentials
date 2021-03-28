@@ -32,18 +32,18 @@ public final class BackCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player p, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
-			if (!testPermission(p)) {
+			if (!testPermission(player)) {
 				return true;
 			}
-			Location previous = MyEssentialsAPI.getInstance().getPreviousLocation(p.getUniqueId());
+			Location previous = MyEssentialsAPI.getInstance().getPreviousLocation(player);
 			if (previous == null) {
-				sendMessage(p, "&cNo previous location was found.");
+				sendMessage(player, "&cNo previous location was found.");
 				return true;
 			}
-			p.teleport(previous);
-			sendMessage(p, "&aTeleporting to your previous location.");
+			player.teleport(previous);
+			sendMessage(player, "&aTeleporting to your previous location.");
 			return true;
 		}
 
