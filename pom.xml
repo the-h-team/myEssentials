@@ -6,7 +6,7 @@
 
     <groupId>com.github.the_h_team.my-essentials</groupId>
     <artifactId>myessentials</artifactId>
-    <version>1.0.0-SNAPSHOT-R2</version>
+    <version>1.0.0-SNAPSHOT</version>
     <modules>
         <module>myEssentials-plugin</module>
         <module>myEssentials-addons</module>
@@ -14,7 +14,7 @@
         <module>myEssentials-events</module>
     </modules>
     <packaging>pom</packaging>
-    <!-- Guide to import submodules through. Jitpack: -->
+    <!-- Guide to import submodules with Jitpack: -->
     <!-- groupId = com.github.the_h_team.myEssentials (Normal username syntax+Repo name) -->
     <!-- artifactId = any of [my-essentials,my-essentials-api,my-essentials-addons,my-essentials-events] -->
 
