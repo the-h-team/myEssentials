@@ -11,29 +11,43 @@ package com.github.sanctum.myessentials.api;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Describes a command's label, description and base permission node.
  */
 public interface CommandData {
 
     /**
-     * The label for the command.
+     * The label for this command.
      *
-     * @return label for command
+     * @return label for this command
      */
     @NotNull String getLabel();
 
     /**
-     * How to use the command.
+     * Get a list of aliases for this command.
+     * <p>
+     * Empty by default.
      *
-     * @return The brief usage description.
+     * @return string list of aliases for this command
+     */
+    default @NotNull List<String> getAliases() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * A message that explains how to use the command.
+     *
+     * @return a brief usage message
      */
     @NotNull String getUsage();
 
     /**
      * A description for the command.
      *
-     * @return description for command
+     * @return description for the command
      */
     @NotNull String getDescription();
 

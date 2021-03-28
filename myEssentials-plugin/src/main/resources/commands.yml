@@ -98,6 +98,7 @@ message:
   usage: '&6/message&r <&eplayerName&r> <&etext...&r>'
   description: 'Message an online player'
   permission: 'mess.staff.message'
+  aliases: ["msg"]
 night:
   label: night
   usage: '&6/night&r'
@@ -123,6 +124,7 @@ reply:
   usage: '&6/reply&r <&etext...&r>'
   description: 'Reply to a recently received message'
   permission: 'mess.staff.reply'
+  aliases: ["r"]
 socialspy:
   label: socialspy
   usage: '&6/socialspy&r'
@@ -140,9 +142,10 @@ staff:
   permission: 'mess.staff.utility'
 teleport:
   label: teleport
-  usage: '&6/teleport&r <&eplayerName&r> <&etargetName&r> &7| <x> <y> <z>'
-  description: 'Teleport a specified player to another player or location'
+  usage: '&6/teleport&r <&eplayerName&r> <&etargetName&r> &7| <x> <y> <z>&f;&6/teleport &r <&etargetName&r> &7| <x> <y> <z>'
+  description: 'Teleport to a specified player or teleport a specified player to another player or location'
   permission: 'mess.staff.teleport'
+  aliases: ["tp"]
 tpa:
   label: tpa
   usage: '&6/tpa&r <&eplayerName&r>'

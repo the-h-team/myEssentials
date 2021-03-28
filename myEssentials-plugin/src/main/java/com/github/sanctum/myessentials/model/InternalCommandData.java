@@ -12,8 +12,10 @@ import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.CommandData;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,6 +66,15 @@ public enum InternalCommandData implements CommandData {
     @Override
     public @NotNull String getLabel() {
         return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".label"));
+    }
+
+    @Override
+    public @NotNull List<String> getAliases() {
+        final ConfigurationSection configurationSection = CONFIG.getConfig().getConfigurationSection(configNode);
+        if (configurationSection != null && configurationSection.contains("aliases")) {
+            return configurationSection.getStringList("aliases");
+        }
+        return CommandData.super.getAliases();
     }
 
     @Override
