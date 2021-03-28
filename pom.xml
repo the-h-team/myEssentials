@@ -14,7 +14,7 @@
         <module>myEssentials-events</module>
     </modules>
     <packaging>pom</packaging>
-    <!-- Guide to import submodules through Jitpack: -->
+    <!-- Guide to import submodules through. Jitpack: -->
     <!-- groupId = com.github.the_h_team.myEssentials (Normal username syntax+Repo name) -->
     <!-- artifactId = any of [my-essentials,my-essentials-api,my-essentials-addons,my-essentials-events] -->
 

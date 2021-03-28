@@ -13,8 +13,12 @@ package com.github.sanctum.myessentials;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.event.EventBuilder;
-import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.labyrinth.task.Schedule;
+import com.github.sanctum.labyrinth.task.Synchronous;
+import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.CommandData;
+import com.github.sanctum.myessentials.api.EssentialsAddon;
+import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandImpl;
 import com.github.sanctum.myessentials.model.InternalCommandData;
@@ -23,10 +27,27 @@ import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
-
+import com.google.common.collect.Sets;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
-
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Supplier;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -34,9 +55,6 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
@@ -61,6 +79,58 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
         CommandRegistration.compileFields(this, "com.github.sanctum.myessentials.commands");
         TeleportationManager.registerListeners(this);
         events.compileFields("com.github.sanctum.myessentials.listeners");
+        Schedule.sync(() -> {
+            try {
+                inject();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).wait(2);
+    }
+
+    private void inject() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Set<Class<?>> classes = Sets.newHashSet();
+        List<Synchronous> tasks = new ArrayList<>();
+        FileManager check = getAddonFile("Test", "");
+        File parent = check.getFile().getParentFile();
+        for (File f : parent.listFiles()) {
+            if (f.isFile()) {
+                JarFile test = new JarFile(f);
+                URLClassLoader classLoader = (URLClassLoader) getClassLoader();
+                Class<?> urlClassLoaderClass = URLClassLoader.class;
+                Method method = urlClassLoaderClass.getDeclaredMethod("addURL", URL.class);
+                method.setAccessible(true);
+                method.invoke(classLoader, f.toURI().toURL());
+                for (JarEntry jarEntry : Collections.list(test.entries())) {
+                    String className = jarEntry.getName().replace("/", ".");
+                    if (className.startsWith("my.addons") && className.endsWith(".class")) {
+                        Class<?> clazz = null;
+                        final String substring = className.substring(0, className.length() - 6);
+                        try {
+                            clazz = Class.forName(substring);
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        assert clazz != null;
+                        if (EssentialsAddon.class.isAssignableFrom(clazz)) {
+                            classes.add(clazz);
+                        }
+                    }
+                }
+            }
+        }
+        for (Class<?> aClass : classes) {
+            try {
+                final EssentialsAddon addon = (EssentialsAddon) aClass.getDeclaredConstructor().newInstance();
+                tasks.add(Schedule.sync(() -> AddonQuery.register(addon)));
+            } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException e) {
+                // unable to load addon
+                e.printStackTrace();
+            }
+        }
+        for (Synchronous task : tasks) {
+            task.run();
+        }
     }
 
     @Override

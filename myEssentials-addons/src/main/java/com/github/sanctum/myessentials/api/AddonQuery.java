@@ -241,6 +241,27 @@ public final class AddonQuery {
 	}
 
 	/**
+	 * Register an addon but don't activate listeners ignoring persistence.
+	 *
+	 * <p>
+	 * This will register an addon without checking if its persistent or not
+	 * but it won't register any of the listeners within it, to do that
+	 * apply {@link AddonQuery#register(Class)} directly after this method using
+	 * the {@link AddonQuery#find(String)} method to re-acquire the addon instance.
+	 *
+	 * @param addon The addon to pickup.
+	 */
+	public static void pickup(EssentialsAddon addon) {
+		try {
+			addon.apply();
+			addon.register();
+		} catch (NoClassDefFoundError e) {
+			Labyrinth.getInstance().getLogger().warning(() -> "- You have outdated libraries. Additions for addon " + addon.getAddonName() + " will not work.");
+			Labyrinth.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
+		}
+	}
+
+	/**
 	 * Register addons in a given package but don't activate listeners ignoring persistence.
 	 *
 	 * <p>
@@ -290,6 +311,66 @@ public final class AddonQuery {
 				instance.api.logSevere("- Unable to cast EssentialsAddon to the class " + aClass.getName() + ". This likely means you are not implementing the EssentialsAddon interface for your event class properly.");
 				e.printStackTrace();
 				break;
+			}
+		}
+	}
+
+	/**
+	 * Register an addon and all of its listeners.
+	 *
+	 * <p>
+	 * You'll want to primarily use this method as it both pick's up the addon and activates it.
+	 * No extra steps are required like with {@link AddonQuery#pickup(Class)} or {@link AddonQuery#pickupAll(Plugin, String)}
+	 *
+	 * @param addon The addon to activate.
+	 */
+	public static void register(EssentialsAddon addon) {
+		addon.apply();
+		addon.register();
+		if (instance == null) new AddonQuery();
+		if (addon.persist()) {
+
+			instance.api.logInfo(" ");
+			instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+			instance.api.logInfo("- Addon: " + addon.getAddonName());
+			instance.api.logInfo("- Author(s): " + Arrays.toString(addon.getAuthors()));
+			instance.api.logInfo("- Description: " + addon.getAddonDescription());
+			instance.api.logInfo("- Persistent: (" + addon.persist() + ")");
+			instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+			instance.api.logInfo(" ");
+			instance.api.logInfo("- Listeners: (" + addon.getListeners().size() + ")");
+			for (Listener addition : addon.getListeners()) {
+				boolean registered = HandlerList.getRegisteredListeners(instance.plugin).stream().anyMatch(r -> r.getListener().equals(addition));
+				if (!registered) {
+					instance.api.logInfo("- [" + addon.getAddonName() + "] (+1) EventHandler " + addition.getClass().getSimpleName() + " loaded");
+					Bukkit.getPluginManager().registerEvents(addition, instance.plugin);
+				} else {
+					instance.api.logInfo("- [" + addon.getAddonName() + "] (-1) EventHandler " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
+				}
+			}
+			for (Class<? extends CommandBuilder> command : addon.getCommands().values()) {
+				try {
+					CommandRegistration.inject(command);
+					instance.api.logInfo("- [" + addon.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
+				} catch (Exception ex) {
+					instance.api.logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
+					DATA_LOG.add(" - (+1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
+				}
+			}
+		} else {
+			instance.api.logInfo(" ");
+			instance.api.logInfo("- Addon: " + addon.getAddonName());
+			instance.api.logInfo("- Author(s): " + Arrays.toString(addon.getAuthors()));
+			instance.api.logInfo("- Description: " + addon.getAddonDescription());
+			instance.api.logInfo("- Persistent: (" + addon.persist() + ")");
+			addon.remove();
+			instance.api.logInfo(" ");
+			instance.api.logInfo("- Listeners: (" + addon.getListeners().size() + ")");
+			for (Listener addition : addon.getListeners()) {
+				instance.api.logInfo("- [" + addon.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
+			}
+			for (Class<? extends CommandBuilder> command : addon.getCommands().values()) {
+				instance.api.logInfo("- [" + addon.getAddonName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
 			}
 		}
 	}

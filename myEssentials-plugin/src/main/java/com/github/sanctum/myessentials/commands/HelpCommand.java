@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -77,25 +76,5 @@ public final class HelpCommand extends CommandBuilder {
 			}
 		});
 		return list;
-/*		LinkedList<String> append = internalMap.stream()
-				.filter(data -> p.hasPermission(Objects.requireNonNull(data.getPermissionNode())))
-				.map(data -> data.getUsage() + " &r- " + data.getDescription()).collect(Collectors.toCollection(LinkedList::new));
-		try {
-			SimpleCommandMap commandMap = getCommandMap();
-			assert commandMap != null;
-			final List<String> placement = new ArrayList<>();
-			for (Map.Entry<String, Command> entry : KNOWN_COMMANDS_MAP.entrySet()) {
-                String text = "/&6" + entry.getValue().getName() + " &r- " + entry.getValue().getDescription();
-				if (!append.contains(entry.getValue().getDescription().isEmpty() ? "/&6" + entry.getValue().getName() + "&r" : text)) {
-					if (entry.getValue().getPermission() != null && p.hasPermission(entry.getValue().getPermission())) {
-						append.add(entry.getValue().getDescription().isEmpty() ? "/&6" + entry.getValue().getName() + "&r" : text);
-					}
-				}
-			}
-			return
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return append;*/
 	}
 }
