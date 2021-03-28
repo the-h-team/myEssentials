@@ -10,7 +10,7 @@
 package com.github.sanctum.myessentials.model;
 
 import java.util.List;
-import net.md_5.bungee.api.ChatColor;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -28,7 +28,7 @@ public final class CommandImpl extends Command {
         this.commandBuilder = commandBuilder;
         setDescription(this.commandBuilder.commandData.getDescription());
         setPermission(this.commandBuilder.commandData.getPermissionNode());
-        setPermissionMessage(ChatColor.RED + "You do not have permission to perform this command!");
+        setPermissionMessage(commandBuilder.color("&cYou don't have permission: &f" + this.commandBuilder.commandData.getPermissionNode()));
     }
 
     @Override

@@ -23,7 +23,6 @@ import org.jetbrains.annotations.Nullable;
 public final class BackCommand extends CommandBuilder {
 	public BackCommand() {
 		super(InternalCommandData.BACK_COMMAND);
-		command.setPermissionMessage(color("&cYou don't have permission: &f" + getData().getPermissionNode()));
 	}
 
 	@Override
