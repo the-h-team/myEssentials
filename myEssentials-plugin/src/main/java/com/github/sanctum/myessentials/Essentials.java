@@ -71,6 +71,21 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public void onEnable() {
         instance = this;
+        if (System.getProperty("OLD") != null && System.getProperty("OLD").equals("TRUE")) {
+            getLogger().severe("- RELOAD DETECTED! Shutting down...");
+            getLogger().severe("      ██╗");
+            getLogger().severe("  ██╗██╔╝");
+            getLogger().severe("  ╚═╝██║ ");
+            getLogger().severe("  ██╗██║ ");
+            getLogger().severe("  ╚═╝╚██╗");
+            getLogger().severe("      ╚═╝");
+            getLogger().severe("- (You are not supported in the case of corrupt data)");
+            getLogger().severe("- (Reloading is NEVER safe and you should always restart instead.)");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        } else {
+            System.setProperty("OLD", "FALSE");
+        }
         Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
         this.teleportRunner = new TeleportRunnerImpl(this);
         EventBuilder events = new EventBuilder(this);
@@ -136,6 +151,9 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public void onDisable() {
         TeleportationManager.unregisterListeners();
+        if (System.getProperty("OLD").equals("FALSE")) {
+            System.setProperty("OLD", "TRUE");
+        }
     }
 
     @Override
