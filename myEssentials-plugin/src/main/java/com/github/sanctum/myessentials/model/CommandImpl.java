@@ -29,6 +29,9 @@ public final class CommandImpl extends Command {
         setDescription(this.commandBuilder.commandData.getDescription());
         setPermission(this.commandBuilder.commandData.getPermissionNode());
         setPermissionMessage(commandBuilder.color("&cYou don't have permission: &f'<permission>'"));
+        final List<String> aliases = this.commandBuilder.commandData.getAliases();
+        if (aliases.isEmpty()) return;
+        setAliases(aliases);
     }
 
     @Override

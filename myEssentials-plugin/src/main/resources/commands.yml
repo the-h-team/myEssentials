@@ -33,6 +33,7 @@ gamemode:
   usage: '&6/gamemode&r <&eplayerName&r> <&egamemode&r>'
   description: 'Change a specified players gamemode.'
   permission: 'mess.staff.gamemode.other'
+  aliases: ["gm"]
 give:
   label: give
   usage: '&6/give&r <&eplayerName&r> <&eitemName&r> &7| optional [amount]'
@@ -83,6 +84,7 @@ item:
   usage: '&6/item&r <&eitemName&r> &7| optional [amount]'
   description: 'Give yourself an item of specification.'
   permission: 'mess.staff.item'
+  aliases: ["i"]
 kickall:
   label: kickall
   usage: '&6/kickall&r'
