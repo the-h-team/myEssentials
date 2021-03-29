@@ -42,6 +42,7 @@ public abstract class ModeCommandBase extends CommandBuilder {
             // player has permission
             player.setGameMode(gameMode);
             sendMessage(player, "&6Your gamemode has been set to " + gamemodeName + ".");
+            return true;
         }
         return setGameMode(player, args[0]);
     }
