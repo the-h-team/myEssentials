@@ -8,7 +8,7 @@
  */
 package com.github.sanctum.myessentials.listeners;
 
-import com.github.sanctum.myessentials.Essentials;
+import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -16,24 +16,41 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class PlayerEventListener implements Listener {
+	private static PlayerEventListener instance;
+	{
+		instance = this;
+	}
+	private final Map<UUID, Location> prevLocations = new HashMap<>();
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onTeleport(PlayerTeleportEvent e) {
 		if (!e.getFrom().equals(e.getTo())) {
-			Essentials.getInstance().previousLocation.put(e.getPlayer().getUniqueId(), e.getPlayer().getLocation());
+			prevLocations.put(e.getPlayer().getUniqueId(), e.getPlayer().getLocation());
 		}
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onWorldChange(PlayerChangedWorldEvent e) {
-		Essentials.getInstance().previousLocation.put(e.getPlayer().getUniqueId(), e.getPlayer().getLocation());
+		prevLocations.put(e.getPlayer().getUniqueId(), e.getPlayer().getLocation());
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onDeath(PlayerDeathEvent e) {
-		Essentials.getInstance().previousLocation.put(e.getEntity().getUniqueId(), e.getEntity().getLocation());
+		prevLocations.put(e.getEntity().getUniqueId(), e.getEntity().getLocation());
 	}
 
+	public Map<UUID, Location> getPrevLocations() {
+		return Collections.unmodifiableMap(prevLocations);
+	}
+
+	public static PlayerEventListener getInstance() {
+		return instance;
+	}
 
 }

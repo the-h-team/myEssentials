@@ -19,6 +19,7 @@ import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.listeners.PlayerEventListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandImpl;
 import com.github.sanctum.myessentials.model.InternalCommandData;
@@ -70,7 +71,6 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
     public final Set<CommandData> registeredCommands = new HashSet<>();
 
-    public final Map<UUID, Location> previousLocation = new HashMap<>();
     private TeleportRunner teleportRunner;
 
     @Override
@@ -213,12 +213,12 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
     @Override
     public @Nullable Location getPreviousLocation(Player player) {
-        return previousLocation.get(player.getUniqueId());
+        return PlayerEventListener.getInstance().getPrevLocations().get(player.getUniqueId());
     }
 
     @Override
     public @Nullable Location getPreviousLocationOffline(UUID uuid) {
-        return previousLocation.get(uuid);
+        return PlayerEventListener.getInstance().getPrevLocations().get(uuid);
     }
 
     @Override
@@ -257,7 +257,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
-    public static Essentials getInstance() {
+    public static JavaPlugin getInstance() {
         return instance;
     }
 

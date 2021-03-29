@@ -10,10 +10,11 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.List;
+
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,7 +37,7 @@ public final class BackCommand extends CommandBuilder {
 			if (!testPermission(player)) {
 				return true;
 			}
-			Location previous = MyEssentialsAPI.getInstance().getPreviousLocation(player);
+			Location previous = api.getPreviousLocation(player);
 			if (previous == null) {
 				sendMessage(player, "&cNo previous location was found.");
 				return true;
@@ -51,6 +52,7 @@ public final class BackCommand extends CommandBuilder {
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+		sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
 		return false;
 	}
 }
