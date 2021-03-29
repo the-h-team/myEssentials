@@ -33,12 +33,16 @@ gamemode:
   usage: '&6/gamemode&r <&eplayerName&r> <&egamemode&r>'
   description: 'Change a specified players gamemode.'
   permission: 'mess.staff.gamemode.other'
-  aliases: ["gm"]
 give:
   label: give
   usage: '&6/give&r <&eplayerName&r> <&eitemName&r> &7| optional [amount]'
   description: 'Give a specified player an item of choosing.'
   permission: 'mess.staff.give'
+gm-toggle:
+  label: gm
+  usage: '&6/gm &7| optional [playerName]'
+  description: 'Toggle yourself or another player to/from Creative Mode.'
+  permission: 'mess.staff.gamemode.toggle'
 gma:
   label: gma
   usage: '&6/gma&r &7| optional [playerName]'

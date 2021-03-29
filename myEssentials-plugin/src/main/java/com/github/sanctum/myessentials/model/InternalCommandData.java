@@ -29,6 +29,7 @@ public enum InternalCommandData implements CommandData {
     FEED_COMMAND("feed"),
     GAMEMODE_COMMAND("gamemode"),
     GIVE_COMMAND("give"),
+    GM_COMMAND("gm-toggle"),
     GMA_COMMAND("gma"),
     GMC_COMMAND("gmc"),
     GMS_COMMAND("gms"),
