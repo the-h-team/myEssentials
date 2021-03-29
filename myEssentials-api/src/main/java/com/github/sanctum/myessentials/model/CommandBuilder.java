@@ -44,7 +44,6 @@ public abstract class CommandBuilder {
         return commandData;
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean testPermission(CommandSender sender) {
         return command.testPermission(sender);
     }
@@ -54,6 +53,14 @@ public abstract class CommandBuilder {
             JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(message.toString());
         } else {
             new Message((Player) sender, "[&2" + JavaPlugin.getProvidingPlugin(getClass()) + "&r]").send(message.toString());
+        }
+    }
+
+    protected void sendUsage(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(() -> color(commandData.getUsage()));
+        } else {
+            new Message((Player) sender, "[&2" + JavaPlugin.getProvidingPlugin(getClass()) + "&r]").send(commandData.getUsage());
         }
     }
 

@@ -28,7 +28,7 @@ public final class CommandImpl extends Command {
         this.commandBuilder = commandBuilder;
         setDescription(this.commandBuilder.commandData.getDescription());
         setPermission(this.commandBuilder.commandData.getPermissionNode());
-        setPermissionMessage(commandBuilder.color("&cYou don't have permission: &f" + this.commandBuilder.commandData.getPermissionNode()));
+        setPermissionMessage(commandBuilder.color("&cYou don't have permission: &f'<permission>'"));
     }
 
     @Override

@@ -10,32 +10,15 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import java.util.List;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.github.sanctum.myessentials.model.ModeCommandBase;
+import org.bukkit.GameMode;
 
-public final class GMSCommand extends CommandBuilder {
+/**
+ * Set yourself or other players to Survival Mode.
+ */
+public final class GMSCommand extends ModeCommandBase {
 	public GMSCommand() {
-		super(InternalCommandData.GMS_COMMAND);
-	}
-
-	@Override
-	public @Nullable
-	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return null;
-	}
-
-	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
-	}
-
-	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
+		super(InternalCommandData.GMS_COMMAND, GameMode.SURVIVAL, "Survival Mode");
 	}
 }
