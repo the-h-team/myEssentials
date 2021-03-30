@@ -13,16 +13,14 @@ package com.github.sanctum.myessentials;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.event.EventBuilder;
-import com.github.sanctum.myessentials.api.AddonQuery;
-import com.github.sanctum.myessentials.api.CommandData;
-import com.github.sanctum.myessentials.api.EssentialsAddon;
-import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.api.*;
 import com.github.sanctum.myessentials.listeners.PlayerEventListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandImpl;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.MessengerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
@@ -70,6 +68,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     public final Set<CommandData> registeredCommands = new HashSet<>();
 
     private TeleportRunner teleportRunner;
+    private MessengerImpl messenger;
 
     @Override
     public void onEnable() {
@@ -105,6 +104,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
         }
         Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
         this.teleportRunner = new TeleportRunnerImpl(this);
+        this.messenger = new MessengerImpl(this);
         EventBuilder events = new EventBuilder(this);
         InternalCommandData.defaultOrReload(this);
         ConfiguredMessage.loadProperties(this);
@@ -221,6 +221,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public TeleportRunner getTeleportRunner() {
         return teleportRunner;
+    }
+
+    @Override
+    public Messenger getMessenger() {
+        return messenger;
     }
 
     @Override

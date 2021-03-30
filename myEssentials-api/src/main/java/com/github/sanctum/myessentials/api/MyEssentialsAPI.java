@@ -73,6 +73,13 @@ public interface MyEssentialsAPI {
      */
     TeleportRunner getTeleportRunner();
 
+    /**
+     * Get the messenger.
+     *
+     * @return message utility
+     */
+    Messenger getMessenger();
+
     void logInfo(String toLog);
 
     void logInfo(Supplier<String> toLog);
