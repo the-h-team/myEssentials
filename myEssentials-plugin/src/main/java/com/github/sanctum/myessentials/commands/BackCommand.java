@@ -12,6 +12,8 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+
+import java.util.Collections;
 import java.util.List;
 
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
@@ -19,7 +21,6 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class BackCommand extends CommandBuilder {
 	public BackCommand() {
@@ -27,8 +28,8 @@ public final class BackCommand extends CommandBuilder {
 	}
 
 	@Override
-	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return null;
+	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+		return Collections.emptyList();
 	}
 
 	@Override
