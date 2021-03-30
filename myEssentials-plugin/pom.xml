@@ -74,6 +74,24 @@
             <artifactId>my-essentials-api</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.the-h-team.my-essentials</groupId>
+            <artifactId>my-essentials-addons</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.the-h-team.my-essentials</groupId>
+            <artifactId>my-essentials-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.the-h-team.my-essentials</groupId>
+            <artifactId>my-essentials-events</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <profiles>

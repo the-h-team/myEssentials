@@ -13,7 +13,6 @@ import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import java.util.Collection;
 import java.util.Map;
-
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.RegisteredListener;

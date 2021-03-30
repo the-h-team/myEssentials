@@ -13,8 +13,6 @@ package com.github.sanctum.myessentials;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.event.EventBuilder;
-import com.github.sanctum.labyrinth.task.Schedule;
-import com.github.sanctum.labyrinth.task.Synchronous;
 import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
@@ -113,18 +111,15 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
         CommandRegistration.compileFields(this, "com.github.sanctum.myessentials.commands");
         TeleportationManager.registerListeners(this);
         events.compileFields("com.github.sanctum.myessentials.listeners");
-        Schedule.sync(() -> {
-            try {
-                inject();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).wait(2);
+        try {
+            injectAddons();
+        } catch (Exception e) {
+            getLogger().severe("- An unexpected file type was found in the addon folder, remove it then restart.");
+        }
     }
 
-    private void inject() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private void injectAddons() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Set<Class<?>> classes = Sets.newHashSet();
-        List<Synchronous> tasks = new ArrayList<>();
         FileManager check = getAddonFile("Test", "");
         File parent = check.getFile().getParentFile();
         for (File f : parent.listFiles()) {
@@ -136,10 +131,10 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
                 method.setAccessible(true);
                 method.invoke(classLoader, f.toURI().toURL());
                 for (JarEntry jarEntry : Collections.list(test.entries())) {
-                    String className = jarEntry.getName().replace("/", ".");
-                    if (className.startsWith("my.addons") && className.endsWith(".class")) {
+                    String entry = jarEntry.getName().replace("/", ".");
+                    if (entry.endsWith(".class")) {
                         Class<?> clazz = null;
-                        final String substring = className.substring(0, className.length() - 6);
+                        final String substring = entry.substring(0, entry.length() - 6);
                         try {
                             clazz = Class.forName(substring);
                         } catch (ClassNotFoundException e) {
@@ -156,14 +151,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
         for (Class<?> aClass : classes) {
             try {
                 final EssentialsAddon addon = (EssentialsAddon) aClass.getDeclaredConstructor().newInstance();
-                tasks.add(Schedule.sync(() -> AddonQuery.register(addon)));
+                AddonQuery.register(addon);
             } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException e) {
                 // unable to load addon
                 e.printStackTrace();
             }
-        }
-        for (Synchronous task : tasks) {
-            task.run();
         }
     }
 
