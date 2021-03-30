@@ -80,6 +80,13 @@ public interface MyEssentialsAPI {
      */
     Messenger getMessenger();
 
+    /**
+     * Get the ban manager.
+     *
+     * @return ban manager
+     */
+    BanManager getBanManager();
+
     void logInfo(String toLog);
 
     void logInfo(Supplier<String> toLog);
