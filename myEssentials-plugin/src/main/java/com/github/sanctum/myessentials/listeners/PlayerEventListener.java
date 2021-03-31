@@ -8,7 +8,6 @@
  */
 package com.github.sanctum.myessentials.listeners;
 
-import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,11 +28,6 @@ public class PlayerEventListener implements Listener {
 	}
 
 	private final Map<UUID, Location> prevLocations = new HashMap<>();
-
-	@EventHandler
-	public void onTest(PlayerPendingHealEvent e) {
-		e.setAmount(2);
-	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onTeleport(PlayerTeleportEvent e) {
