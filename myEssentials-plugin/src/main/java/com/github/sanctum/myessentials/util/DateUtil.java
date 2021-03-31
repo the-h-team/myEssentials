@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.TimeZone;
 
 public class DateUtil {
@@ -18,7 +19,7 @@ public class DateUtil {
 	 * @param time The time for this date.
 	 * @return A date object or null if the format isn't recognized.
 	 */
-	public static Date fromNormal(String time) {
+	public static Optional<Date> fromNormal(String time) {
 		Date date = null;
 		try {
 			String example = "02/31/2021";
@@ -27,7 +28,7 @@ public class DateUtil {
 		} catch (ParseException e) {
 			Message.loggedFor(Essentials.getInstance()).error("Unable to format date w/ format " + '"' + time + '"');
 		}
-		return date;
+		return Optional.ofNullable(date);
 	}
 
 	/**
@@ -36,7 +37,7 @@ public class DateUtil {
 	 * @param time The time for this date.
 	 * @return A date object or null if the format isn't recognized.
 	 */
-	public static Date fromTimed(String time) {
+	public static Optional<Date> fromTimed(String time) {
 
 		Date date = null;
 		try {
@@ -49,7 +50,7 @@ public class DateUtil {
 		} catch (ParseException e) {
 			Message.loggedFor(Essentials.getInstance()).error("Unable to format date w/ format " + '"' + time + '"');
 		}
-		return date;
+		return Optional.ofNullable(date);
 	}
 
 }
