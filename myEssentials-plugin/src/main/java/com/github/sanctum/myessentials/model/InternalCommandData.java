@@ -24,6 +24,7 @@ public enum InternalCommandData implements CommandData {
     TPA_COMMAND("tpa"),
     BACK_COMMAND("back"),
     BAN_COMMAND("ban"),
+    BIN_COMMAND("bin"),
     BROADCAST_COMMAND("broadcast"),
     DAY_COMMAND("day"),
     FEED_COMMAND("feed"),

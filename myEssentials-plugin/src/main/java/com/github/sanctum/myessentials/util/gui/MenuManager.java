@@ -9,12 +9,14 @@
 package com.github.sanctum.myessentials.util.gui;
 
 import com.github.sanctum.labyrinth.gui.InventoryRows;
+import com.github.sanctum.labyrinth.gui.MenuDesignator;
 import com.github.sanctum.labyrinth.gui.builder.PaginatedBuilder;
 import com.github.sanctum.labyrinth.gui.builder.PaginatedClick;
 import com.github.sanctum.labyrinth.gui.builder.PaginatedClose;
 import com.github.sanctum.labyrinth.gui.builder.PaginatedMenu;
 import com.github.sanctum.labyrinth.gui.menuman.Menu;
 import com.github.sanctum.labyrinth.gui.menuman.MenuBuilder;
+import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.AddonQuery;
@@ -33,9 +35,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-public class MenuList {
+public class MenuManager {
 
-	private static final Map<PagedMenu, UUID> util = new HashMap<>();
+	private static final Map<Select, UUID> util = new HashMap<>();
 
 	private static final NamespacedKey addonKey = new NamespacedKey(Essentials.getInstance(), "essentials_addon");
 
@@ -43,7 +45,7 @@ public class MenuList {
 		return addonKey;
 	}
 
-	public static UUID getId(PagedMenu type) {
+	public static UUID getId(Select type) {
 		return util.get(type);
 	}
 
@@ -86,10 +88,48 @@ public class MenuList {
 	/**
 	 * A multi-paged GUI screen.
 	 */
-	public enum PagedMenu {
-		REGISTERED_ADDONS, ACTIVATED_ADDONS, DEACTIVATED_ADDONS;
+	public enum Select implements MenuDesignator {
+		REGISTERED_ADDONS, ACTIVATED_ADDONS, DEACTIVATED_ADDONS, ADDON_REGISTRATION, DONATION_BIN;
 
-		public @NotNull PaginatedMenu get() {
+		@Override
+		public @NotNull Menu get() {
+			MenuBuilder builder = null;
+			if (this == Select.ADDON_REGISTRATION) {
+				builder = new MenuBuilder(InventoryRows.ONE, color("&2&oManage Essential Addons &0&l»"))
+						.cancelLowerInventoryClicks(false)
+						.addElement(new ItemStack(Material.WATER_BUCKET))
+						.setLore(color("&2&oTurn off active addons."))
+						.setText(color("&7[&3&lActive&7]"))
+						.setAction(click -> {
+							Player p = click.getPlayer();
+							Select.ACTIVATED_ADDONS.supply().open(p);
+						})
+						.assignToSlots(3)
+						.addElement(new ItemStack(Material.BUCKET))
+						.setLore(color("&a&oTurn on inactive addons."))
+						.setText(color("&7[&c&lIn-active&7]"))
+						.setAction(click -> {
+							Player p = click.getPlayer();
+							Select.DEACTIVATED_ADDONS.supply().open(p);
+						})
+						.assignToSlots(5)
+						.addElement(new ItemStack(Material.LAVA_BUCKET))
+						.setLore(color("&b&oView a list of all currently loaded addons."))
+						.setText(color("&7[&e&lLoaded&7]"))
+						.setAction(click -> {
+							Player p = click.getPlayer();
+							Select.REGISTERED_ADDONS.supply().open(p);
+						})
+						.assignToSlots(4)
+						.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE))
+						.setText(" ")
+						.set();
+			}
+			return builder.create(Essentials.getInstance());
+		}
+
+		@Override
+		public @NotNull PaginatedMenu supply() {
 			PaginatedMenu menu;
 			LinkedList<String> append;
 			PaginatedBuilder builder;
@@ -102,11 +142,11 @@ public class MenuList {
 							.setAlreadyLast(color("&c&oYou are already on the last page of addons."))
 							.setNavigationLeft(getLeft(), 48, PaginatedClick::sync)
 							.setNavigationRight(getRight(), 50, PaginatedClick::sync)
-							.setNavigationBack(getBack(), 49, click -> SingleMenu.ADDON_REGISTRATION.get().open(click.getPlayer()))
+							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
 							.setCloseAction(PaginatedClose::clear)
 							.setupProcess(element -> element.applyLogic(e -> {
-								if (MenuList.getId(PagedMenu.ACTIVATED_ADDONS).equals(e.getId())) {
+								if (MenuManager.getId(Select.ACTIVATED_ADDONS).equals(e.getId())) {
 									e.buildItem(() -> {
 										EssentialsAddon addon = AddonQuery.find(e.getContext());
 										ItemStack i = new ItemStack(Material.CHEST);
@@ -125,7 +165,7 @@ public class MenuList {
 									});
 									e.action().setClick(click -> {
 										Player p = click.getPlayer();
-										String addon = click.getClickedItem().getItemMeta().getPersistentDataContainer().get(MenuList.getAddonKey(), PersistentDataType.STRING);
+										String addon = click.getClickedItem().getItemMeta().getPersistentDataContainer().get(MenuManager.getAddonKey(), PersistentDataType.STRING);
 										assert addon != null;
 										// disable addon logic
 										EssentialsAddon ad = AddonQuery.find(addon);
@@ -133,7 +173,7 @@ public class MenuList {
 										for (String d : AddonQuery.getDataLog()) {
 											p.sendMessage(color("&b" + d.replace("[Essentials]", "[&2Essentials&r]&e")));
 										}
-										PagedMenu.ACTIVATED_ADDONS.get().open(p);
+										Select.ACTIVATED_ADDONS.supply().open(p);
 									});
 								}
 							}))
@@ -152,11 +192,11 @@ public class MenuList {
 							.setAlreadyLast(color("&c&oYou are already on the last page of addons."))
 							.setNavigationLeft(getLeft(), 48, PaginatedClick::sync)
 							.setNavigationRight(getRight(), 50, PaginatedClick::sync)
-							.setNavigationBack(getBack(), 49, click -> SingleMenu.ADDON_REGISTRATION.get().open(click.getPlayer()))
+							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
 							.setCloseAction(PaginatedClose::clear)
 							.setupProcess(element -> element.applyLogic(e -> {
-								if (MenuList.getId(PagedMenu.DEACTIVATED_ADDONS).equals(e.getId())) {
+								if (MenuManager.getId(Select.DEACTIVATED_ADDONS).equals(e.getId())) {
 									e.buildItem(() -> {
 										EssentialsAddon addon = AddonQuery.find(e.getContext());
 										ItemStack i = new ItemStack(Material.CHEST);
@@ -175,7 +215,7 @@ public class MenuList {
 									});
 									e.action().setClick(click -> {
 										Player p = click.getPlayer();
-										String addon = click.getClickedItem().getItemMeta().getPersistentDataContainer().get(MenuList.getAddonKey(), PersistentDataType.STRING);
+										String addon = click.getClickedItem().getItemMeta().getPersistentDataContainer().get(MenuManager.getAddonKey(), PersistentDataType.STRING);
 										assert addon != null;
 										// disable addon logic
 										EssentialsAddon ad = AddonQuery.find(addon);
@@ -183,7 +223,7 @@ public class MenuList {
 										for (String d : AddonQuery.getDataLog()) {
 											p.sendMessage(color("&b" + d.replace("[Essentials]", "[&2Essentials&r]&e")));
 										}
-										PagedMenu.DEACTIVATED_ADDONS.get().open(p);
+										Select.DEACTIVATED_ADDONS.supply().open(p);
 									});
 								}
 							}))
@@ -202,11 +242,11 @@ public class MenuList {
 							.setAlreadyLast(color("&c&oYou are already on the last page of addons."))
 							.setNavigationLeft(getLeft(), 48, PaginatedClick::sync)
 							.setNavigationRight(getRight(), 50, PaginatedClick::sync)
-							.setNavigationBack(getBack(), 49, click -> SingleMenu.ADDON_REGISTRATION.get().open(click.getPlayer()))
+							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
 							.setCloseAction(PaginatedClose::clear)
 							.setupProcess(element -> element.applyLogic(e -> {
-								if (MenuList.getId(PagedMenu.REGISTERED_ADDONS).equals(e.getId())) {
+								if (MenuManager.getId(Select.REGISTERED_ADDONS).equals(e.getId())) {
 									e.buildItem(() -> {
 										EssentialsAddon addon = AddonQuery.find(e.getContext());
 										ItemStack i = new ItemStack(Material.CHEST);
@@ -243,48 +283,15 @@ public class MenuList {
 			menu = builder.build();
 			return menu;
 		}
-	}
 
-	/**
-	 * A single paged GUI screen.
-	 */
-	public enum SingleMenu {
-		ADDON_REGISTRATION;
+		@Override
+		public SharedMenu share() {
 
-		public @NotNull Menu get() {
-			MenuBuilder builder = null;
-			if (this == SingleMenu.ADDON_REGISTRATION) {
-				builder = new MenuBuilder(InventoryRows.ONE, color("&2&oManage Essential Addons &0&l»"))
-						.cancelLowerInventoryClicks(false)
-						.addElement(new ItemStack(Material.WATER_BUCKET))
-						.setLore(color("&2&oTurn off active addons."))
-						.setText(color("&7[&3&lActive&7]"))
-						.setAction(click -> {
-							Player p = click.getPlayer();
-							PagedMenu.ACTIVATED_ADDONS.get().open(p);
-						})
-						.assignToSlots(3)
-						.addElement(new ItemStack(Material.BUCKET))
-						.setLore(color("&a&oTurn on inactive addons."))
-						.setText(color("&7[&c&lIn-active&7]"))
-						.setAction(click -> {
-							Player p = click.getPlayer();
-							PagedMenu.DEACTIVATED_ADDONS.get().open(p);
-						})
-						.assignToSlots(5)
-						.addElement(new ItemStack(Material.LAVA_BUCKET))
-						.setLore(color("&b&oView a list of all currently loaded addons."))
-						.setText(color("&7[&e&lLoaded&7]"))
-						.setAction(click -> {
-							Player p = click.getPlayer();
-							PagedMenu.REGISTERED_ADDONS.get().open(p);
-						})
-						.assignToSlots(4)
-						.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE))
-						.setText(" ")
-						.set();
+			if (this == Select.DONATION_BIN) {
+				return SharedMenu.get(8008);
 			}
-			return builder.create(Essentials.getInstance());
+
+			return null;
 		}
 	}
 

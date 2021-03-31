@@ -13,6 +13,9 @@ package com.github.sanctum.myessentials;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.event.EventBuilder;
+import com.github.sanctum.labyrinth.gui.InventoryRows;
+import com.github.sanctum.labyrinth.gui.shared.SharedBuilder;
+import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
@@ -106,6 +109,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
         } else {
             System.setProperty("OLD", "FALSE");
         }
+        SharedBuilder.create(this, 8008, StringUtils.translate("&6&nDonation Bin."), InventoryRows.THREE.getSlotCount());
         Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
         this.teleportRunner = new TeleportRunnerImpl(this);
         this.messenger = new MessengerImpl(this);

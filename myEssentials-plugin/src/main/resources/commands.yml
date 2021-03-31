@@ -3,6 +3,11 @@ back:
   usage: '&6/back&r'
   description: 'Go back to your previous location'
   permission: 'mess.staff.back'
+bin:
+  label: bin
+  usage: '&6/bin&r'
+  description: 'Open the public donation bin.'
+  permission: 'mess.menu.bin'
 ban:
   label: ban
   usage: '&6/ban&r <&cplayerName&r>'
