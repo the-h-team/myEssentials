@@ -15,7 +15,7 @@ broadcast:
   permission: 'mess.staff.broadcast'
 day:
   label: day
-  usage: '&6/day&r'
+  usage: '&6/day&r <...&emorning&r,&enoon&r,&eafternoon&r>'
   description: 'Change the time of day to 0 ticks'
   permission: 'mess.staff.day'
 feed:

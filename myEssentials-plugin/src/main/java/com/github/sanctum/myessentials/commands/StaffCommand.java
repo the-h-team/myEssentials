@@ -10,6 +10,8 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.myessentials.api.AddonQuery;
+import com.github.sanctum.myessentials.api.EssentialsAddon;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.gui.MenuList;
@@ -41,6 +43,13 @@ public final class StaffCommand extends CommandBuilder {
 				//If the rank priority is high enough let them open the menu.
 				if (PermissiveConnection.getWeight(player) > 0) {
 					MenuList.SingleMenu.ADDON_REGISTRATION.get().open(player);
+					for (String a : AddonQuery.getEnabledAddons()) {
+						EssentialsAddon addon = AddonQuery.find(a);
+						sendMessage(player, addon.getAddonName());
+						sendMessage(player, addon.getAddonDescription());
+						sendMessage(player, "------------------");
+						sendMessage(player, " ");
+					}
 				}
 
 			}

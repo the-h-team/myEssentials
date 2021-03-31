@@ -1,10 +1,14 @@
 package com.github.sanctum.myessentials.util.teleportation;
 
 import com.github.sanctum.myessentials.Essentials;
-import com.github.sanctum.myessentials.util.events.MEssPendingTeleportEvent;
-import com.github.sanctum.myessentials.util.events.MEssPendingTeleportToLocationEvent;
-import com.github.sanctum.myessentials.util.events.MEssPendingTeleportToPlayerEvent;
-import com.github.sanctum.myessentials.util.events.MEssTeleportEvent;
+import com.github.sanctum.myessentials.util.events.PendingTeleportEvent;
+import com.github.sanctum.myessentials.util.events.PendingTeleportToLocationEvent;
+import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
+import com.github.sanctum.myessentials.util.events.TeleportEvent;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,11 +16,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
-
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     private final Set<TeleportRequest> pending = new HashSet<>();
@@ -33,10 +32,10 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     public void teleportPlayer(@NotNull Player player, Destination destination) {
         final Optional<Player> destinationPlayer = destination.getDestinationPlayer();
         if (destinationPlayer.isPresent()) {
-            Bukkit.getPluginManager().callEvent(new MEssPendingTeleportToPlayerEvent(player, destinationPlayer.get()));
+            Bukkit.getPluginManager().callEvent(new PendingTeleportToPlayerEvent(player, destinationPlayer.get()));
             return;
         }
-        Bukkit.getPluginManager().callEvent(new MEssPendingTeleportToLocationEvent(player, destination.toLocation()));
+        Bukkit.getPluginManager().callEvent(new PendingTeleportToLocationEvent(player, destination.toLocation()));
     }
 
     @Override
@@ -68,7 +67,7 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
 
     // Process successful teleport, move requests to successful map
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onTeleportComplete(MEssTeleportEvent event) {
+    public void onTeleportComplete(TeleportEvent event) {
         event.getRequest().ifPresent(request -> {
             pending.remove(request);
             successful.add(request);
@@ -106,11 +105,11 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
             if (isComplete) return;
             status = Status.ACCEPTED;
             final Optional<Player> destinationPlayer = destination.getDestinationPlayer();
-            final MEssPendingTeleportEvent event;
+            final PendingTeleportEvent event;
             if (destinationPlayer.isPresent()) {
-                event = new MEssPendingTeleportToPlayerEvent(teleporting, destinationPlayer.get());
+                event = new PendingTeleportToPlayerEvent(teleporting, destinationPlayer.get());
             } else {
-                event = new MEssPendingTeleportToLocationEvent(teleporting, destination.toLocation());
+                event = new PendingTeleportToLocationEvent(teleporting, destination.toLocation());
             }
             Bukkit.getPluginManager().callEvent(event);
             isComplete = true;

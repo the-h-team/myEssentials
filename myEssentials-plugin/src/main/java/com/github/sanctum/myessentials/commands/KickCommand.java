@@ -12,7 +12,9 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.PlayerSearch;
 import java.util.List;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +33,58 @@ public final class KickCommand extends CommandBuilder {
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+		if (args.length == 0) {
+
+			return true;
+		}
+
+		if (args.length == 1) {
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (search.isValid()) {
+
+				OfflinePlayer target = search.getOfflinePlayer();
+
+				if (search.kick()) {
+					sendMessage(player, "Target kicked");
+				} else {
+					sendMessage(player, "Target is offline.");
+				}
+
+			} else {
+				if (testPermission(player)) {
+					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+					return true;
+				}
+				return true;
+			}
+			return true;
+		}
+
+		StringBuilder builder = new StringBuilder();
+		for (int i = 1; i < args.length; i++) {
+			builder.append(args[i]).append(" ");
+		}
+		String get = builder.toString().trim();
+
+		PlayerSearch search = PlayerSearch.look(args[0]);
+		if (search.isValid()) {
+
+			OfflinePlayer target = search.getOfflinePlayer();
+
+			if (search.kick(get)) {
+				sendMessage(player, "Target kicked for '" + get + "'");
+			} else {
+				sendMessage(player, "Target is offline.");
+			}
+
+		} else {
+			if (testPermission(player)) {
+				sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+				return true;
+			}
+			return true;
+		}
+
 		return false;
 	}
 

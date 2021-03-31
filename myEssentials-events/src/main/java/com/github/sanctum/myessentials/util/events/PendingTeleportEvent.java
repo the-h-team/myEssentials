@@ -12,7 +12,8 @@ package com.github.sanctum.myessentials.util.events;
 import com.github.sanctum.myessentials.util.teleportation.Destination;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -21,21 +22,21 @@ import org.jetbrains.annotations.NotNull;
  * This class cannot be directly listened to and serves
  * only as a base for pending teleport event types.
  */
-public abstract class MEssPendingTeleportEvent extends Event implements Cancellable {
+public abstract class PendingTeleportEvent extends Event implements Cancellable {
     protected final Player player;
     protected final Destination destination;
     protected long delay;
     protected boolean cancelled;
 
-    protected MEssPendingTeleportEvent(@NotNull Player player, @NotNull Location location) {
+    protected PendingTeleportEvent(@NotNull Player player, @NotNull Location location) {
         this(player, new Destination(location), 0L);
     }
 
-    protected MEssPendingTeleportEvent(@NotNull Player player, @NotNull Player targetPlayer) {
+    protected PendingTeleportEvent(@NotNull Player player, @NotNull Player targetPlayer) {
         this(player, new Destination(targetPlayer), 0L);
     }
 
-    protected MEssPendingTeleportEvent(@NotNull Player player, Destination destination, long delay) {
+    protected PendingTeleportEvent(@NotNull Player player, Destination destination, long delay) {
         this.player = player;
         this.destination = destination;
         this.delay = delay;
@@ -53,7 +54,7 @@ public abstract class MEssPendingTeleportEvent extends Event implements Cancella
     /**
      * Set a new delay.
      * <p>
-     * Delays the schedule of call of {@link MEssTeleportEvent}.
+     * Delays the schedule of call of {@link TeleportEvent}.
      *
      * @param delay new delay in ticks
      */
@@ -64,7 +65,7 @@ public abstract class MEssPendingTeleportEvent extends Event implements Cancella
     /**
      * Get the current delay in ticks.
      * <p>
-     * Delays the schedule of call of {@link MEssTeleportEvent}.
+     * Delays the schedule of call of {@link TeleportEvent}.
      * <p>
      * Defaults to 0L ticks.
      *

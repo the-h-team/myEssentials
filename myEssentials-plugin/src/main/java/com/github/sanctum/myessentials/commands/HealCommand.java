@@ -10,32 +10,112 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.formatting.TabCompletion;
+import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.PlayerSearch;
+import com.github.sanctum.myessentials.util.events.PlayerHealEvent;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class HealCommand extends CommandBuilder {
 	public HealCommand() {
 		super(InternalCommandData.HEAL_COMMAND);
 	}
 
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	@Override
-	public @Nullable
+	public @NotNull
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return null;
+		return builder.forArgs(args)
+				.level(1)
+				.completeAnywhere(getData().getLabel())
+				.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+				.collect()
+				.get(1);
 	}
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
+
+
+		if (args.length == 0) {
+			if (testPermission(player)) {
+				PlayerHealEvent event = new PlayerHealEvent(null, player, 20);
+				Bukkit.getPluginManager().callEvent(event);
+				return true;
+			}
+			return true;
+		}
+
+		if (args.length == 1) {
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (search.isValid()) {
+				if (search.isOnline()) {
+					Player target = search.getPlayer();
+					if (testPermission(player)) {
+						assert target != null;
+						PlayerHealEvent event = new PlayerHealEvent(player, target, 20);
+						Bukkit.getPluginManager().callEvent(event);
+						sendMessage(player, "&a&oTarget " + target.getName() + " has been healed to max health.");
+						return true;
+					}
+				} else {
+					if (testPermission(player)) {
+						sendMessage(player, "&c&oTarget " + search.getOfflinePlayer().getName() + " isn't online.");
+						return true;
+					}
+					return true;
+				}
+			} else {
+				if (testPermission(player)) {
+					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+					return true;
+				}
+				return true;
+			}
+			return true;
+		}
+
+		return true;
 	}
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+		if (args.length == 1) {
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (search.isValid()) {
+				if (search.isOnline()) {
+					Player target = search.getPlayer();
+					if (testPermission(sender)) {
+						assert target != null;
+						PlayerHealEvent event = new PlayerHealEvent(sender, target, 20);
+						Bukkit.getPluginManager().callEvent(event);
+						sendMessage(sender, "Target " + target.getName() + " has been healed to max health.");
+						return true;
+					}
+				} else {
+					if (testPermission(sender)) {
+						sendMessage(sender, "Target " + search.getOfflinePlayer().getName() + " isn't online.");
+						return true;
+					}
+					return true;
+				}
+			} else {
+				if (testPermission(sender)) {
+					sendMessage(sender, "Target " + args[0] + " was not found.");
+					return true;
+				}
+				return true;
+			}
+			return true;
+		}
 		return false;
 	}
 }

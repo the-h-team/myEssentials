@@ -10,17 +10,18 @@
 package com.github.sanctum.myessentials.util.events;
 
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
+import java.util.Optional;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.event.*;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 /**
  * Facilitates and carries out the final teleportation.
  */
-public final class MEssTeleportEvent extends Event implements Cancellable {
+public final class TeleportEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
 
     protected final Location from;
@@ -29,11 +30,11 @@ public final class MEssTeleportEvent extends Event implements Cancellable {
     protected final TeleportRequest request;
     private boolean cancelled = false;
 
-    public MEssTeleportEvent(@NotNull Player who, @NotNull Location from, @NotNull Location to) {
+    public TeleportEvent(@NotNull Player who, @NotNull Location from, @NotNull Location to) {
         this(who, from, to, null);
     }
 
-    public MEssTeleportEvent(@NotNull Player who, @NotNull Location from, @NotNull Location to, TeleportRequest request) {
+    public TeleportEvent(@NotNull Player who, @NotNull Location from, @NotNull Location to, TeleportRequest request) {
         this.player = who;
         this.from = from;
         this.to = to;

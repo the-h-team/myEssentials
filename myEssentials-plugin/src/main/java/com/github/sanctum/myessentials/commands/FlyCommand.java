@@ -88,7 +88,7 @@ public final class FlyCommand extends CommandBuilder {
             }.runTaskLaterAsynchronously(plugin, 200L);
         } else {
             player.setAllowFlight(true);
-            player.setVelocity(player.getVelocity().add(new Vector(0d, 0.6, 0d)));
+            player.setVelocity(player.getVelocity().add(new Vector(0d, 1, 0d)));
             sendMessage(player, ConfiguredMessage.FLIGHT_ON);
             new BukkitRunnable() {
                 @Override

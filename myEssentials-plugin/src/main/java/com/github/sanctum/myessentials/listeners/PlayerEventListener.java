@@ -8,6 +8,11 @@
  */
 package com.github.sanctum.myessentials.listeners;
 
+import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,17 +21,19 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 public class PlayerEventListener implements Listener {
 	private static PlayerEventListener instance;
+
 	{
 		instance = this;
 	}
+
 	private final Map<UUID, Location> prevLocations = new HashMap<>();
+
+	@EventHandler
+	public void onTest(PlayerPendingHealEvent e) {
+		e.setAmount(2);
+	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onTeleport(PlayerTeleportEvent e) {

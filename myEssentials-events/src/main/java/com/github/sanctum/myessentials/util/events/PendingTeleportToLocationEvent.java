@@ -17,9 +17,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Encapsulates requested teleportation to a fixed location.
  */
-public final class MEssPendingTeleportToLocationEvent extends MEssPendingTeleportEvent {
+public final class PendingTeleportToLocationEvent extends PendingTeleportEvent {
     private static final HandlerList HANDLERS = new HandlerList();
-    public MEssPendingTeleportToLocationEvent(@NotNull Player who, @NotNull Location location) {
+
+    public PendingTeleportToLocationEvent(@NotNull Player who, @NotNull Location location) {
         super(who, location);
     }
 

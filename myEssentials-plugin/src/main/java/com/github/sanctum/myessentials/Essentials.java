@@ -154,7 +154,9 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
         for (Class<?> aClass : classes) {
             try {
                 final EssentialsAddon addon = (EssentialsAddon) aClass.getDeclaredConstructor().newInstance();
-                AddonQuery.register(addon);
+                if (!AddonQuery.getRegisteredAddons().contains(addon.getAddonName())) {
+                    AddonQuery.register(addon);
+                }
             } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException e) {
                 // unable to load addon
                 e.printStackTrace();
@@ -164,9 +166,13 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
     @Override
     public void onDisable() {
-        TeleportationManager.unregisterListeners();
-        if (System.getProperty("OLD").equals("FALSE")) {
-            System.setProperty("OLD", "TRUE");
+        try {
+            TeleportationManager.unregisterListeners();
+            if (System.getProperty("OLD").equals("FALSE")) {
+                System.setProperty("OLD", "TRUE");
+            }
+        } catch (Exception e) {
+            getLogger().severe("- Reload detected.");
         }
     }
 

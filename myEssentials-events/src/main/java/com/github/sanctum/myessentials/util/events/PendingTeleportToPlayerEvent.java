@@ -16,9 +16,10 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Encapsulates requested teleportation to a Player.
  */
-public final class MEssPendingTeleportToPlayerEvent extends MEssPendingTeleportEvent {
+public final class PendingTeleportToPlayerEvent extends PendingTeleportEvent {
     private static final HandlerList HANDLERS = new HandlerList();
-    public MEssPendingTeleportToPlayerEvent(@NotNull Player who, @NotNull Player target) {
+
+    public PendingTeleportToPlayerEvent(@NotNull Player who, @NotNull Player target) {
         super(who, target);
     }
 

@@ -86,7 +86,9 @@ public final class AddonQuery {
 				if (c == null) continue;
 				if (!c.isRegistered()) {
 					if (a.isEmpty()) {
-						array.add(e.getAddonName());
+						if (!array.contains(e.getAddonName())) {
+							array.add(e.getAddonName());
+						}
 					}
 					break;
 				}
@@ -106,12 +108,16 @@ public final class AddonQuery {
 			if (instance == null) new AddonQuery();
 			List<Listener> a = HandlerList.getRegisteredListeners(instance.plugin).stream().sequential().filter(r -> e.getListeners().contains(r.getListener())).map(RegisteredListener::getListener).collect(Collectors.toList());
 			if (!a.isEmpty()) {
-				array.add(e.getAddonName());
+				if (!array.contains(e.getAddonName())) {
+					array.add(e.getAddonName());
+				}
 			}
 			for (CommandData command : e.getCommands().keySet()) {
 				Command c = instance.api.getRegistration(command);
 				if (c != null && c.isRegistered()) {
-					array.add(e.getAddonName());
+					if (!array.contains(e.getAddonName())) {
+						array.add(e.getAddonName());
+					}
 					break;
 				}
 			}

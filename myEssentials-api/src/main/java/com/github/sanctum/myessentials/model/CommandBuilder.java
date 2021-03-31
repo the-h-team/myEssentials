@@ -57,11 +57,7 @@ public abstract class CommandBuilder {
     }
 
     protected void sendUsage(CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(() -> color(commandData.getUsage()));
-        } else {
-            new Message((Player) sender, "[&2" + JavaPlugin.getProvidingPlugin(getClass()) + "&r]").send(commandData.getUsage());
-        }
+         sendMessage(sender, commandData.getUsage());
     }
 
     protected void sendMessage(CommandSender sender, String text) {
