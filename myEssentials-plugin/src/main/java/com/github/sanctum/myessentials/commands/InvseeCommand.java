@@ -10,9 +10,11 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +33,33 @@ public final class InvseeCommand extends CommandBuilder {
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+
+		if (args.length == 0) {
+
+			return true;
+		}
+
+		if (args.length == 1) {
+
+			if (Bukkit.getPlayer(args[0]) != null) {
+				Player target = Bukkit.getPlayer(args[0]);
+
+				if (player == target) {
+					sendMessage(player, "&c&oYou can't edit your own inventory this way.");
+					return true;
+				}
+
+				assert target != null;
+				SharedMenu.open(target);
+
+			} else {
+				sendMessage(player, "&c&oPlayer not found!");
+				return true;
+			}
+
+			return true;
+		}
+
 		return false;
 	}
 

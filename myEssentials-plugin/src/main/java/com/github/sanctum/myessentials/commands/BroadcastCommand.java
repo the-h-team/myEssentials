@@ -11,6 +11,7 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.TabCompletion;
+import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.Collections;
@@ -25,11 +26,15 @@ public final class BroadcastCommand extends CommandBuilder {
 		super(InternalCommandData.BROADCAST_COMMAND);
 	}
 
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	@Override
 	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 
+
 		if (args.length == 2) {
-			return TabCompletion.build(getData().getLabel(), args)
+			return builder
+					.forArgs(args)
 					.level(2)
 					.completeAnywhere(getData().getLabel())
 					.filter(() -> Collections.singletonList("goes"))
@@ -39,7 +44,8 @@ public final class BroadcastCommand extends CommandBuilder {
 		}
 
 		if (args.length == 3) {
-			return TabCompletion.build(getData().getLabel(), args)
+			return builder
+					.forArgs(args)
 					.level(3)
 					.completeAnywhere(getData().getLabel())
 					.filter(() -> Collections.singletonList("here"))
@@ -48,7 +54,8 @@ public final class BroadcastCommand extends CommandBuilder {
 					.get(3);
 		}
 
-		return TabCompletion.build(getData().getLabel(), args)
+		return builder
+				.forArgs(args)
 				.level(1)
 				.completeAnywhere(getData().getLabel())
 				.filter(() -> Collections.singletonList("message"))
