@@ -13,7 +13,11 @@ package com.github.sanctum.myessentials;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.event.EventBuilder;
-import com.github.sanctum.myessentials.api.*;
+import com.github.sanctum.myessentials.api.AddonQuery;
+import com.github.sanctum.myessentials.api.CommandData;
+import com.github.sanctum.myessentials.api.EssentialsAddon;
+import com.github.sanctum.myessentials.api.Messenger;
+import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.listeners.PlayerEventListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandImpl;
@@ -105,12 +109,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
         Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
         this.teleportRunner = new TeleportRunnerImpl(this);
         this.messenger = new MessengerImpl(this);
-        EventBuilder events = new EventBuilder(this);
+        EventBuilder.compileFields(this, "com.github.sanctum.myessentials.listeners");
         InternalCommandData.defaultOrReload(this);
         ConfiguredMessage.loadProperties(this);
         CommandRegistration.compileFields(this, "com.github.sanctum.myessentials.commands");
         TeleportationManager.registerListeners(this);
-        events.compileFields("com.github.sanctum.myessentials.listeners");
         try {
             injectAddons();
         } catch (Exception e) {
