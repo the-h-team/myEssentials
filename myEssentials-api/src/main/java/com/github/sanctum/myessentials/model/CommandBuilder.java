@@ -52,7 +52,7 @@ public abstract class CommandBuilder {
         if (!(sender instanceof Player)) {
             JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(message.toString());
         } else {
-            new Message((Player) sender, "[&2" + JavaPlugin.getProvidingPlugin(getClass()) + "&r]").send(message.toString());
+            new Message((Player) sender, MyEssentialsAPI.getInstance().getPrefix()).send(message.toString());
         }
     }
 
@@ -64,7 +64,7 @@ public abstract class CommandBuilder {
         if (!(sender instanceof Player)) {
             JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(text);
         } else {
-            new Message((Player) sender, "[&2" + JavaPlugin.getProvidingPlugin(getClass()) + "&r]").send(text);
+            new Message((Player) sender, MyEssentialsAPI.getInstance().getPrefix()).send(text);
         }
     }
 

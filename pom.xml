@@ -98,7 +98,7 @@
         <dependency>
             <groupId>com.github.the-h-team</groupId>
             <artifactId>Labyrinth</artifactId>
-            <version>ffea6e51ea</version>
+            <version>a5b87d8fb6</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

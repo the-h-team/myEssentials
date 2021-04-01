@@ -37,7 +37,7 @@ public final class NightCommand extends CommandBuilder {
 		return builder
 				.forArgs(args)
 				.level(1)
-				.completeAnywhere(getData().getLabel())
+				.completeAt(getData().getLabel())
 				.filter(() -> Arrays.asList("night", "midnight", "dusk"))
 				.map("night", () -> {
 					if (r.nextBoolean()) {

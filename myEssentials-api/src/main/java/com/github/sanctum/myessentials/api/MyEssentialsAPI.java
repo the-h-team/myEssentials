@@ -10,12 +10,11 @@ package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
+import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
-
-import com.github.sanctum.myessentials.model.CommandBuilder;
-import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -79,6 +78,8 @@ public interface MyEssentialsAPI {
      * @return message utility
      */
     Messenger getMessenger();
+
+    String getPrefix();
 
     void logInfo(String toLog);
 

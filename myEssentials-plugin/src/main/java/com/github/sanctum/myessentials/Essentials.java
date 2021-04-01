@@ -27,6 +27,7 @@ import com.github.sanctum.myessentials.model.CommandImpl;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.CooldownManager;
 import com.github.sanctum.myessentials.util.MessengerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
@@ -116,6 +117,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
         EventBuilder.compileFields(this, "com.github.sanctum.myessentials.listeners");
         InternalCommandData.defaultOrReload(this);
         ConfiguredMessage.loadProperties(this);
+        CooldownManager.renewTimers();
         CommandRegistration.compileFields(this, "com.github.sanctum.myessentials.commands");
         TeleportationManager.registerListeners(this);
         try {
@@ -175,6 +177,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
             if (System.getProperty("OLD").equals("FALSE")) {
                 System.setProperty("OLD", "TRUE");
             }
+            CooldownManager.updateStorage();
         } catch (Exception e) {
             getLogger().severe("- Reload detected.");
         }
@@ -239,6 +242,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public Messenger getMessenger() {
         return messenger;
+    }
+
+    @Override
+    public String getPrefix() {
+        return ConfiguredMessage.PREFIX.get();
     }
 
     @Override

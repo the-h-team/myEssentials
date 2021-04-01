@@ -13,6 +13,7 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.List;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -31,6 +32,28 @@ public final class KickAllCommand extends CommandBuilder {
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+
+		if (args.length == 0) {
+			if (testPermission(player)) {
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					Bukkit.dispatchCommand(player, "kick " + p.getName());
+				}
+				return true;
+			}
+			return true;
+		}
+
+		StringBuilder builder = new StringBuilder();
+		for (String arg : args) {
+			builder.append(arg).append(" ");
+		}
+		if (testPermission(player)) {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				Bukkit.dispatchCommand(player, "kick " + p.getName() + " " + builder.toString().trim());
+			}
+			return true;
+		}
+
 		return false;
 	}
 

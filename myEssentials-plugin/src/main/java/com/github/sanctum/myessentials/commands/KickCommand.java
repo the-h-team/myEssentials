@@ -10,25 +10,35 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.formatting.TabCompletion;
+import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.util.PlayerSearch;
+import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class KickCommand extends CommandBuilder {
 	public KickCommand() {
 		super(InternalCommandData.KICK_COMMAND);
 	}
 
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	@Override
-	public @Nullable
+	public @NotNull
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return null;
+		return builder.forArgs(args)
+				.level(1)
+				.completeAt(getData().getLabel())
+				.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+				.collect()
+				.get(1);
 	}
 
 	@Override
@@ -40,18 +50,18 @@ public final class KickCommand extends CommandBuilder {
 
 		if (args.length == 1) {
 			PlayerSearch search = PlayerSearch.look(args[0]);
-			if (search.isValid()) {
+			if (testPermission(player)) {
+				if (search.isValid()) {
 
-				OfflinePlayer target = search.getOfflinePlayer();
+					OfflinePlayer target = search.getOfflinePlayer();
 
-				if (search.kick()) {
-					sendMessage(player, "Target kicked");
+					if (search.kick()) {
+						sendMessage(player, "Target kicked");
+					} else {
+						sendMessage(player, "Target is offline.");
+					}
+
 				} else {
-					sendMessage(player, "Target is offline.");
-				}
-
-			} else {
-				if (testPermission(player)) {
 					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
 					return true;
 				}
@@ -64,21 +74,21 @@ public final class KickCommand extends CommandBuilder {
 		for (int i = 1; i < args.length; i++) {
 			builder.append(args[i]).append(" ");
 		}
-		String get = builder.toString().trim();
+		if (testPermission(player)) {
+			String get = builder.toString().trim();
 
-		PlayerSearch search = PlayerSearch.look(args[0]);
-		if (search.isValid()) {
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (search.isValid()) {
 
-			OfflinePlayer target = search.getOfflinePlayer();
+				OfflinePlayer target = search.getOfflinePlayer();
 
-			if (search.kick(get)) {
-				sendMessage(player, "Target kicked for '" + get + "'");
+				if (search.kick(get)) {
+					sendMessage(player, "Target kicked for '" + get + "'");
+				} else {
+					sendMessage(player, "Target is offline.");
+				}
+
 			} else {
-				sendMessage(player, "Target is offline.");
-			}
-
-		} else {
-			if (testPermission(player)) {
 				sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
 				return true;
 			}

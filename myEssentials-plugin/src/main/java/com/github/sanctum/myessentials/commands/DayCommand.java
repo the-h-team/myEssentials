@@ -37,7 +37,7 @@ public final class DayCommand extends CommandBuilder {
 		return builder
 				.forArgs(args)
 				.level(1)
-				.completeAnywhere(getData().getLabel())
+				.completeAt(getData().getLabel())
 				.filter(() -> Arrays.asList("morning", "noon", "afternoon"))
 				.map("morning", () -> {
 					if (r.nextBoolean()) {

@@ -14,8 +14,8 @@ import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.util.PlayerSearch;
 import com.github.sanctum.myessentials.util.events.PlayerHealEvent;
+import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -35,7 +35,7 @@ public final class HealCommand extends CommandBuilder {
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return builder.forArgs(args)
 				.level(1)
-				.completeAnywhere(getData().getLabel())
+				.completeAt(getData().getLabel())
 				.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
 				.collect()
 				.get(1);

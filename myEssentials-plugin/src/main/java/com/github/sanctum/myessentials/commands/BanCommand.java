@@ -10,25 +10,36 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.formatting.TabCompletion;
+import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.util.PlayerSearch;
+import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class BanCommand extends CommandBuilder {
 	public BanCommand() {
 		super(InternalCommandData.BAN_COMMAND);
 	}
 
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	@Override
-	public @Nullable
+	public @NotNull
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return null;
+		return builder.forArgs(args)
+				.level(1)
+				.completeAt(getData().getLabel())
+				.filter(() -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
+				.collect()
+				.get(1);
 	}
 
 	@Override
@@ -41,18 +52,18 @@ public final class BanCommand extends CommandBuilder {
 
 		if (args.length == 1) {
 			PlayerSearch search = PlayerSearch.look(args[0]);
-			if (search.isValid()) {
+			if (testPermission(player)) {
+				if (search.isValid()) {
 
-				OfflinePlayer target = search.getOfflinePlayer();
+					OfflinePlayer target = search.getOfflinePlayer();
 
-				if (search.ban(player.getName())) {
-					sendMessage(player, "Target banned");
+					if (search.ban(player.getName())) {
+						sendMessage(player, "Target banned");
+					} else {
+						sendMessage(player, "Target is already banned.");
+					}
+
 				} else {
-					sendMessage(player, "Target is already banned.");
-				}
-
-			} else {
-				if (testPermission(player)) {
 					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
 					return true;
 				}
@@ -68,22 +79,21 @@ public final class BanCommand extends CommandBuilder {
 		String get = builder.toString().trim();
 
 		PlayerSearch search = PlayerSearch.look(args[0]);
-		if (search.isValid()) {
+		if (testPermission(player)) {
+			if (search.isValid()) {
 
-			OfflinePlayer target = search.getOfflinePlayer();
+				OfflinePlayer target = search.getOfflinePlayer();
 
-			if (search.ban(player.getName(), get)) {
-				sendMessage(player, "Target banned for '" + get + "'");
+				if (search.ban(player.getName(), get)) {
+					sendMessage(player, "Target banned for '" + get + "'");
+				} else {
+					sendMessage(player, "Target is already banned.");
+				}
+
 			} else {
-				sendMessage(player, "Target is already banned.");
-			}
-
-		} else {
-			if (testPermission(player)) {
 				sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
 				return true;
 			}
-			return true;
 		}
 
 		return false;

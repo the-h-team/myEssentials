@@ -11,13 +11,16 @@
 package com.github.sanctum.myessentials.util;
 
 import com.github.sanctum.myessentials.Essentials;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Objects;
+import java.util.Properties;
 import net.md_5.bungee.api.ChatColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.io.*;
-import java.util.Objects;
-import java.util.Properties;
 
 /**
  * Provides configurable messages.
@@ -27,7 +30,8 @@ public enum ConfiguredMessage implements ProvidedMessage {
     TRY_IN_SURVIVAL("try-in-survival"),
     // Fly messages
     FLIGHT_OFF("flight-off"),
-    FLIGHT_ON("flight-on");
+    FLIGHT_ON("flight-on"),
+    PREFIX("prefix");
 
     private final String key;
 

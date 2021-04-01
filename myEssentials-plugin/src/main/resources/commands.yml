@@ -13,6 +13,11 @@ ban:
   usage: '&6/ban&r <&cplayerName&r>'
   description: 'Ban a specified player from the server'
   permission: 'mess.staff.ban'
+tempban:
+  label: tempban
+  usage: '&6/tempban&r <&cplayerName&r> <expirationDate>'
+  description: 'Ban a specified player from the server for a specific amount of time.'
+  permission: 'mess.staff.tempban'
 broadcast:
   label: broadcast
   usage: '&6/broadcast&r <&etext...&r>'

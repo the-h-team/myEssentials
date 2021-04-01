@@ -36,7 +36,7 @@ public final class BroadcastCommand extends CommandBuilder {
 			return builder
 					.forArgs(args)
 					.level(2)
-					.completeAnywhere(getData().getLabel())
+					.completeAt(getData().getLabel())
 					.filter(() -> Collections.singletonList("goes"))
 					.map("goes", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
 					.collect()
@@ -47,7 +47,7 @@ public final class BroadcastCommand extends CommandBuilder {
 			return builder
 					.forArgs(args)
 					.level(3)
-					.completeAnywhere(getData().getLabel())
+					.completeAt(getData().getLabel())
 					.filter(() -> Collections.singletonList("here"))
 					.map("here", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
 					.collect()
@@ -57,7 +57,7 @@ public final class BroadcastCommand extends CommandBuilder {
 		return builder
 				.forArgs(args)
 				.level(1)
-				.completeAnywhere(getData().getLabel())
+				.completeAt(getData().getLabel())
 				.filter(() -> Collections.singletonList("message"))
 				.map("message", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
 				.collect()

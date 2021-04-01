@@ -10,25 +10,36 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.formatting.TabCompletion;
+import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.util.PlayerSearch;
+import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.bukkit.BanEntry;
+import org.bukkit.BanList;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public final class UnbanCommand extends CommandBuilder {
 	public UnbanCommand() {
 		super(InternalCommandData.UNBAN_COMMAND);
 	}
 
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	@Override
-	public @Nullable
+	public @NotNull
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return null;
+		return builder.forArgs(args)
+				.level(1)
+				.completeAt(getData().getLabel())
+				.filter(() -> Bukkit.getBanList(BanList.Type.NAME).getBanEntries().stream().map(BanEntry::getTarget).collect(Collectors.toList()))
+				.collect().get(1);
 	}
 
 	@Override
@@ -61,6 +72,28 @@ public final class UnbanCommand extends CommandBuilder {
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+
+		if (args.length == 1) {
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (search.isValid()) {
+
+				OfflinePlayer target = search.getOfflinePlayer();
+
+				if (search.unban()) {
+					sendMessage(sender, "Target unbanned");
+				} else {
+					sendMessage(sender, "Target is already not banned.");
+				}
+
+			} else {
+				if (testPermission(sender)) {
+					sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+					return true;
+				}
+				return true;
+			}
+			return true;
+		}
 		return false;
 	}
 }
