@@ -2,22 +2,29 @@ package com.github.sanctum.myessentials.model.ban;
 
 import org.bukkit.BanEntry;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
  * Describes a name-based ban.
  */
-public abstract class NameBan extends Ban {
+public class NameBan extends Ban {
     private static final long serialVersionUID = -8535167820363495565L;
     protected final String name;
 
-    protected NameBan(Player player) {
-        super(player);
+    protected NameBan(@NotNull Player player, @NotNull String source, String reason) {
+        super(source, player, reason);
+        this.name = player.getName();
+    }
+    protected NameBan(@NotNull Player player, @NotNull String source, String reason, LocalDateTime expiration) {
+        super(source, player, reason, expiration);
         this.name = player.getName();
     }
 
-    protected NameBan(BanEntry banEntry) {
+    public NameBan(BanEntry banEntry) {
+        super(banEntry);
         this.name = banEntry.getTarget();
     }
     /**

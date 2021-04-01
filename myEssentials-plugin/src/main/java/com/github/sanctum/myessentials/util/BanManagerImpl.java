@@ -8,10 +8,7 @@ import com.github.sanctum.myessentials.model.ban.NameBan;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,61 +28,15 @@ public final class BanManagerImpl implements BanManager {
     public Collection<IPBan> getIPBans() {
         return Bukkit.getBanList(BanList.Type.IP).getBanEntries()
                 .stream()
-                .map(entry -> new IPBan(entry) {
-                    private static final long serialVersionUID = -2467970354227392725L;
-                    private final LocalDateTime creation = LocalDateTime.ofInstant(entry.getCreated().toInstant(), ZoneId.systemDefault());
-
-                    @Override
-                    public LocalDateTime getCreation() {
-                        return creation;
-                    }
-
-                    @Override
-                    public String source() {
-                        return entry.getSource();
-                    }
-
-                    @Override
-                    public Optional<LocalDateTime> getExpiration() {
-                        return Optional.ofNullable(entry.getExpiration())
-                                .map(ex -> LocalDateTime.ofInstant(ex.toInstant(), ZoneId.systemDefault()));
-                    }
-
-                    @Override
-                    public String getReason() {
-                        return entry.getReason();
-                    }
-                }).collect(Collectors.toSet());
+                .map(IPBan::new)
+                .collect(Collectors.toSet());
     }
 
     @Override
     public Collection<NameBan> getNameBans() {
         return Bukkit.getBanList(BanList.Type.NAME).getBanEntries()
                 .stream()
-                .map(entry -> new NameBan(entry) {
-                    private static final long serialVersionUID = -2467970354227392725L;
-                    private final LocalDateTime creation = LocalDateTime.ofInstant(entry.getCreated().toInstant(), ZoneId.systemDefault());
-
-                    @Override
-                    public LocalDateTime getCreation() {
-                        return creation;
-                    }
-
-                    @Override
-                    public String source() {
-                        return entry.getSource();
-                    }
-
-                    @Override
-                    public Optional<LocalDateTime> getExpiration() {
-                        return Optional.ofNullable(entry.getExpiration())
-                                .map(ex -> LocalDateTime.ofInstant(ex.toInstant(), ZoneId.systemDefault()));
-                    }
-
-                    @Override
-                    public String getReason() {
-                        return entry.getReason();
-                    }
-                }).collect(Collectors.toSet());
+                .map(NameBan::new)
+                .collect(Collectors.toSet());
     }
 }

@@ -2,23 +2,30 @@ package com.github.sanctum.myessentials.model.ban;
 
 import org.bukkit.BanEntry;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
  * Describes an IP-based ban.
  */
-public abstract class IPBan extends Ban {
+public class IPBan extends Ban {
     private static final long serialVersionUID = -3264544256297773790L;
     protected final InetSocketAddress address;
 
-    protected IPBan(Player player) {
-        super(player);
+    protected IPBan(@NotNull Player player, @NotNull String source, String reason) {
+        super(source, player, reason);
+        this.address = player.getAddress();
+    }
+    protected IPBan(@NotNull Player player, @NotNull String source, String reason, LocalDateTime expiration) {
+        super(source, player, reason, expiration);
         this.address = player.getAddress();
     }
 
-    protected IPBan(BanEntry banEntry) {
+    public IPBan(BanEntry banEntry) {
+        super(banEntry);
         this.address = InetSocketAddress.createUnresolved(banEntry.getTarget(), 0);
     }
 
