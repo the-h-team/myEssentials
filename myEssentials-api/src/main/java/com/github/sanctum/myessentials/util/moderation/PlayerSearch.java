@@ -4,6 +4,7 @@ import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.SkullItem;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.model.CooldownFinder;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * An object that encapsulates a source object and locates a bukkit player
  */
-public final class PlayerSearch {
+public final class PlayerSearch implements CooldownFinder {
 
 	private final UUID uuid;
 
@@ -176,7 +177,25 @@ public final class PlayerSearch {
 		if (uuid == null) {
 			return null;
 		}
-		return Cooldown.getById("MyBan-id-" + uuid.toString());
+		return timer("MyBan-id-" + uuid.toString());
+	}
+
+	/**
+	 * Get the player's ban timer, if they have one you can check information like the initial time and remaining.
+	 *
+	 * @param format The format display for the timer, if the timer is empty this could result in an NPE.
+	 *               Format the timer using tags : {DAYS} {HOURS} {MINUTES} {SECONDS}
+	 * @return The player's ban timer if one is present otherwise empty.
+	 * @throws NullPointerException If the timer has no proper empty check and access is attempted.
+	 */
+	public @NotNull Optional<Cooldown> getBanTimer(String format) {
+		if (uuid == null) {
+			return Optional.empty();
+		}
+		if (timer("MyBan-id-" + uuid.toString()) == null) {
+			return Optional.empty();
+		}
+		return Optional.ofNullable(timer("MyBan-id-" + uuid.toString()).format(format));
 	}
 
 	/**

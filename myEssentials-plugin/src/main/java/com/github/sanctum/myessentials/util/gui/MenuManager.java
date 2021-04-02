@@ -288,7 +288,7 @@ public class MenuManager {
 		public SharedMenu share() {
 
 			if (this == Select.DONATION_BIN) {
-				return SharedMenu.get(8008);
+				return SharedMenu.get("My-Bin");
 			}
 
 			return null;

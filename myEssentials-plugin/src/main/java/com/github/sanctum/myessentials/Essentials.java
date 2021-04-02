@@ -15,53 +15,41 @@ import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.event.EventBuilder;
 import com.github.sanctum.labyrinth.gui.InventoryRows;
 import com.github.sanctum.labyrinth.gui.shared.SharedBuilder;
+import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.StringUtils;
-import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.CommandData;
-import com.github.sanctum.myessentials.api.EssentialsAddon;
 import com.github.sanctum.myessentials.api.Messenger;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.listeners.PlayerEventListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandImpl;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.BanTimerManager;
 import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
-import com.github.sanctum.myessentials.util.CooldownManager;
 import com.github.sanctum.myessentials.util.MessengerImpl;
+import com.github.sanctum.myessentials.util.ReloadImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
-import com.google.common.collect.Sets;
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -81,103 +69,39 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
     @Override
     public void onEnable() {
         instance = this;
-        if (System.getProperty("OLD") != null && System.getProperty("OLD").equals("TRUE")) {
-            getLogger().severe("- RELOAD DETECTED! Shutting down...");
-            getLogger().severe("      ██╗");
-            getLogger().severe("  ██╗██╔╝");
-            getLogger().severe("  ╚═╝██║ ");
-            getLogger().severe("  ██╗██║ ");
-            getLogger().severe("  ╚═╝╚██╗");
-            getLogger().severe("      ╚═╝");
-            getLogger().severe("- (You are not supported in the case of corrupt data)");
-            getLogger().severe("- (Reloading is NEVER safe and you should always restart instead.)");
-            FileManager file = getFileList().find("ignore", "");
-            String location = new Date().toInstant().atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE);
-            List<String> toAdd = new ArrayList<>(file.getConfig().getStringList(location));
-            toAdd.add("RELOAD DETECTED! Shutting down...");
-            toAdd.add("      ██╗");
-            toAdd.add("  ██╗██╔╝");
-            toAdd.add("  ╚═╝██║ ");
-            toAdd.add("  ██╗██║ ");
-            toAdd.add("  ╚═╝╚██╗");
-            toAdd.add("      ╚═╝");
-            toAdd.add("(You are not supported in the case of corrupt data)");
-            toAdd.add("(Reloading is NEVER safe and you should always restart instead.)");
-            file.getConfig().set(location, toAdd);
-            file.saveConfig();
-            Bukkit.getPluginManager().disablePlugin(this);
-            return;
-        } else {
-            System.setProperty("OLD", "FALSE");
-        }
-        SharedBuilder.create(this, 8008, StringUtils.translate("&6&nDonation Bin."), InventoryRows.THREE.getSlotCount());
+
         Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
+        ReloadImpl.get(this).onEnable(getClassLoader());
+        SharedMenu bin = SharedBuilder.create(this, "My-Bin", StringUtils.translate("&6&nDonation Bin."), InventoryRows.THREE.getSlotCount());
+        bin.addOption(SharedMenu.Option.CANCEL_HOTBAR);
+        bin.setItem(0, () -> {
+            ItemStack item = new ItemStack(Material.HEART_OF_THE_SEA);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName(StringUtils.translate("&4Close."));
+            item.setItemMeta(meta);
+            return item;
+        }, click -> {
+            click.getWhoClicked().closeInventory();
+            click.cancel();
+        });
         this.teleportRunner = new TeleportRunnerImpl(this);
         this.messenger = new MessengerImpl(this);
         EventBuilder.compileFields(this, "com.github.sanctum.myessentials.listeners");
         InternalCommandData.defaultOrReload(this);
         ConfiguredMessage.loadProperties(this);
-        CooldownManager.renewTimers();
+        BanTimerManager.renewTimers();
         CommandRegistration.compileFields(this, "com.github.sanctum.myessentials.commands");
         TeleportationManager.registerListeners(this);
-        try {
-            injectAddons();
-        } catch (Exception e) {
-            getLogger().severe("- An unexpected file type was found in the addon folder, remove it then restart.");
-        }
     }
 
-    private void injectAddons() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Set<Class<?>> classes = Sets.newHashSet();
-        FileManager check = getAddonFile("Test", "");
-        File parent = check.getFile().getParentFile();
-        for (File f : parent.listFiles()) {
-            if (f.isFile()) {
-                JarFile test = new JarFile(f);
-                URLClassLoader classLoader = (URLClassLoader) getClassLoader();
-                Class<?> urlClassLoaderClass = URLClassLoader.class;
-                Method method = urlClassLoaderClass.getDeclaredMethod("addURL", URL.class);
-                method.setAccessible(true);
-                method.invoke(classLoader, f.toURI().toURL());
-                for (JarEntry jarEntry : Collections.list(test.entries())) {
-                    String entry = jarEntry.getName().replace("/", ".");
-                    if (entry.endsWith(".class")) {
-                        Class<?> clazz = null;
-                        final String substring = entry.substring(0, entry.length() - 6);
-                        try {
-                            clazz = Class.forName(substring);
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        assert clazz != null;
-                        if (EssentialsAddon.class.isAssignableFrom(clazz)) {
-                            classes.add(clazz);
-                        }
-                    }
-                }
-            }
-        }
-        for (Class<?> aClass : classes) {
-            try {
-                final EssentialsAddon addon = (EssentialsAddon) aClass.getDeclaredConstructor().newInstance();
-                if (!AddonQuery.getRegisteredAddons().contains(addon.getAddonName())) {
-                    AddonQuery.register(addon);
-                }
-            } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException | InstantiationException | InvocationTargetException e) {
-                // unable to load addon
-                e.printStackTrace();
-            }
-        }
-    }
+
 
     @Override
     public void onDisable() {
         try {
+            ReloadImpl.get(this).onDisable();
             TeleportationManager.unregisterListeners();
-            if (System.getProperty("OLD").equals("FALSE")) {
-                System.setProperty("OLD", "TRUE");
-            }
-            CooldownManager.updateStorage();
+            BanTimerManager.updateStorage();
         } catch (Exception e) {
             getLogger().severe("- Reload detected.");
         }

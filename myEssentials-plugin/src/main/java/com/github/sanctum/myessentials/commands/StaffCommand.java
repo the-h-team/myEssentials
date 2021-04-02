@@ -10,12 +10,10 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.api.AddonQuery;
-import com.github.sanctum.myessentials.api.EssentialsAddon;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.gui.MenuManager;
-import com.github.sanctum.myessentials.util.permissions.PermissiveConnection;
 import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -36,24 +34,8 @@ public final class StaffCommand extends CommandBuilder {
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
-		if (args.length == 0) {
-			// myPermissions enabled, get the data.
-			if (PermissiveConnection.trusted()) {
-				sendMessage(player, PermissiveConnection.getGroup(player) + " is your group and your weight is " + PermissiveConnection.getWeight(player));
-				//If the rank priority is high enough let them open the menu.
-				if (PermissiveConnection.getWeight(player) > 0) {
-					MenuManager.Select.ADDON_REGISTRATION.get().open(player);
-					for (String a : AddonQuery.getEnabledAddons()) {
-						EssentialsAddon addon = AddonQuery.find(a);
-						sendMessage(player, addon.getAddonName());
-						sendMessage(player, addon.getAddonDescription());
-						sendMessage(player, "------------------");
-						sendMessage(player, " ");
-					}
-				}
-
-			}
-
+		if (testPermission(player)) {
+			MenuManager.Select.ADDON_REGISTRATION.get().open(player);
 			return true;
 		}
 
@@ -62,6 +44,7 @@ public final class StaffCommand extends CommandBuilder {
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
+		sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
+		return true;
 	}
 }

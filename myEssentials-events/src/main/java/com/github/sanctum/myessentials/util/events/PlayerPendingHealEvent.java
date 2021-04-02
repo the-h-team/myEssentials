@@ -9,6 +9,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * The event which a target player is about to be healed, here you can configure information to be passed to the resulting event.
+ */
 public class PlayerPendingHealEvent extends Event {
 
 	private static final HandlerList HANDLER_LIST = new HandlerList();

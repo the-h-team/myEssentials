@@ -10,7 +10,6 @@
 package com.github.sanctum.myessentials.model;
 
 import java.util.List;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -32,6 +31,7 @@ public final class CommandImpl extends Command {
         final List<String> aliases = this.commandBuilder.commandData.getAliases();
         if (aliases.isEmpty()) return;
         setAliases(aliases);
+        setUsage(commandBuilder.commandData.getUsage());
     }
 
     @Override

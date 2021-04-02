@@ -11,11 +11,24 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Calling this event on a target player will heal them the specified amount.
+ * <p>
+ * The only way to edit the heal amount without constructor access is by listening to the
+ * {@link PlayerPendingHealEvent} event.
+ */
 public class PlayerHealEvent extends Event {
 
 	private static final HandlerList HANDLER_LIST = new HandlerList();
 
 
+	/**
+	 * Specify the parties involved within the healing event. Command sender can be console, player or null.
+	 *
+	 * @param healer Specify who is doing the healing or return null to simply tell them they've been healed.
+	 * @param target Specify who is getting healed.
+	 * @param amount Specify the amount of health the player will gain.
+	 */
 	public PlayerHealEvent(@Nullable CommandSender healer, @NotNull Player target, double amount) {
 		if (amount > 20) {
 			throw new IllegalArgumentException("Amount's over twenty go past minecraft's limitations. Try with a lower amount.");

@@ -59,6 +59,26 @@ public final class KickAllCommand extends CommandBuilder {
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+		if (args.length == 0) {
+			if (testPermission(sender)) {
+				for (Player p : Bukkit.getOnlinePlayers()) {
+					Bukkit.dispatchCommand(sender, "kick " + p.getName());
+				}
+				return true;
+			}
+			return true;
+		}
+
+		StringBuilder builder = new StringBuilder();
+		for (String arg : args) {
+			builder.append(arg).append(" ");
+		}
+		if (testPermission(sender)) {
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				Bukkit.dispatchCommand(sender, "kick " + p.getName() + " " + builder.toString().trim());
+			}
+			return true;
+		}
 		return false;
 	}
 }

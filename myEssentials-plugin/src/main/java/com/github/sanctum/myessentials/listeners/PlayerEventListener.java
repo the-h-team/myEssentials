@@ -39,10 +39,18 @@ public class PlayerEventListener implements Listener {
 	public void onLogin(PlayerLoginEvent e) {
 		Player p = e.getPlayer();
 		PlayerSearch search = PlayerSearch.look(p);
-		if (search.getBanTimer() != null) {
-			Cooldown timer = search.getBanTimer();
+		Cooldown timer = search.getBanTimer("&r(D&r)&e{DAYS} &r(H&r)&e{HOURS} &r(M&r)&e{MINUTES} &r(S&r)&e{SECONDS}").orElse(null);
+		if (timer != null) {
 			if (!timer.isComplete()) {
-				e.disallow(PlayerLoginEvent.Result.KICK_BANNED, KickReason.next().input(1, MyEssentialsAPI.getInstance().getPrefix()).input(2, "&c&oTemporarily banned.").input(3, "&6Expires: " + timer.fullTimeLeft()).input(4, search.getBanEntry().orElse(null).getReason()).toString());
+				e.disallow(PlayerLoginEvent.Result.KICK_BANNED, KickReason.next()
+						.input(1, MyEssentialsAPI.getInstance().getPrefix())
+						.input(2, " ")
+						.input(3, "&c&oTemporarily banned.")
+						.input(4, "")
+						.input(5, "&cReason:&r " + search.getBanEntry().orElse(null).getReason())
+						.input(6, "")
+						.input(7, "&6Expires: " + timer.fullTimeLeft())
+						.toString());
 			} else {
 				PlayerSearch.look(p).unban();
 				Cooldown.remove(timer);

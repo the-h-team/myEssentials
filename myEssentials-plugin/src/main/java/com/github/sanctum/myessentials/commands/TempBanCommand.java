@@ -201,23 +201,26 @@ public final class TempBanCommand extends CommandBuilder {
 			if (testPermission(sender)) {
 				PlayerSearch search = PlayerSearch.look(args[0]);
 				if (search.isValid()) {
-					long result;
+					long banLength;
 					try {
-						result = DateTimeCalculator.parse(args[1].toUpperCase());
+						banLength = DateTimeCalculator.parse(args[1].toUpperCase());
 					} catch (DateTimeParseException e) {
 						try {
-							result = DateTimeCalculator.parseShort(args[1].toUpperCase());
+							banLength = DateTimeCalculator.parseDays(args[1].toUpperCase());
 						} catch (DateTimeParseException ex) {
-							sendMessage(sender, "&c&oInvalid time format, expected #d#h#m#s - Days, hours, minutes, seconds");
-							sendMessage(sender, "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m");
-							return true;
+							try {
+								banLength = DateTimeCalculator.parseShort(args[1].toUpperCase());
+							} catch (DateTimeParseException exc) {
+								sendMessage(sender, "&c&oInvalid time format.");
+								sendMessage(sender, "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m");
+								return true;
+							}
 						}
 					}
-
 					if (search.ban(sender.getName(), kick -> {
 						kick.input(1, "&c&oYou have been banned.");
 						kick.input(2, "Expiration: " + search.getBanTimer().fullTimeLeft());
-					}, result, false)) {
+					}, banLength, false)) {
 						sendMessage(sender, "Target Will be unbanned in: " + search.getBanTimer().fullTimeLeft());
 					} else {
 						if (search.getBanTimer() != null) {
@@ -248,16 +251,20 @@ public final class TempBanCommand extends CommandBuilder {
 		}
 		String get = builder.toString().trim();
 
-		long result;
+		long banLength;
 		try {
-			result = DateTimeCalculator.parse(args[1].toUpperCase());
+			banLength = DateTimeCalculator.parse(args[1].toUpperCase());
 		} catch (DateTimeParseException e) {
 			try {
-				result = DateTimeCalculator.parseShort(args[1].toUpperCase());
+				banLength = DateTimeCalculator.parseDays(args[1].toUpperCase());
 			} catch (DateTimeParseException ex) {
-				sendMessage(sender, "&c&oInvalid time format, expected #d#h#m#s - Days, hours, minutes, seconds");
-				sendMessage(sender, "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m");
-				return true;
+				try {
+					banLength = DateTimeCalculator.parseShort(args[1].toUpperCase());
+				} catch (DateTimeParseException exc) {
+					sendMessage(sender, "&c&oInvalid time format.");
+					sendMessage(sender, "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m");
+					return true;
+				}
 			}
 		}
 		if (testPermission(sender)) {
@@ -268,7 +275,7 @@ public final class TempBanCommand extends CommandBuilder {
 					kick.input(3, "&c&oReason: &r" + get);
 					kick.input(2, "Expiration: " + search.getBanTimer().fullTimeLeft());
 					kick.reason(StringUtils.translate("&c&oReason: &r" + get));
-				}, result, false)) {
+				}, banLength, false)) {
 					sendMessage(sender, "Target will be unbanned in: " + search.getBanTimer().fullTimeLeft());
 				} else {
 					if (search.getBanTimer() != null) {

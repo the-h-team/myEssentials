@@ -44,7 +44,7 @@ public final class KickCommand extends CommandBuilder {
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
-
+			sendUsage(player);
 			return true;
 		}
 
@@ -80,8 +80,6 @@ public final class KickCommand extends CommandBuilder {
 			PlayerSearch search = PlayerSearch.look(args[0]);
 			if (search.isValid()) {
 
-				OfflinePlayer target = search.getOfflinePlayer();
-
 				if (search.kick(get)) {
 					sendMessage(player, "Target kicked for '" + get + "'");
 				} else {
@@ -100,6 +98,56 @@ public final class KickCommand extends CommandBuilder {
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+		if (args.length == 0) {
+			sendUsage(sender);
+			return true;
+		}
+
+		if (args.length == 1) {
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (testPermission(sender)) {
+				if (search.isValid()) {
+
+					OfflinePlayer target = search.getOfflinePlayer();
+
+					if (search.kick()) {
+						sendMessage(sender, "Target kicked");
+					} else {
+						sendMessage(sender, "Target is offline.");
+					}
+
+				} else {
+					sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+					return true;
+				}
+				return true;
+			}
+			return true;
+		}
+
+		StringBuilder builder = new StringBuilder();
+		for (int i = 1; i < args.length; i++) {
+			builder.append(args[i]).append(" ");
+		}
+		if (testPermission(sender)) {
+			String get = builder.toString().trim();
+
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (search.isValid()) {
+
+				if (search.kick(get)) {
+					sendMessage(sender, "Target kicked for '" + get + "'");
+				} else {
+					sendMessage(sender, "Target is offline.");
+				}
+
+			} else {
+				sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+				return true;
+			}
+			return true;
+		}
+
 		return false;
 	}
 }

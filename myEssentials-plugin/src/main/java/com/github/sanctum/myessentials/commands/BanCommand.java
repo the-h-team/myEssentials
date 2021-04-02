@@ -46,7 +46,7 @@ public final class BanCommand extends CommandBuilder {
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
 		if (args.length == 0) {
-
+			sendUsage(player);
 			return true;
 		}
 
@@ -101,6 +101,56 @@ public final class BanCommand extends CommandBuilder {
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+		if (args.length == 0) {
+			sendUsage(sender);
+			return true;
+		}
+
+		if (args.length == 1) {
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (testPermission(sender)) {
+				if (search.isValid()) {
+
+					OfflinePlayer target = search.getOfflinePlayer();
+
+					if (search.ban(sender.getName())) {
+						sendMessage(sender, "Target banned");
+					} else {
+						sendMessage(sender, "Target is already banned.");
+					}
+
+				} else {
+					sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+					return true;
+				}
+				return true;
+			}
+			return true;
+		}
+
+		StringBuilder builder = new StringBuilder();
+		for (int i = 1; i < args.length; i++) {
+			builder.append(args[i]).append(" ");
+		}
+		String get = builder.toString().trim();
+
+		PlayerSearch search = PlayerSearch.look(args[0]);
+		if (testPermission(sender)) {
+			if (search.isValid()) {
+
+				OfflinePlayer target = search.getOfflinePlayer();
+
+				if (search.ban(sender.getName(), get)) {
+					sendMessage(sender, "Target banned for '" + get + "'");
+				} else {
+					sendMessage(sender, "Target is already banned.");
+				}
+
+			} else {
+				sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+				return true;
+			}
+		}
 		return false;
 	}
 }

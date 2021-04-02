@@ -132,7 +132,7 @@ public class DateTimeCalculator {
 	 * @throws java.time.format.DateTimeParseException If the format provided doesn't match internal requirements.
 	 */
 	public static Long parseDays(String time) {
-		return Duration.parse("P" + time).getSeconds();
+		return Duration.parse("P" + time.replace("r", "")).getSeconds();
 	}
 
 }

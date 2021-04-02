@@ -14,7 +14,6 @@ import com.github.sanctum.myessentials.api.CommandData;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
-import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -93,12 +92,6 @@ public enum InternalCommandData implements CommandData {
     @Override
     public @Nullable String getPermissionNode() {
         return CONFIG.getConfig().getString(configNode + ".permission");
-    }
-
-    public boolean testNoPermission(CommandSender sender) {
-        final String permissionNode = getPermissionNode();
-        if (permissionNode == null) return false;
-        return !sender.hasPermission(permissionNode);
     }
 
     public static void defaultOrReload(Essentials plugin) {
