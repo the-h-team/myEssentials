@@ -35,13 +35,13 @@ public class CommandMapper {
 		return this;
 	}
 
-	public CommandMapper read(PlayerResultingTabCompleter completer) {
-		this.KNOWN_COMMANDS.addCompletingExecutor(this.builder.getData(), completer);
+	public CommandMapper next(ConsoleResultingCommandExecutor commandData) {
+		this.KNOWN_COMMANDS.addCalculatingExecutor(this.builder.getData(), commandData);
 		return this;
 	}
 
-	public CommandMapper next(ConsoleResultingCommandExecutor commandData) {
-		this.KNOWN_COMMANDS.addCalculatingExecutor(this.builder.getData(), commandData);
+	public CommandMapper read(PlayerResultingTabCompleter completer) {
+		this.KNOWN_COMMANDS.addCompletingExecutor(this.builder.getData(), completer);
 		return this;
 	}
 
