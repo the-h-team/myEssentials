@@ -12,7 +12,7 @@ import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.model.InjectedCommandExecutor;
+import com.github.sanctum.myessentials.model.InjectedExecutorHandler;
 import com.github.sanctum.myessentials.model.Messenger;
 import com.github.sanctum.myessentials.util.SignWrapper;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
@@ -39,7 +39,7 @@ public interface MyEssentialsAPI {
     @Nullable
     Command getRegistration(CommandData commandData);
 
-    InjectedCommandExecutor getExecutor();
+    InjectedExecutorHandler getExecutorHandler();
 
     /**
      * Get data for all commands registered by MyEssentials.

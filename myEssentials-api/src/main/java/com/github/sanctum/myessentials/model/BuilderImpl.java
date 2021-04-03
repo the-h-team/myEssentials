@@ -11,21 +11,21 @@ import org.jetbrains.annotations.Nullable;
 
 public class BuilderImpl extends CommandBuilder {
 
-	private final InjectedCommandExecutor KNOWN_COMMANDS;
+	private final InjectedExecutorHandler KNOWN_COMMANDS;
 
-	public BuilderImpl(InjectedCommandExecutor executor, CommandData commandData) {
+	public BuilderImpl(InjectedExecutorHandler executor, CommandData commandData) {
 		super(commandData);
 		this.KNOWN_COMMANDS = executor;
 	}
 
-	public BuilderImpl(InjectedCommandExecutor executor, CommandData commandData, Applicable... pre) {
+	public BuilderImpl(InjectedExecutorHandler executor, CommandData commandData, Applicable... pre) {
 		super(commandData, pre);
 		this.KNOWN_COMMANDS = executor;
 	}
 
 	@Override
 	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		for (IExecutorCompleting<? extends CommandSender> pr : KNOWN_COMMANDS.getCompleters(this.commandData.getLabel())) {
+		for (IExecutorCompleting<? extends CommandSender> pr : KNOWN_COMMANDS.getCompletions(this.commandData.getLabel())) {
 			if (pr.getEntity() == ExecutorEntity.PLAYER) {
 				return pr.execute(this, player, alias, args);
 			}
@@ -35,7 +35,7 @@ public class BuilderImpl extends CommandBuilder {
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
-		for (IExecutorCalculating<? extends CommandSender> pr : KNOWN_COMMANDS.getExecutors(this.commandData.getLabel())) {
+		for (IExecutorCalculating<? extends CommandSender> pr : KNOWN_COMMANDS.getCalculations(this.commandData.getLabel())) {
 			if (pr.getEntity() == ExecutorEntity.PLAYER) {
 				pr.execute(this, player, commandLabel, args);
 				break;
@@ -46,7 +46,7 @@ public class BuilderImpl extends CommandBuilder {
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-		for (IExecutorCalculating<? extends CommandSender> pr : KNOWN_COMMANDS.getExecutors(this.commandData.getLabel())) {
+		for (IExecutorCalculating<? extends CommandSender> pr : KNOWN_COMMANDS.getCalculations(this.commandData.getLabel())) {
 			if (pr.getEntity() == ExecutorEntity.SERVER) {
 				pr.execute(this, sender, commandLabel, args);
 				break;

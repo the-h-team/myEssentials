@@ -23,7 +23,7 @@ import com.github.sanctum.myessentials.listeners.PlayerEventListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.CommandImpl;
-import com.github.sanctum.myessentials.model.InjectedCommandExecutor;
+import com.github.sanctum.myessentials.model.InjectedExecutorHandler;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.model.Messenger;
 import com.github.sanctum.myessentials.model.action.IExecutorCalculating;
@@ -72,11 +72,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
 	private TeleportRunner teleportRunner;
 	private MessengerImpl messenger;
-	private InjectedCommandExecutor executor;
+	private InjectedExecutorHandler executor;
 
 	@Override
 	public void onLoad() {
-		executor = new InjectedCommandExecutor(this);
+		executor = new InjectedExecutorHandler(this);
 	}
 
 	@Override
@@ -89,6 +89,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		bin.setItem(0, () -> {
 			ItemStack item = new ItemStack(Material.HEART_OF_THE_SEA);
 			ItemMeta meta = item.getItemMeta();
+			assert meta != null;
 			meta.setDisplayName(StringUtils.translate("&4Close."));
 			item.setItemMeta(meta);
 			return item;
@@ -139,8 +140,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		}
 		for (Map.Entry<CommandData, List<IExecutorCalculating<? extends CommandSender>>> entry : executor.getExecutorCalculations().entrySet()) {
 			if (entry.getKey().getLabel().equals(command.getLabel())) {
-				Schedule.sync(() -> executor.removeCompletingExecutor(entry.getKey())).run();
-				Schedule.sync(() -> executor.removeCalculatingExecutor(entry.getKey())).run();
+				Schedule.sync(() -> executor
+						.removeCompletions(entry.getKey())
+						.removeConsoleCalculation(entry.getKey())
+						.removePlayerCalculation(entry.getKey())
+				).run();
 				break;
 			}
 		}
@@ -153,7 +157,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	}
 
 	@Override
-	public InjectedCommandExecutor getExecutor() {
+	public InjectedExecutorHandler getExecutorHandler() {
 		return executor;
 	}
 
