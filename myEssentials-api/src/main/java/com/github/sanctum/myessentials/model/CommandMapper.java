@@ -31,7 +31,7 @@ public class CommandMapper {
 	}
 
 	public CommandMapper apply(PlayerResultingCommandExecutor commandData) {
-		this.KNOWN_COMMANDS.addResultingExecutor(this.builder.getData(), commandData);
+		this.KNOWN_COMMANDS.addCalculatingExecutor(this.builder.getData(), commandData);
 		return this;
 	}
 
@@ -41,7 +41,7 @@ public class CommandMapper {
 	}
 
 	public CommandMapper read(ConsoleResultingCommandExecutor commandData) {
-		this.KNOWN_COMMANDS.addResultingExecutor(this.builder.getData(), commandData);
+		this.KNOWN_COMMANDS.addCalculatingExecutor(this.builder.getData(), commandData);
 		return this;
 	}
 

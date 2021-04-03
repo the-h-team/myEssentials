@@ -26,7 +26,7 @@ public class InjectedCommandExecutor {
 		return plugin;
 	}
 
-	public InjectedCommandExecutor addResultingExecutor(CommandData data, IExecutorCalculating<? extends CommandSender> commandData) {
+	public InjectedCommandExecutor addCalculatingExecutor(CommandData data, IExecutorCalculating<? extends CommandSender> commandData) {
 		List<IExecutorCalculating<? extends CommandSender>> array;
 		if (CALCULATION_MAP.containsKey(data)) {
 			array = new ArrayList<>(CALCULATION_MAP.get(data));
@@ -54,7 +54,7 @@ public class InjectedCommandExecutor {
 		return Collections.unmodifiableMap(EXECUTOR_COMPLETIONS);
 	}
 
-	public Map<CommandData, List<IExecutorCalculating<? extends CommandSender>>> getExecutorCalculationMap() {
+	public Map<CommandData, List<IExecutorCalculating<? extends CommandSender>>> getExecutorCalculations() {
 		return Collections.unmodifiableMap(CALCULATION_MAP);
 	}
 
