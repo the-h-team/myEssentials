@@ -10,6 +10,7 @@ package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.Labyrinth;
 import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.google.common.collect.Sets;
 import java.io.IOException;

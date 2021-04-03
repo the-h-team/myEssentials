@@ -11,6 +11,7 @@ package com.github.sanctum.myessentials.api;
 import com.github.sanctum.labyrinth.library.HUID;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandData;
 import java.util.Collection;
 import java.util.Map;
 import org.bukkit.event.HandlerList;

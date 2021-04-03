@@ -1,4 +1,4 @@
-package com.github.sanctum.myessentials.api;
+package com.github.sanctum.myessentials.model;
 
 import org.bukkit.command.CommandSender;
 

@@ -10,26 +10,26 @@
  */
 package com.github.sanctum.myessentials.util;
 
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign; // Sign BlockState class
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 
-public final class SignUtil {
+public final class SignWrapper {
     private final Block block;
 
     public enum SignLine {
         FIRST_LINE(0), SECOND_LINE(1), THIRD_LINE(2), FOURTH_LINE(3);
         public final int index;
+
         SignLine(int index) {
             this.index = index;
         }
     }
 
-    public SignUtil(Block block) {
+    public SignWrapper(Block block) {
         if (!block.getType().name().contains("SIGN")) {
             throw new IllegalArgumentException("Block does not represent a sign!");
         }

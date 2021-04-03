@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.util;
 
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
-import com.github.sanctum.myessentials.api.Messenger;
+import com.github.sanctum.myessentials.model.Messenger;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 

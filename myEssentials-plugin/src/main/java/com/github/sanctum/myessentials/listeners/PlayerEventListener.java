@@ -10,6 +10,7 @@ package com.github.sanctum.myessentials.listeners;
 
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.Collections;
@@ -57,6 +58,11 @@ public class PlayerEventListener implements Listener {
 				e.allow();
 			}
 		}
+	}
+
+	@EventHandler
+	public void onHeal(PlayerPendingHealEvent e) {
+		e.setAmount(2);
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)

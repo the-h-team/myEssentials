@@ -61,8 +61,7 @@ public final class HealCommand extends CommandBuilder {
 					Player target = search.getPlayer();
 					if (testPermission(player)) {
 						assert target != null;
-						PlayerHealEvent event = new PlayerHealEvent(player, target, 20);
-						Bukkit.getPluginManager().callEvent(event);
+						search.heal(new PlayerHealEvent(player, 20));
 						sendMessage(player, "&a&oTarget " + target.getName() + " has been healed to max health.");
 						return true;
 					}
@@ -95,8 +94,7 @@ public final class HealCommand extends CommandBuilder {
 					Player target = search.getPlayer();
 					if (testPermission(sender)) {
 						assert target != null;
-						PlayerHealEvent event = new PlayerHealEvent(sender, target, 20);
-						Bukkit.getPluginManager().callEvent(event);
+						search.heal(new PlayerHealEvent(sender, 20));
 						sendMessage(sender, "Target " + target.getName() + " has been healed to max health.");
 						return true;
 					}

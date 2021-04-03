@@ -8,9 +8,9 @@
  */
 package com.github.sanctum.myessentials.model;
 
+import com.github.sanctum.labyrinth.library.Applicable;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
-import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.util.ProvidedMessage;
 import java.util.List;
@@ -24,13 +24,21 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class CommandBuilder {
     protected final MyEssentialsAPI api = MyEssentialsAPI.getInstance();
-    protected final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
+    public final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
     protected final Command command;
 
     public final CommandData commandData;
 
     public CommandBuilder(CommandData commandData) {
         this.commandData = commandData;
+        this.command = api.registerCommand(this);
+    }
+
+    public CommandBuilder(CommandData commandData, Applicable... pre) {
+        this.commandData = commandData;
+        for (Applicable p : pre) {
+            p.apply();
+        }
         this.command = api.registerCommand(this);
     }
 
@@ -48,7 +56,7 @@ public abstract class CommandBuilder {
         return command.testPermission(sender);
     }
 
-    protected void sendMessage(CommandSender sender, ProvidedMessage message) {
+    public void sendMessage(CommandSender sender, ProvidedMessage message) {
         if (!(sender instanceof Player)) {
             JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(message.toString());
         } else {
@@ -56,11 +64,11 @@ public abstract class CommandBuilder {
         }
     }
 
-    protected void sendUsage(CommandSender sender) {
-         sendMessage(sender, commandData.getUsage());
+    public void sendUsage(CommandSender sender) {
+        sendMessage(sender, commandData.getUsage());
     }
 
-    protected void sendMessage(CommandSender sender, String text) {
+    public void sendMessage(CommandSender sender, String text) {
         if (!(sender instanceof Player)) {
             JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(text);
         } else {

@@ -1,6 +1,8 @@
 package com.github.sanctum.myessentials.util;
 
 import com.github.sanctum.labyrinth.data.FileManager;
+import com.github.sanctum.labyrinth.gui.InventoryRows;
+import com.github.sanctum.labyrinth.gui.shared.SharedBuilder;
 import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
@@ -21,6 +23,7 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -64,6 +67,9 @@ public class ReloadImpl {
 			Bukkit.getPluginManager().disablePlugin(plugin);
 		} else {
 			System.setProperty("OLD", "FALSE");
+		}
+		for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
+			SharedBuilder.create(plugin, "MyVault-" + player.getUniqueId().toString(), player.getName() + " Vault", InventoryRows.THREE.getSlotCount());
 		}
 		try {
 			injectAddons(classLoader);

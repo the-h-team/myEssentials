@@ -11,12 +11,17 @@ package com.github.sanctum.myessentials.api;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.model.InjectedCommandExecutor;
+import com.github.sanctum.myessentials.model.Messenger;
+import com.github.sanctum.myessentials.util.SignWrapper;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +38,8 @@ public interface MyEssentialsAPI {
 
     @Nullable
     Command getRegistration(CommandData commandData);
+
+    InjectedCommandExecutor getExecutor();
 
     /**
      * Get data for all commands registered by MyEssentials.
@@ -71,6 +78,8 @@ public interface MyEssentialsAPI {
      * @return teleport runner
      */
     TeleportRunner getTeleportRunner();
+
+    SignWrapper wrapSign(Block b);
 
     /**
      * Get the messenger.

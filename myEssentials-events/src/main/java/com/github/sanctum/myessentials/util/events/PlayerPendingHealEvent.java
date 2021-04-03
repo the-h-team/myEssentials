@@ -1,24 +1,23 @@
 package com.github.sanctum.myessentials.util.events;
 
+import com.github.sanctum.labyrinth.library.Applicable;
+import com.github.sanctum.myessentials.util.moderation.PlayerHealingProcessor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * The event which a target player is about to be healed, here you can configure information to be passed to the resulting event.
  */
-public class PlayerPendingHealEvent extends Event {
+public class PlayerPendingHealEvent extends PlayerHealingProcessor {
 
 	private static final HandlerList HANDLER_LIST = new HandlerList();
 
 	private final CommandSender sender;
 
-	private final Player target;
+	private Player target;
 
 	private double amount;
 
@@ -31,7 +30,6 @@ public class PlayerPendingHealEvent extends Event {
 		}
 
 		this.amount = amount;
-		final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
 	}
 
 	public @NotNull Player getTarget() {
@@ -46,8 +44,14 @@ public class PlayerPendingHealEvent extends Event {
 		this.amount = amount;
 	}
 
-	public double getHealAmount() {
+	@Override
+	public double getAmount() {
 		return amount;
+	}
+
+	@Override
+	protected Applicable patch() {
+		return null;
 	}
 
 	public static @NotNull HandlerList getHandlerList() {
@@ -57,5 +61,10 @@ public class PlayerPendingHealEvent extends Event {
 	@Override
 	public @NotNull HandlerList getHandlers() {
 		return HANDLER_LIST;
+	}
+
+	@Override
+	public void setTarget(Player target) {
+		this.target = target;
 	}
 }

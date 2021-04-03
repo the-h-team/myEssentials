@@ -1,10 +1,13 @@
 package com.github.sanctum.myessentials.util.moderation;
 
+import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.Cooldown;
+import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.SkullItem;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CooldownFinder;
+import com.github.sanctum.myessentials.util.ProvidedMessage;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
@@ -17,8 +20,10 @@ import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +32,9 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PlayerSearch implements CooldownFinder {
 
-	private final UUID uuid;
+	private CommandSender sender;
+
+	private UUID uuid;
 
 	protected PlayerSearch(OfflinePlayer target) {
 		this.uuid = target.getUniqueId();
@@ -35,6 +42,10 @@ public final class PlayerSearch implements CooldownFinder {
 
 	protected PlayerSearch(UUID uuid) {
 		this.uuid = uuid;
+	}
+
+	protected PlayerSearch(CommandSender sender) {
+		this.sender = sender;
 	}
 
 	protected PlayerSearch(String name) {
@@ -65,7 +76,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(Player target) {
-		return new PlayerSearch(target);
+		return new PlayerSearch((OfflinePlayer) target);
 	}
 
 	/**
@@ -92,6 +103,16 @@ public final class PlayerSearch implements CooldownFinder {
 	 */
 	public static PlayerSearch look(String name) {
 		return new PlayerSearch(name);
+	}
+
+	/**
+	 * For console use primarily, wrap a command-sender to send formatted messaging to.
+	 *
+	 * @param sender The non human sender to wrap.
+	 * @return A console messaging utility for protected circumstances.
+	 */
+	public static PlayerSearch look(CommandSender sender) {
+		return new PlayerSearch(sender);
 	}
 
 	/**
@@ -177,7 +198,10 @@ public final class PlayerSearch implements CooldownFinder {
 		if (uuid == null) {
 			return null;
 		}
-		return timer("MyBan-id-" + uuid.toString());
+		if (timer("MyBan-id-" + uuid.toString()) == null) {
+			return null;
+		}
+		return factory(Objects.requireNonNull(timer("MyBan-id-" + uuid.toString())));
 	}
 
 	/**
@@ -196,6 +220,18 @@ public final class PlayerSearch implements CooldownFinder {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(timer("MyBan-id-" + uuid.toString()).format(format));
+	}
+
+	/**
+	 * Get the desired player's personal vault.
+	 *
+	 * @return A shared menu instance.
+	 */
+	public @NotNull Optional<SharedMenu> getVault() {
+		if (uuid == null) {
+			return Optional.empty();
+		}
+		return Optional.of(SharedMenu.get("MyVault-" + uuid.toString()));
 	}
 
 	/**
@@ -416,6 +452,12 @@ public final class PlayerSearch implements CooldownFinder {
 		return true;
 	}
 
+	public void heal(PlayerHealingProcessor event) {
+		event.setTarget(getPlayer());
+		Bukkit.getPluginManager().callEvent(event);
+		event.patch().apply();
+	}
+
 	/**
 	 * Unban the desired player.
 	 *
@@ -566,6 +608,32 @@ public final class PlayerSearch implements CooldownFinder {
 		}
 		Objects.requireNonNull(getPlayer()).kickPlayer(reason);
 		return true;
+	}
+
+	/**
+	 * Send a pre-formatted plugin message to a given player or command-sender.
+	 *
+	 * @param message The message to send.
+	 */
+	public void sendMessage(ProvidedMessage message) {
+		if (sender != null) {
+			JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(message.toString());
+			return;
+		}
+		new Message(getPlayer(), MyEssentialsAPI.getInstance().getPrefix()).send(message.toString());
+	}
+
+	/**
+	 * Send a pre-formatted plugin message to a given player or command-sender.
+	 *
+	 * @param text The message to send.
+	 */
+	public void sendMessage(String text) {
+		if (sender != null) {
+			JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(text);
+			return;
+		}
+		new Message(getPlayer(), MyEssentialsAPI.getInstance().getPrefix()).send(text);
 	}
 
 

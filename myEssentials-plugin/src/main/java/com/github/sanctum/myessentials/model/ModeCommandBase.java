@@ -1,16 +1,14 @@
 package com.github.sanctum.myessentials.model;
 
-import com.github.sanctum.myessentials.api.CommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Base class for gamemode switch commands.
