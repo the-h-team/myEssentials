@@ -84,13 +84,12 @@ public final class Commands {
 							}
 						}.runTaskLater(builder.plugin, 1L);
 					}
-				}).read((builder, sender, commandLabel, args) -> {
+				}).next((builder, sender, commandLabel, args) -> {
 			PlayerSearch search = PlayerSearch.look(sender);
 			search.sendMessage(ConfiguredMessage.MUST_BE_PLAYER);
 		});
 
-		CommandMapper.load(InternalCommandData.KICK_COMMAND, () -> kickTab = TabCompletion
-				.build(InternalCommandData.KICK_COMMAND.getLabel()))
+		CommandMapper.load(InternalCommandData.KICK_COMMAND, () -> kickTab = TabCompletion.build(InternalCommandData.KICK_COMMAND.getLabel()))
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						builder.sendUsage(player);
@@ -146,14 +145,7 @@ public final class Commands {
 						}
 					}
 
-				}).completion((builder, sender, commandLabel, args) -> {
-			return kickTab.forArgs(args)
-					.level(1)
-					.completeAt(builder.getData().getLabel())
-					.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
-					.collect()
-					.get(1);
-		}).read((builder, sender, commandLabel, args) -> {
+				}).next((builder, sender, commandLabel, args) -> {
 			if (args.length == 0) {
 				builder.sendUsage(sender);
 				return;
@@ -207,6 +199,13 @@ public final class Commands {
 					builder.sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
 				}
 			}
+		}).read((builder, sender, commandLabel, args) -> {
+			return kickTab.forArgs(args)
+					.level(1)
+					.completeAt(builder.getData().getLabel())
+					.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+					.collect()
+					.get(1);
 		});
 /*
 		CommandMapper.from(InternalCommandData.FLY_COMMAND)
