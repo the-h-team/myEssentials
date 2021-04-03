@@ -139,8 +139,8 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		}
 		for (Map.Entry<CommandData, List<IExecutorCalculating<? extends CommandSender>>> entry : executor.getExecutorCalculations().entrySet()) {
 			if (entry.getKey().getLabel().equals(command.getLabel())) {
-				Schedule.sync(() -> executor.removeCalculatingExecutor(entry.getKey())).run();
 				Schedule.sync(() -> executor.removeCompletingExecutor(entry.getKey())).run();
+				Schedule.sync(() -> executor.removeCalculatingExecutor(entry.getKey())).run();
 				break;
 			}
 		}
