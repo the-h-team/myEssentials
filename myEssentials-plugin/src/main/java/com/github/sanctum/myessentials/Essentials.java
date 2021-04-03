@@ -17,6 +17,7 @@ import com.github.sanctum.labyrinth.gui.InventoryRows;
 import com.github.sanctum.labyrinth.gui.shared.SharedBuilder;
 import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.StringUtils;
+import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.listeners.PlayerEventListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
@@ -25,6 +26,7 @@ import com.github.sanctum.myessentials.model.CommandImpl;
 import com.github.sanctum.myessentials.model.InjectedCommandExecutor;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.model.Messenger;
+import com.github.sanctum.myessentials.model.action.IExecutorCalculating;
 import com.github.sanctum.myessentials.util.BanTimerManager;
 import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
@@ -38,6 +40,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -49,6 +52,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -131,6 +135,13 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		for (String alias : command.getAliases()) {
 			if (KNOWN_COMMANDS_MAP.containsKey(alias) && KNOWN_COMMANDS_MAP.get(alias).getAliases().contains(alias)) {
 				KNOWN_COMMANDS_MAP.remove(alias);
+			}
+		}
+		for (Map.Entry<CommandData, List<IExecutorCalculating<? extends CommandSender>>> entry : executor.getExecutorCalculations().entrySet()) {
+			if (entry.getKey().getLabel().equals(command.getLabel())) {
+				Schedule.sync(() -> executor.removeCalculatingExecutor(entry.getKey())).run();
+				Schedule.sync(() -> executor.removeCompletingExecutor(entry.getKey())).run();
+				break;
 			}
 		}
 		command.unregister(SERVER_COMMAND_MAP);

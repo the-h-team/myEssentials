@@ -50,6 +50,30 @@ public class InjectedCommandExecutor {
 		return this;
 	}
 
+	public InjectedCommandExecutor removeCalculatingExecutor(CommandData data) {
+		List<IExecutorCalculating<? extends CommandSender>> array;
+		if (CALCULATION_MAP.containsKey(data)) {
+			array = new ArrayList<>(CALCULATION_MAP.get(data));
+			for (IExecutorCalculating<? extends CommandSender> e : array) {
+				if (e.getEntity() == ExecutorEntity.PLAYER) {
+					array.remove(e);
+					break;
+				}
+			}
+			CALCULATION_MAP.put(data, array);
+		}
+		return this;
+	}
+
+	public InjectedCommandExecutor removeCompletingExecutor(CommandData data) {
+		List<IExecutorCompleting<? extends CommandSender>> array;
+		if (EXECUTOR_COMPLETIONS.containsKey(data)) {
+			array = new ArrayList<>();
+			EXECUTOR_COMPLETIONS.put(data, array);
+		}
+		return this;
+	}
+
 	public Map<CommandData, List<IExecutorCompleting<? extends CommandSender>>> getExecutorCompletions() {
 		return Collections.unmodifiableMap(EXECUTOR_COMPLETIONS);
 	}
