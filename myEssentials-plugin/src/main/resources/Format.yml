@@ -1,0 +1,30 @@
+Default:
+  fallback: true
+  1:
+    action: ''
+    node: 'this.permission.node'
+    prefix: '&7['
+    suffix: '&7]'
+    hover:
+      - '&cClick to kick me'
+      - 'More information'
+      - '%player_name%'
+    text: '&4&lX'
+  2:
+    action: ''
+    node: 'this.permission.node'
+    prefix: '&7['
+    suffix: '&7]'
+    hover:
+      - '&cClick to mute me'
+      - 'The duration is 5m'
+    text: '&e-'
+  3:
+    action: ''
+    node: ''
+    prefix: ''
+    suffix: ''
+    hover:
+      - 'I am in clan %clanspro_clan_name%'
+      - 'My rank is %clanspro_member_rank%'
+    text: ' %clanspro_clan_color%%clanspro_clan_name% | %player_name%'

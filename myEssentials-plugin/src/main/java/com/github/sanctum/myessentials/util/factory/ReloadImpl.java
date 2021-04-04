@@ -1,4 +1,4 @@
-package com.github.sanctum.myessentials.util;
+package com.github.sanctum.myessentials.util.factory;
 
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.gui.InventoryRows;
@@ -88,6 +88,9 @@ public class ReloadImpl {
 		Set<Class<?>> classes = Sets.newHashSet();
 		FileManager check = MyEssentialsAPI.getInstance().getAddonFile("Test", "");
 		File parent = check.getFile().getParentFile();
+		if (!parent.exists()) {
+			parent.mkdir();
+		}
 		for (File f : parent.listFiles()) {
 			if (f.isFile()) {
 				JarFile test = new JarFile(f);

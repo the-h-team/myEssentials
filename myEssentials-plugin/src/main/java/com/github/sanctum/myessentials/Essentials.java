@@ -27,12 +27,12 @@ import com.github.sanctum.myessentials.model.InjectedExecutorHandler;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.model.Messenger;
 import com.github.sanctum.myessentials.model.action.IExecutorCalculating;
-import com.github.sanctum.myessentials.util.BanTimerManager;
 import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
-import com.github.sanctum.myessentials.util.MessengerImpl;
-import com.github.sanctum.myessentials.util.ReloadImpl;
+import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.SignWrapper;
+import com.github.sanctum.myessentials.util.factory.MessengerImpl;
+import com.github.sanctum.myessentials.util.factory.ReloadImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
@@ -102,7 +102,8 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		EventBuilder.compileFields(this, "com.github.sanctum.myessentials.listeners");
 		InternalCommandData.defaultOrReload(this);
 		ConfiguredMessage.loadProperties(this);
-		BanTimerManager.renewTimers();
+		OptionLoader.renewRemainingBans();
+		OptionLoader.checkConfig();
 		CommandRegistration.compileFields(this, "com.github.sanctum.myessentials.commands");
 		TeleportationManager.registerListeners(this);
 		Commands.register();
@@ -114,7 +115,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		try {
 			ReloadImpl.get(this).onDisable();
 			TeleportationManager.unregisterListeners();
-			BanTimerManager.updateStorage();
+			OptionLoader.recordRemainingBans();
 		} catch (Exception e) {
 			getLogger().severe("- Reload detected.");
 		}

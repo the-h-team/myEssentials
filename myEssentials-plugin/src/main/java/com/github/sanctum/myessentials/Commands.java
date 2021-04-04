@@ -8,6 +8,7 @@ import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -37,57 +38,124 @@ public final class Commands {
 					if (!builder.testPermission(player)) {
 						return;
 					}
-					if (player.getGameMode() != GameMode.SURVIVAL) {
-						builder.sendMessage(player, ConfiguredMessage.TRY_IN_SURVIVAL);
+					if (args.length == 0) {
+						if (player.getGameMode() != GameMode.SURVIVAL) {
+							builder.sendMessage(player, ConfiguredMessage.TRY_IN_SURVIVAL);
+							return;
+						}
+						if (player.getAllowFlight()) {
+							player.setFlying(false);
+							player.setAllowFlight(false);
+							builder.sendMessage(player, ConfiguredMessage.FLIGHT_OFF);
+							final Listener listener = new Listener() {
+								@EventHandler
+								public void onNextFallDamage(EntityDamageEvent e) {
+									if (e.getEntityType() != EntityType.PLAYER) {
+										return;
+									}
+									if (e.getCause() != EntityDamageEvent.DamageCause.FALL) {
+										return;
+									}
+									final Player checkPlayer = (Player) e.getEntity();
+									if (checkPlayer.equals(player)) {
+										e.setCancelled(true);
+									}
+									e.getHandlers().unregister(this);
+								}
+							};
+							Bukkit.getServer().getPluginManager().registerEvents(listener, builder.plugin);
+							new BukkitRunnable() { // If they haven't taken fall damage within 10 seconds cancel one-time immunity
+								@Override
+								public void run() {
+									new BukkitRunnable() {
+										@Override
+										public void run() {
+											EntityDamageEvent.getHandlerList().unregister(listener);
+										}
+									}.runTask(builder.plugin);
+								}
+							}.runTaskLaterAsynchronously(builder.plugin, 200L);
+						} else {
+							player.setAllowFlight(true);
+							player.setVelocity(player.getVelocity().add(new Vector(0d, 1, 0d)));
+							builder.sendMessage(player, ConfiguredMessage.FLIGHT_ON);
+							new BukkitRunnable() {
+								@Override
+								public void run() {
+									player.setFlying(true);
+								}
+							}.runTaskLater(builder.plugin, 1L);
+						}
 						return;
 					}
-					if (player.getAllowFlight()) {
-						player.setFlying(false);
-						player.setAllowFlight(false);
-						builder.sendMessage(player, ConfiguredMessage.FLIGHT_OFF);
-						final Listener listener = new Listener() {
-							@EventHandler
-							public void onNextFallDamage(EntityDamageEvent e) {
-								if (e.getEntityType() != EntityType.PLAYER) {
+
+					if (args.length == 1) {
+						PlayerSearch search = PlayerSearch.look(args[0]);
+						if (search.isValid()) {
+							if (search.isOnline()) {
+								Player target = search.getPlayer();
+								assert target != null;
+
+								if (target.getGameMode() != GameMode.SURVIVAL) {
+									builder.sendMessage(player, "");
 									return;
 								}
-								if (e.getCause() != EntityDamageEvent.DamageCause.FALL) {
-									return;
+								if (target.getAllowFlight()) {
+									target.setFlying(false);
+									target.setAllowFlight(false);
+									builder.sendMessage(target, ConfiguredMessage.FLIGHT_OFF);
+									final Listener listener = new Listener() {
+										@EventHandler
+										public void onNextFallDamage(EntityDamageEvent e) {
+											if (e.getEntityType() != EntityType.PLAYER) {
+												return;
+											}
+											if (e.getCause() != EntityDamageEvent.DamageCause.FALL) {
+												return;
+											}
+											final Player checkPlayer = (Player) e.getEntity();
+											if (checkPlayer.equals(target)) {
+												e.setCancelled(true);
+											}
+											e.getHandlers().unregister(this);
+										}
+									};
+									Bukkit.getServer().getPluginManager().registerEvents(listener, builder.plugin);
+									new BukkitRunnable() { // If they haven't taken fall damage within 10 seconds cancel one-time immunity
+										@Override
+										public void run() {
+											new BukkitRunnable() {
+												@Override
+												public void run() {
+													EntityDamageEvent.getHandlerList().unregister(listener);
+												}
+											}.runTask(builder.plugin);
+										}
+									}.runTaskLaterAsynchronously(builder.plugin, 200L);
+								} else {
+									target.setAllowFlight(true);
+									target.setVelocity(target.getVelocity().add(new Vector(0d, 1, 0d)));
+									builder.sendMessage(target, ConfiguredMessage.FLIGHT_ON);
+									new BukkitRunnable() {
+										@Override
+										public void run() {
+											target.setFlying(true);
+										}
+									}.runTaskLater(builder.plugin, 1L);
 								}
-								final Player checkPlayer = (Player) e.getEntity();
-								if (checkPlayer.equals(player)) {
-									e.setCancelled(true);
-								}
-								e.getHandlers().unregister(this);
+
+							} else {
+								// player not online
 							}
-						};
-						Bukkit.getServer().getPluginManager().registerEvents(listener, builder.plugin);
-						new BukkitRunnable() { // If they haven't taken fall damage within 10 seconds cancel one-time immunity
-							@Override
-							public void run() {
-								new BukkitRunnable() {
-									@Override
-									public void run() {
-										EntityDamageEvent.getHandlerList().unregister(listener);
-									}
-								}.runTask(builder.plugin);
-							}
-						}.runTaskLaterAsynchronously(builder.plugin, 200L);
-					} else {
-						player.setAllowFlight(true);
-						player.setVelocity(player.getVelocity().add(new Vector(0d, 1, 0d)));
-						builder.sendMessage(player, ConfiguredMessage.FLIGHT_ON);
-						new BukkitRunnable() {
-							@Override
-							public void run() {
-								player.setFlying(true);
-							}
-						}.runTaskLater(builder.plugin, 1L);
+						} else {
+							// player isnt found.
+						}
 					}
+
 				}).next((builder, sender, commandLabel, args) -> {
 			PlayerSearch search = PlayerSearch.look(sender);
 			search.sendMessage(ConfiguredMessage.MUST_BE_PLAYER);
-		});
+		}).read((builder, sender, commandLabel, args) -> new ArrayList<>());
 
 		CommandMapper.load(InternalCommandData.KICK_COMMAND, () -> kickTab = TabCompletion.build(InternalCommandData.KICK_COMMAND.getLabel()))
 				.apply((builder, player, commandLabel, args) -> {
