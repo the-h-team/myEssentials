@@ -132,17 +132,6 @@
             <build>
                 <!--suppress MavenModelInspection -->
                 <finalName>${project.artifactId}-${project.version}-${env.GIT_COMMIT}</finalName>
-            </build>
-        </profile>
-        <profile>
-            <id>jit-ci</id>
-            <activation>
-                <property>
-                    <name>env.JITCI</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
