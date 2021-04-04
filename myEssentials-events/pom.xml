@@ -11,12 +11,10 @@
 
     <artifactId>my-essentials-events</artifactId>
 
+    <!--TODO: determine licensing (likely MIT)-->
     <licenses>
-        <!-- Basically non-negotiable as we are extending Event from Bukkit. -->
         <license>
-            <name>GNU Lesser General Public License v3.0 or later</name>
-            <url>https://www.gnu.org/licenses/lgpl-3.0-standalone.html</url>
-            <distribution>repo</distribution>
+            <name>To be determined.</name>
         </license>
     </licenses>
 
