@@ -114,7 +114,8 @@ public class DateTimeCalculator {
 	/**
 	 * Parse a time stamp format using context : " #m, #hr, #s "
 	 * <p>
-	 * One or more time stamp's can be requested excluding days, months & years
+	 * One or more time stamps can be requested excluding days,
+	 * months and years.
 	 *
 	 * @param time The date format to parse.
 	 * @return A dated long value based upon conversion results.

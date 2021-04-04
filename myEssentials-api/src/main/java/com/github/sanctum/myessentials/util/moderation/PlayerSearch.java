@@ -519,6 +519,7 @@ public final class PlayerSearch implements CooldownFinder {
 	/**
 	 * Kick the desired player.
 	 *
+	 * @param silent whether or not to kick player silently
 	 * @return false if the user is not online or is not valid.
 	 */
 	public boolean kick(boolean silent) {
@@ -574,6 +575,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * Kick the desired player for a specific reason.
 	 *
 	 * @param reason The reason for removal.
+	 * @param silent whether or not to kick player silently
 	 * @return false if the user isn't online or is not valid.
 	 */
 	public boolean kick(KickReason reason, boolean silent) {
@@ -594,6 +596,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * Kick the desired player for a specific reason.
 	 *
 	 * @param reason The reason for removal.
+	 * @param silent whether or not to kick player silently
 	 * @return false if the user isn't online or is not valid.
 	 */
 	public boolean kick(String reason, boolean silent) {

@@ -21,8 +21,9 @@ public class InjectedExecutorHandler {
 	private final Map<CommandData, List<IExecutorCompleting<? extends CommandSender>>> EXECUTOR_COMPLETIONS;
 	private final Plugin plugin;
 
+	// TODO: finish this javadoc
 	/**
-	 * @param plugin
+	 * @param plugin a plugin
 	 */
 	public InjectedExecutorHandler(Plugin plugin) {
 		this.plugin = plugin;
@@ -37,10 +38,11 @@ public class InjectedExecutorHandler {
 		return plugin;
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @param data
-	 * @param commandData
-	 * @return
+	 * @param data data
+	 * @param commandData CommandData
+	 * @return an InjectedExecutorHandler
 	 */
 	public @NotNull InjectedExecutorHandler addCalculatingExecutor(CommandData data, IExecutorCalculating<? extends CommandSender> commandData) {
 		List<IExecutorCalculating<? extends CommandSender>> array;
@@ -54,10 +56,11 @@ public class InjectedExecutorHandler {
 		return this;
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @param data
-	 * @param commandData
-	 * @return
+	 * @param data data
+	 * @param commandData CommandData
+	 * @return an InjectedExecutorHandler
 	 */
 	public @NotNull InjectedExecutorHandler addCompletingExecutor(CommandData data, IExecutorCompleting<? extends CommandSender> commandData) {
 		List<IExecutorCompleting<? extends CommandSender>> array;
@@ -71,9 +74,10 @@ public class InjectedExecutorHandler {
 		return this;
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @param data
-	 * @return
+	 * @param data CommandData
+	 * @return an InjectedExecutorHandler
 	 */
 	public @NotNull InjectedExecutorHandler removePlayerCalculation(CommandData data) {
 		List<IExecutorCalculating<? extends CommandSender>> array;
@@ -90,9 +94,10 @@ public class InjectedExecutorHandler {
 		return this;
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @param data
-	 * @return
+	 * @param data data
+	 * @return an InjectedExecutorHandler
 	 */
 	public @NotNull InjectedExecutorHandler removeConsoleCalculation(CommandData data) {
 		List<IExecutorCalculating<? extends CommandSender>> array;
@@ -109,9 +114,10 @@ public class InjectedExecutorHandler {
 		return this;
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @param data
-	 * @return
+	 * @param data data
+	 * @return an InjectedExecutorHandler
 	 */
 	public @NotNull InjectedExecutorHandler removeCompletions(CommandData data) {
 		List<IExecutorCompleting<? extends CommandSender>> array;
@@ -122,31 +128,35 @@ public class InjectedExecutorHandler {
 		return this;
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @return
+	 * @return a map
 	 */
 	public @NotNull Map<CommandData, List<IExecutorCompleting<? extends CommandSender>>> getExecutorCompletions() {
 		return Collections.unmodifiableMap(EXECUTOR_COMPLETIONS);
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @return
+	 * @return a map
 	 */
 	public @NotNull Map<CommandData, List<IExecutorCalculating<? extends CommandSender>>> getExecutorCalculations() {
 		return Collections.unmodifiableMap(EXECUTOR_CALCULATIONS);
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @param label
-	 * @return
+	 * @param label command label
+	 * @return a list
 	 */
 	public @Nullable List<IExecutorCompleting<? extends CommandSender>> getCompletions(String label) {
 		return EXECUTOR_COMPLETIONS.entrySet().stream().filter(e -> e.getKey().getLabel().equals(label)).map(Map.Entry::getValue).findFirst().orElse(null);
 	}
 
+	// TODO: finish this javadoc
 	/**
-	 * @param label
-	 * @return
+	 * @param label command label
+	 * @return a list
 	 */
 	public @Nullable List<IExecutorCalculating<? extends CommandSender>> getCalculations(String label) {
 		return EXECUTOR_CALCULATIONS.entrySet().stream().filter(e -> e.getKey().getLabel().equals(label)).map(Map.Entry::getValue).findFirst().orElse(null);

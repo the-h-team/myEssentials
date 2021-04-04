@@ -82,7 +82,7 @@ public final class CommandMapper {
 	}
 
 	/**
-	 * Build & customize the tab completions for your registered command.
+	 * Build &amp; customize the tab completions for your registered command.
 	 *
 	 * @param completer Build your {@link com.github.sanctum.myessentials.model.base.IExecutorBaseCommand} linked
 	 *                  {@link com.github.sanctum.myessentials.model.action.IExecutorCompleting} {@link com.github.sanctum.myessentials.model.base.IExecutorBaseCompletion}

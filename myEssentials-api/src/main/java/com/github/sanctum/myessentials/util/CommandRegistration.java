@@ -24,11 +24,12 @@ import org.bukkit.plugin.Plugin;
 public final class CommandRegistration {
 
 	/**
-	 * Look for any compatible object types representative of {@link CommandBuilder} within
-	 * a desired package location and automatically instantiate each of them
-	 * individually if possible for registration.
+	 * Look for any compatible object types representative of {@link CommandBuilder}
+	 * within a desired package location and automatically instantiate each of
+	 * them individually if possible for registration.
 	 *
-	 * @param packageName The location to query.
+	 * @param instance A plugin instance, typically your own
+	 * @param packageName The location to query
 	 * @throws IllegalStateException if the plugin jar cannot be accessed
 	 */
 	public static void compileFields(Plugin instance, String packageName) throws IllegalStateException {
