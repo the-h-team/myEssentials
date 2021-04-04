@@ -11,7 +11,7 @@
 
     <artifactId>my-essentials-api</artifactId>
 
-    <!--TODO: determine licensing (likely MIT/CC)-->
+    <!--TODO: determine licensing (likely MIT)-->
     <licenses>
         <license>
             <name>To be determined. No license yet.</name>
