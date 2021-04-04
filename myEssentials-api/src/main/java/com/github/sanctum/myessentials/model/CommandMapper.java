@@ -8,7 +8,7 @@ import com.github.sanctum.myessentials.model.specifier.PlayerResultingTabComplet
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Build & complete command construction quicker than you ever have before.
+ * Build &amp; complete command construction quicker than you ever have before.
  */
 public final class CommandMapper {
 
