@@ -8,7 +8,7 @@ import com.github.sanctum.myessentials.model.specifier.PlayerResultingTabComplet
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Build & complete command construction quicker than you ever have before.
+ * Build &amp; complete command construction quicker than you ever have before.
  */
 public final class CommandMapper {
 
@@ -82,7 +82,7 @@ public final class CommandMapper {
 	}
 
 	/**
-	 * Build & customize the tab completions for your registered command.
+	 * Build &amp; customize the tab completions for your registered command.
 	 *
 	 * @param completer Build your {@link com.github.sanctum.myessentials.model.base.IExecutorBaseCommand} linked
 	 *                  {@link com.github.sanctum.myessentials.model.action.IExecutorCompleting} {@link com.github.sanctum.myessentials.model.base.IExecutorBaseCompletion}
