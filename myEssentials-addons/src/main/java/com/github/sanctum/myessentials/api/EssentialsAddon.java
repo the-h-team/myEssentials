@@ -23,6 +23,8 @@ public abstract class EssentialsAddon {
 
 	public abstract boolean persist();
 
+	public abstract boolean isStandalone();
+
 	/**
 	 * Get the addon's unique id.
 	 *
