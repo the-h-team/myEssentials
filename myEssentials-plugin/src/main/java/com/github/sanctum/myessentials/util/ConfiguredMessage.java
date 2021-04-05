@@ -49,7 +49,7 @@ public enum ConfiguredMessage implements ProvidedMessage {
     // -bin, -broadcast
     // /Day
     DAY_VALUES_DESC(".day.values"),
-    SET_NOW_DAY(".day.set-now-day"),
+    SET_DAY(".day.set-day"),
     SET_MORNING(".day.set-morning"),
     SET_NOON(".day.set-noon"),
     SET_AFTERNOON(".day.set-afternoon"),
@@ -75,20 +75,19 @@ public enum ConfiguredMessage implements ProvidedMessage {
     // -item, -kickall, -message
     // /Night
     NIGHT_VALUES_DESC(".night.values"),
-    NOW_DAY(".night.now-day"),
-    NOW_NIGHT(".night.now-night"),
-    NOW_MIDNIGHT(".night.now-midnight"),
-    NOW_DUSK(".night.now-dusk"),
+    SET_NIGHT(".night.set-night"),
+    SET_MIDNIGHT(".night.set-midnight"),
+    SET_DUSK(".night.set-dusk"),
     // -onlinelist, -powertool, -reload, -reply, -socialspy, -spawnmob, -staff, -teleport
     // /Tempban
     REASON(".tempban.a-reason"),
     INVALID_TIME_FORMAT(".tempban.invalid-format"),
     TIME_EXAMPLE(".tempban.example"),
-    BAN_KICK_1(".tempban.kick.line1"),
-    BAN_KICK_2(".tempban.kick.line2"),
-    BAN_KICK_TO_SENDER(".tempban.kick.to-sender"), // Takes 1 replacement
+    YOU_HAVE_BEEN_BANNED(".tempban.kick.line1"),
+    BAN_EXPIRATION(".tempban.kick.line2"), // Takes 1 replacement
+    UNBAN_TIME_TO_SENDER(".tempban.kick.to-sender"), // Takes 1 replacement
     UNBANNED_TIME(".tempban.will-be-unbanned"),
-    BAN_KICK_3(".tempban.kick2.line3"),
+    BAN_KICK_REASON(".tempban.kick2.line3"),
     INVALID_TIME_CONSOLE(".tempban.console.invalid-time"),
     // -tpa
     // /Unban
@@ -96,7 +95,8 @@ public enum ConfiguredMessage implements ProvidedMessage {
     TARGET_NOT_BANNED(".unban.target-not-banned"),
     // -update, -whois
     // /World
-    WORLD_SEARCH_INTERRUPTED(".world.search-interrupted"),
+    STOPPING_SEARCH(".world.stopping-search"),
+    SEARCH_INTERRUPTED(".world.search-interrupted"),
     TELEPORTED_SAFEST_LOCATION(".world.safest-location"), // Takes 1 replacement
     // /Kick
     YOU_WERE_KICKED(".kick.you-were-kicked"),

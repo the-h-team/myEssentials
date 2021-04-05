@@ -30,7 +30,7 @@ Messages:
     ## /Day
     day:
       values: '&e&oEach value is a different time of day.'
-      set-now-day: '&aIt is now daytime.'
+      set-day: '&aIt is now daytime.'
       set-morning: '&aIt is now morning time.'
       set-noon: '&aIt is now noon.'
       set-afternoon: '&aIt is now afternoon.'
@@ -66,10 +66,10 @@ Messages:
     ## /Night
     night:
       values: '&e&oEach value is a different time of night.'
-      now-day: '&aIt is now day time.'
-      now-night: '&aIt is now night time.'
-      now-midnight: '&aIt is now midnight.'
-      now-dusk: '&aIt is now dusk.'
+      #day.now-day
+      set-night: '&aIt is now nighttime.'
+      set-midnight: '&aIt is now midnight.'
+      set-dusk: '&aIt is now dusk.'
     ### skipped onlinelist, powertool, reload, reply, socialspy, spawnmob, staff, teleport
     ## /Tempban
     tempban:
@@ -98,6 +98,7 @@ Messages:
       #errors.target-not-found
     ### skipped update, whois
     world:
+      stopping-search: "Stopping search..."
       search-interrupted: "Search interrupted..."
       safest-location: "&aYou've been teleported to the safest location in world {0}" # 0 = supplied world name
     ## /Kick
