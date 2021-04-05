@@ -1,0 +1,110 @@
+Messages:
+  Info:
+    prefix: '&r[&2myEssentials&r]'
+
+  # Errors
+  Errors:
+    must-be-player: '&cYou must be a player!'
+    try-in-survival: '&cTry this in Survival Mode'
+    not-valid-player: '&cThat is not a valid player.'
+    player-not-online: '&cThe player must be online.'
+    target-not-found: '&c&oTarget {0} was not found.' # 0 = target name
+
+  # Command messages
+  Commands:
+    ## /Fly
+    fly:
+      flight-off: '&6Toggled flight off'
+      flight-on: '&6Toggled flight on'
+    ## /Back
+    back:
+      no-previous-location: '&cNo previous location was found.'
+      teleported-previous: '&aTeleporting to your previous location.'
+    ## /Ban
+    ban:
+      banned-target: 'Target banned'
+      target-already-banned: 'Target is already banned.'
+      #errors.target-not-found
+      banned-reason: "Target banned for '{0}'" # 0 = reason
+    ### skipped bin, broadcast
+    ## /Day
+    day:
+      set-now-day: '&aIt is now daytime.'
+      set-morning: '&aIt is now morning time.'
+      set-noon: '&aIt is now noon.'
+      set-afternoon: '&aIt is now afternoon.'
+    ### skipped feed
+    ## /Gamemode
+    gamemode:
+      #not-valid-player, player-not-online
+      set-gamemode: "&6Set &e{0} &6to {1}." # 0 = playerName, 1 = gamemodeName
+    ### skipped give, gm[a,c,s,sp]
+    ## /Gm (the toggle)
+    gm-toggle:
+      not-in-survival-creative: 'You are not currently in survival or creative.'
+      player-gamemode-set: '&6Your gamemode has been set to {0}.' # 0 = gamemode toString
+      #not-valid-player, player-not-online
+      target-not-in-survival-creative: 'The player is not currently in survival or creative.'
+      target-gamemode-set: '&6Set &e{0} &6to {1}.' # 0 = playerName, 1 = gamemode toString
+    ### skipped god
+    ## /Heal
+    heal:
+      target-max: '&a&oTarget {0} has been healed to max health.' # 0 = playerName
+      target-not-online: "&c&oTarget {0} isn't online." # 0 = playerName
+      #errors.target-not-found
+      console:
+        max: 'Target {0} has been health to max health.' # 0 = playerName
+        not-online: "Target {0} isn't online." # 0 = playerName
+        not-found: 'Target {0} was not found.' # 0 = playerName
+    ### skipped help
+    ## /Invsee
+    invsee:
+      deny-own-inventory: "&c&oYou can't edit your own inventory this way."
+      player-not-found: '&c&oPlayer not found!'
+    ### skipped item, kickall, message
+    ## /Night
+    night:
+      values: '&e&oEach value is a different time of night.'
+      now-day: '&aIt is now day time.'
+      now-night: '&aIt is now night time.'
+      now-midnight: '&aIt is now midnight.'
+      now-dusk: '&aIt is now dusk.'
+    ### skipped onlinelist, powertool, reload, reply, socialspy, spawnmob, staff, teleport
+    ## /Tempban
+    tempban:
+      a-reason: "reason..."
+      invalid-format: "&c&oInvalid time format, expected #d#h#m#s - Days, hours, minutes, seconds"
+      example: "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m"
+      kick:
+        line1: "&c&oYou have been banned."
+        line2: "Expiration: {0}" # 0 = time left
+        toSender: "Target will be unbanned in: {0}" # 0 = time left
+      #ban.target-already-banned
+      will-be-unbanned: "They will be unbanned in: {0}" # 0 = time left
+      #errors.target-not-found
+      kick2:
+        #kick.line1
+        line3: "&c&oReason: &r{0}" # 0 = reason
+        #kick.line2
+      console:
+        invalid-time: "&c&oInvalid time format."
+        #example
+    ### skipped tpa
+    ## /Unban
+    unban:
+      target-unbanned: 'Target unbanned.'
+      target-not-banned: 'Target is already not banned.'
+      #errors.target-not-found
+    ### skipped update, whois
+    world:
+      search-interrupted: "Search interrupted..."
+      safest-location: "&aYou've been teleported to the safest location in world {0}" # 0 = supplied world name
+    ## /Kick
+    kick:
+      you-were-kicked: "&c&oYou were kicked."
+      default-reason: "&eReason: &rNone specified."
+      target-kicked: "Target kicked"
+      target-offline: "Target is offline."
+      #errors.target-not-found
+      custom-reason: "&eReason: &r{0}" # 0 = reason text
+      target-kicked-reason: "Target kicked for '{0}'" # 0 = reason
