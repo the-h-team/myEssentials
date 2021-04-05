@@ -57,7 +57,7 @@ public enum InternalCommandData implements CommandData {
     WORLD_COMMAND("world");
 
 
-    private static FileManager CONFIG;
+    private static FileManager fileManager;
     public String configNode;
 
     InternalCommandData(String configNode) {
@@ -66,12 +66,12 @@ public enum InternalCommandData implements CommandData {
 
     @Override
     public @NotNull String getLabel() {
-        return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".label"));
+        return Objects.requireNonNull(fileManager.getConfig().getString(configNode + ".label"));
     }
 
     @Override
     public @NotNull List<String> getAliases() {
-        final ConfigurationSection configurationSection = CONFIG.getConfig().getConfigurationSection(configNode);
+        final ConfigurationSection configurationSection = fileManager.getConfig().getConfigurationSection(configNode);
         if (configurationSection != null && configurationSection.contains("aliases")) {
             return configurationSection.getStringList("aliases");
         }
@@ -80,30 +80,30 @@ public enum InternalCommandData implements CommandData {
 
     @Override
     public @NotNull String getUsage() {
-        return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".usage"));
+        return Objects.requireNonNull(fileManager.getConfig().getString(configNode + ".usage"));
     }
 
     @Override
     public @NotNull String getDescription() {
-        return Objects.requireNonNull(CONFIG.getConfig().getString(configNode + ".description"));
+        return Objects.requireNonNull(fileManager.getConfig().getString(configNode + ".description"));
     }
 
     @Override
     public @Nullable String getPermissionNode() {
-        return CONFIG.getConfig().getString(configNode + ".permission");
+        return fileManager.getConfig().getString(configNode + ".permission");
     }
 
     public static void defaultOrReload(Essentials plugin) {
-        if (CONFIG == null) CONFIG = plugin.getFileList().find("commands", null);
-        if (!CONFIG.exists()) {
+        if (fileManager == null) fileManager = plugin.getFileList().find("commands", null);
+        if (!fileManager.exists()) {
             final InputStream resource = plugin.getResource("commands.yml");
             if (resource == null) {
                 throw new IllegalStateException("Unable to load internal command data from the jar! something is very wrong");
             }
-            FileManager.copy(resource, CONFIG.getFile());
+            FileManager.copy(resource, fileManager.getFile());
         }
-        if (CONFIG.exists() && !CONFIG.getConfig().getKeys(false).isEmpty()) {
-            CONFIG.reload();
+        if (fileManager.exists() && !fileManager.getConfig().getKeys(false).isEmpty()) {
+            fileManager.reload();
         }
     }
 }

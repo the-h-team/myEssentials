@@ -29,12 +29,11 @@ import org.jetbrains.annotations.Nullable;
 
 public final class TpaCommand extends CommandBuilder {
     private final PluginManager pm = Bukkit.getPluginManager();
+    private final Map<UUID, Date> request = new HashMap<>();
 
     public TpaCommand() {
         super(InternalCommandData.TPA_COMMAND);
     }
-
-    private final Map<UUID, Date> request = new HashMap<>();
 
     @Override
     public @Nullable

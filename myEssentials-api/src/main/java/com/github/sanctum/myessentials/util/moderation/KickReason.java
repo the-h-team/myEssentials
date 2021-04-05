@@ -15,16 +15,7 @@ public final class KickReason {
 	private final Map<Integer, String> messages = new HashMap<>();
 	private String primaryKickReason = "&rNo reason specified.";
 
-	protected KickReason() {
-	}
-
-	/**
-	 * Encapsulate an array of messages to be sent to a kicked user in order.
-	 *
-	 * @return An encapsulate kick reason.
-	 */
-	public static KickReason next() {
-		return new KickReason();
+	private KickReason() {
 	}
 
 	/**
@@ -73,5 +64,14 @@ public final class KickReason {
 		}
 		int stop = builder.length() - 1;
 		return builder.substring(0, stop);
+	}
+
+	/**
+	 * Encapsulate an array of messages to be sent to a kicked user in order.
+	 *
+	 * @return An encapsulate kick reason.
+	 */
+	public static KickReason next() {
+		return new KickReason();
 	}
 }

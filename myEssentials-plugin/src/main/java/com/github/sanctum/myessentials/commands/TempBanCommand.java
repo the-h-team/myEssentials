@@ -31,11 +31,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class TempBanCommand extends CommandBuilder {
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	public TempBanCommand() {
 		super(InternalCommandData.TEMPBAN_COMMAND);
 	}
-
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
 
 	@Override
 	public @NotNull

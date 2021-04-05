@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 /**
  * Provides messaging functions.
  */
+@SuppressWarnings("UnusedReturnValue")
 public interface Messenger {
     /**
      * Broadcast a message to everyone on the server.

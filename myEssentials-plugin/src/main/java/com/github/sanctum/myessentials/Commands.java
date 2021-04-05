@@ -29,7 +29,8 @@ public final class Commands {
 	private static TabCompletionBuilder tempBanTab;
 	private static TabCompletionBuilder unbanTab;
 
-	protected Commands() {
+	// Utility class
+	private Commands() {
 	}
 
 	protected static void register() {
@@ -145,10 +146,10 @@ public final class Commands {
 								}
 
 							} else {
-								// player not online
+								// TODO: player not online
 							}
 						} else {
-							// player isnt found.
+							// TODO: player isnt found.
 						}
 					}
 

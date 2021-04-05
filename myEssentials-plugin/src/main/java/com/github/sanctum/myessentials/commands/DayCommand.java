@@ -22,14 +22,12 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class DayCommand extends CommandBuilder {
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+	private final Random r = new Random();
 
 	public DayCommand() {
 		super(InternalCommandData.DAY_COMMAND);
 	}
-
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
-
-	private final Random r = new Random();
 
 	@Override
 	public @NotNull

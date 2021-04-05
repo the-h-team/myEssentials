@@ -25,11 +25,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class BanCommand extends CommandBuilder {
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	public BanCommand() {
 		super(InternalCommandData.BAN_COMMAND);
 	}
-
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
 
 	@Override
 	public @NotNull

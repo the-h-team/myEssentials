@@ -32,7 +32,7 @@ import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.SignWrapper;
 import com.github.sanctum.myessentials.util.factory.MessengerImpl;
-import com.github.sanctum.myessentials.util.factory.ReloadImpl;
+import com.github.sanctum.myessentials.util.factory.ReloadUtil;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
@@ -83,7 +83,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	public void onEnable() {
 		instance = this;
 		Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
-		ReloadImpl.get(this).onEnable(getClassLoader());
+		ReloadUtil.get(this).onEnable(getClassLoader());
 		SharedMenu bin = SharedBuilder.create(this, "My-Bin", StringUtils.translate("&6&nDonation Bin."), InventoryRows.THREE.getSlotCount());
 		bin.addOption(SharedMenu.Option.CANCEL_HOTBAR);
 		bin.setItem(0, () -> {
@@ -113,7 +113,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	@Override
 	public void onDisable() {
 		try {
-			ReloadImpl.get(this).onDisable();
+			ReloadUtil.get(this).onDisable();
 			TeleportationManager.unregisterListeners();
 			OptionLoader.recordRemainingBans();
 		} catch (Exception e) {

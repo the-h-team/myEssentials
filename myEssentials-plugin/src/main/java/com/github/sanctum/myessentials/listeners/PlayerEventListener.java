@@ -27,14 +27,14 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-public class PlayerEventListener implements Listener {
+public final class PlayerEventListener implements Listener {
 	private static PlayerEventListener instance;
+
+	private final Map<UUID, Location> prevLocations = new HashMap<>();
 
 	{
 		instance = this;
 	}
-
-	private final Map<UUID, Location> prevLocations = new HashMap<>();
 
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onLogin(PlayerLoginEvent e) {

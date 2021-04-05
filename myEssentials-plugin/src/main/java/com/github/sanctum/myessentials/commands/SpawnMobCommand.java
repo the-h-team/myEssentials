@@ -19,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class SpawnMobCommand extends CommandBuilder {
-
 	public SpawnMobCommand() {
 		super(InternalCommandData.SPAWNMOB_COMMAND);
 	}

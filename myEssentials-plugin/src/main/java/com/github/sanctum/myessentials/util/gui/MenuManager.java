@@ -35,18 +35,25 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
-public class MenuManager {
+public final class MenuManager {
 
-	private static final Map<Select, UUID> util = new HashMap<>();
+	private static MenuManager instance;
 
-	private static final NamespacedKey addonKey = new NamespacedKey(Essentials.getInstance(), "essentials_addon");
+	private final Map<Select, UUID> util = new HashMap<>();
+	private final NamespacedKey addonKey = new NamespacedKey(Essentials.getInstance(), "essentials_addon");
+
+	// utility class
+	private static MenuManager getInstance() {
+		if (instance != null) return instance;
+		return (instance = new MenuManager());
+	}
 
 	public static NamespacedKey getAddonKey() {
-		return addonKey;
+		return getInstance().addonKey;
 	}
 
 	public static UUID getId(Select type) {
-		return util.get(type);
+		return getInstance().util.get(type);
 	}
 
 	protected static List<String> color(String... text) {
@@ -57,28 +64,24 @@ public class MenuManager {
 		return convert;
 	}
 
+	@SuppressWarnings("ConstantConditions")
+	private static ItemStack setItemName(ItemStack item, String display) {
+		final ItemMeta meta = item.getItemMeta();
+		meta.setDisplayName(color(display));
+		item.setItemMeta(meta);
+		return item;
+	}
+
 	private static ItemStack getLeft() {
-		ItemStack left = new ItemStack(Material.DARK_OAK_BUTTON);
-		ItemMeta meta = left.getItemMeta();
-		meta.setDisplayName(StringUtils.translate("&cPrevious page"));
-		left.setItemMeta(meta);
-		return left;
+		return setItemName(new ItemStack(Material.DARK_OAK_BUTTON), "&cPrevious page");
 	}
 
 	private static ItemStack getRight() {
-		ItemStack left = new ItemStack(Material.DARK_OAK_BUTTON);
-		ItemMeta meta = left.getItemMeta();
-		meta.setDisplayName(StringUtils.translate("&aNext page"));
-		left.setItemMeta(meta);
-		return left;
+		return setItemName(new ItemStack(Material.DARK_OAK_BUTTON), "&aNext page");
 	}
 
 	private static ItemStack getBack() {
-		ItemStack left = new ItemStack(Material.BARRIER);
-		ItemMeta meta = left.getItemMeta();
-		meta.setDisplayName(StringUtils.translate("&3Go back."));
-		left.setItemMeta(meta);
-		return left;
+		return setItemName(new ItemStack(Material.BARRIER), "&3Go back.");
 	}
 
 	private static String color(String text) {
@@ -155,7 +158,7 @@ public class MenuManager {
 
 										meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription()));
 
-										meta.getPersistentDataContainer().set(addonKey, PersistentDataType.STRING, e.getContext());
+										meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
 
 										meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
 
@@ -205,7 +208,7 @@ public class MenuManager {
 
 										meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription()));
 
-										meta.getPersistentDataContainer().set(addonKey, PersistentDataType.STRING, e.getContext());
+										meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
 
 										meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
 
@@ -255,7 +258,7 @@ public class MenuManager {
 
 										meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oActive: &6&o" + AddonQuery.getEnabledAddons().contains(addon.getAddonName())));
 
-										meta.getPersistentDataContainer().set(addonKey, PersistentDataType.STRING, e.getContext());
+										meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
 
 										meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
 
@@ -279,7 +282,7 @@ public class MenuManager {
 				default:
 					throw new IllegalStateException("Unexpected menu type: " + this);
 			}
-			util.put(this, builder.getId());
+			getInstance().util.put(this, builder.getId());
 			menu = builder.build();
 			return menu;
 		}

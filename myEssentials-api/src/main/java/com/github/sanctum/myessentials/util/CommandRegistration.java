@@ -23,6 +23,9 @@ import org.bukkit.plugin.Plugin;
 
 public final class CommandRegistration {
 
+	// Utility class
+	private CommandRegistration() {}
+
 	/**
 	 * Look for any compatible object types representative of {@link CommandBuilder}
 	 * within a desired package location and automatically instantiate each of

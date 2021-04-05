@@ -47,15 +47,6 @@ public final class TeleportationManager {
         }
     }
 
-    public static void registerListeners(Essentials essentials) {
-        new TeleportationManager(essentials);
-    }
-
-    public static void unregisterListeners() {
-        instance.listeners.clear();
-        instance = null;
-    }
-
     private class PendingTeleportListener implements Listener {
         // Prepare teleport to a Location
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -78,6 +69,15 @@ public final class TeleportationManager {
                 }
             }.runTaskLater(plugin, e.getDelay());
         }
+    }
+
+    public static void registerListeners(Essentials essentials) {
+        new TeleportationManager(essentials);
+    }
+
+    public static void unregisterListeners() {
+        instance.listeners.clear();
+        instance = null;
     }
 
     /**
