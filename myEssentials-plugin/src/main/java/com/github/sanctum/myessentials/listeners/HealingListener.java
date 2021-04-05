@@ -12,8 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class HealingListener implements Listener {
-
+public final class HealingListener implements Listener {
     private final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)

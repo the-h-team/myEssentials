@@ -33,9 +33,9 @@ public enum ConfiguredMessage implements ProvidedMessage {
     FLIGHT_ON("flight-on"),
     PREFIX("prefix");
 
-    private final String key;
-
     private static Properties properties;
+
+    private final String key;
 
     ConfiguredMessage(String s) {
         this.key = s;

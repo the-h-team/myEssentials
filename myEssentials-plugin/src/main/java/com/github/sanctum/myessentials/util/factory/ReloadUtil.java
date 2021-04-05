@@ -27,16 +27,12 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
-public class ReloadImpl {
+public final class ReloadUtil {
 
 	private final Plugin plugin;
 
-	protected ReloadImpl(@NotNull Plugin plugin) {
+	private ReloadUtil(@NotNull Plugin plugin) {
 		this.plugin = plugin;
-	}
-
-	public static ReloadImpl get(Plugin plugin) {
-		return new ReloadImpl(plugin);
 	}
 
 	public void onEnable(ClassLoader classLoader) {
@@ -89,6 +85,7 @@ public class ReloadImpl {
 		FileManager check = MyEssentialsAPI.getInstance().getAddonFile("Test", "");
 		File parent = check.getFile().getParentFile();
 		if (!parent.exists()) {
+			//noinspection ResultOfMethodCallIgnored
 			parent.mkdir();
 		}
 		for (File f : parent.listFiles()) {
@@ -130,5 +127,7 @@ public class ReloadImpl {
 		}
 	}
 
-
+	public static ReloadUtil get(Plugin plugin) {
+		return new ReloadUtil(plugin);
+	}
 }

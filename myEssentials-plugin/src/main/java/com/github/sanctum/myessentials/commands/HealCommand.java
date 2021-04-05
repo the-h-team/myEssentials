@@ -24,11 +24,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class HealCommand extends CommandBuilder {
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	public HealCommand() {
 		super(InternalCommandData.HEAL_COMMAND);
 	}
-
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
 
 	@Override
 	public @NotNull

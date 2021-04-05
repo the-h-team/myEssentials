@@ -36,15 +36,13 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class WorldCommand extends CommandBuilder {
+	private final Map<UUID, Boolean> taskScheduled = new HashMap<>();
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+	private final AtomicReference<Location> teleportLocation = new AtomicReference<>();
+
 	public WorldCommand() {
 		super(InternalCommandData.WORLD_COMMAND);
 	}
-
-	private final Map<UUID, Boolean> TASK_SCHEDULED = new HashMap<>();
-
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
-
-	private final AtomicReference<Location> teleportLocation = new AtomicReference<>();
 
 	@Override
 	public @NotNull
@@ -97,12 +95,12 @@ public final class WorldCommand extends CommandBuilder {
 					// world not found.
 					return true;
 				}
-				if (TASK_SCHEDULED.containsKey(player.getUniqueId()) && TASK_SCHEDULED.get(player.getUniqueId())) {
-					TASK_SCHEDULED.put(player.getUniqueId(), false);
+				if (taskScheduled.containsKey(player.getUniqueId()) && taskScheduled.get(player.getUniqueId())) {
+					taskScheduled.put(player.getUniqueId(), false);
 					sendMessage(player, "Stopping search...");
 					return true;
 				}
-				TASK_SCHEDULED.put(player.getUniqueId(), true);
+				taskScheduled.put(player.getUniqueId(), true);
 
 				Schedule.sync(() -> {
 					int x = random(10500);
@@ -115,11 +113,11 @@ public final class WorldCommand extends CommandBuilder {
 					player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 10, 1);
 
 				}).cancelAfter(player).cancelAfter(task -> {
-					if (TASK_SCHEDULED.containsKey(player.getUniqueId()) && !TASK_SCHEDULED.get(player.getUniqueId())) {
+					if (taskScheduled.containsKey(player.getUniqueId()) && !taskScheduled.get(player.getUniqueId())) {
 						sendMessage(player, "Search interrupted...");
 						task.cancel();
 					}
-					if (!TASK_SCHEDULED.containsKey(player.getUniqueId())) {
+					if (!taskScheduled.containsKey(player.getUniqueId())) {
 						sendMessage(player, "Search interrupted...");
 						task.cancel();
 					}
@@ -128,7 +126,7 @@ public final class WorldCommand extends CommandBuilder {
 							player.teleport(teleportLocation.get());
 							teleportLocation.set(null);
 							sendMessage(player, "&aYou've been teleported to the safest location in world " + world);
-							TASK_SCHEDULED.remove(player.getUniqueId());
+							taskScheduled.remove(player.getUniqueId());
 							task.cancel();
 						}
 					}

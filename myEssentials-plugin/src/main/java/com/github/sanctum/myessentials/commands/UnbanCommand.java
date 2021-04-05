@@ -26,11 +26,11 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public final class UnbanCommand extends CommandBuilder {
+	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+
 	public UnbanCommand() {
 		super(InternalCommandData.UNBAN_COMMAND);
 	}
-
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
 
 	@Override
 	public @NotNull
