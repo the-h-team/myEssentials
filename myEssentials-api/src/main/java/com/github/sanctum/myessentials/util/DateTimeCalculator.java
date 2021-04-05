@@ -10,7 +10,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
 
-public class DateTimeCalculator {
+public final class DateTimeCalculator {
+
+	// Utility class
+	private DateTimeCalculator() {}
 
 	/**
 	 * Get a date object from the format (MM/DD/YYYY)

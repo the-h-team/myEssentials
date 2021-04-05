@@ -15,10 +15,11 @@ import org.jetbrains.annotations.Nullable;
 /**
  *
  */
+@SuppressWarnings("UnusedReturnValue")
 public class InjectedExecutorHandler {
 
-	private final Map<CommandData, List<IExecutorCalculating<? extends CommandSender>>> EXECUTOR_CALCULATIONS;
-	private final Map<CommandData, List<IExecutorCompleting<? extends CommandSender>>> EXECUTOR_COMPLETIONS;
+	private final Map<CommandData, List<IExecutorCalculating<? extends CommandSender>>> executorCalculations;
+	private final Map<CommandData, List<IExecutorCompleting<? extends CommandSender>>> executorCompletions;
 	private final Plugin plugin;
 
 	// TODO: finish this javadoc
@@ -27,8 +28,8 @@ public class InjectedExecutorHandler {
 	 */
 	public InjectedExecutorHandler(Plugin plugin) {
 		this.plugin = plugin;
-		this.EXECUTOR_CALCULATIONS = new HashMap<>();
-		this.EXECUTOR_COMPLETIONS = new HashMap<>();
+		this.executorCalculations = new HashMap<>();
+		this.executorCompletions = new HashMap<>();
 	}
 
 	/**
@@ -46,13 +47,13 @@ public class InjectedExecutorHandler {
 	 */
 	public @NotNull InjectedExecutorHandler addCalculatingExecutor(CommandData data, IExecutorCalculating<? extends CommandSender> commandData) {
 		List<IExecutorCalculating<? extends CommandSender>> array;
-		if (EXECUTOR_CALCULATIONS.containsKey(data)) {
-			array = new ArrayList<>(EXECUTOR_CALCULATIONS.get(data));
+		if (executorCalculations.containsKey(data)) {
+			array = new ArrayList<>(executorCalculations.get(data));
 		} else {
 			array = new ArrayList<>();
 		}
 		array.add(commandData);
-		EXECUTOR_CALCULATIONS.put(data, array);
+		executorCalculations.put(data, array);
 		return this;
 	}
 
@@ -64,13 +65,13 @@ public class InjectedExecutorHandler {
 	 */
 	public @NotNull InjectedExecutorHandler addCompletingExecutor(CommandData data, IExecutorCompleting<? extends CommandSender> commandData) {
 		List<IExecutorCompleting<? extends CommandSender>> array;
-		if (EXECUTOR_COMPLETIONS.containsKey(data)) {
-			array = new ArrayList<>(EXECUTOR_COMPLETIONS.get(data));
+		if (executorCompletions.containsKey(data)) {
+			array = new ArrayList<>(executorCompletions.get(data));
 		} else {
 			array = new ArrayList<>();
 		}
 		array.add(commandData);
-		EXECUTOR_COMPLETIONS.put(data, array);
+		executorCompletions.put(data, array);
 		return this;
 	}
 
@@ -81,15 +82,15 @@ public class InjectedExecutorHandler {
 	 */
 	public @NotNull InjectedExecutorHandler removePlayerCalculation(CommandData data) {
 		List<IExecutorCalculating<? extends CommandSender>> array;
-		if (EXECUTOR_CALCULATIONS.containsKey(data)) {
-			array = new ArrayList<>(EXECUTOR_CALCULATIONS.get(data));
+		if (executorCalculations.containsKey(data)) {
+			array = new ArrayList<>(executorCalculations.get(data));
 			for (IExecutorCalculating<? extends CommandSender> e : array) {
 				if (e.getEntity() == ExecutorEntity.PLAYER) {
 					array.remove(e);
 					break;
 				}
 			}
-			EXECUTOR_CALCULATIONS.put(data, array);
+			executorCalculations.put(data, array);
 		}
 		return this;
 	}
@@ -101,15 +102,15 @@ public class InjectedExecutorHandler {
 	 */
 	public @NotNull InjectedExecutorHandler removeConsoleCalculation(CommandData data) {
 		List<IExecutorCalculating<? extends CommandSender>> array;
-		if (EXECUTOR_CALCULATIONS.containsKey(data)) {
-			array = new ArrayList<>(EXECUTOR_CALCULATIONS.get(data));
+		if (executorCalculations.containsKey(data)) {
+			array = new ArrayList<>(executorCalculations.get(data));
 			for (IExecutorCalculating<? extends CommandSender> e : array) {
 				if (e.getEntity() == ExecutorEntity.SERVER) {
 					array.remove(e);
 					break;
 				}
 			}
-			EXECUTOR_CALCULATIONS.put(data, array);
+			executorCalculations.put(data, array);
 		}
 		return this;
 	}
@@ -121,9 +122,9 @@ public class InjectedExecutorHandler {
 	 */
 	public @NotNull InjectedExecutorHandler removeCompletions(CommandData data) {
 		List<IExecutorCompleting<? extends CommandSender>> array;
-		if (EXECUTOR_COMPLETIONS.containsKey(data)) {
+		if (executorCompletions.containsKey(data)) {
 			array = new ArrayList<>();
-			EXECUTOR_COMPLETIONS.put(data, array);
+			executorCompletions.put(data, array);
 		}
 		return this;
 	}
@@ -133,7 +134,7 @@ public class InjectedExecutorHandler {
 	 * @return a map
 	 */
 	public @NotNull Map<CommandData, List<IExecutorCompleting<? extends CommandSender>>> getExecutorCompletions() {
-		return Collections.unmodifiableMap(EXECUTOR_COMPLETIONS);
+		return Collections.unmodifiableMap(executorCompletions);
 	}
 
 	// TODO: finish this javadoc
@@ -141,7 +142,7 @@ public class InjectedExecutorHandler {
 	 * @return a map
 	 */
 	public @NotNull Map<CommandData, List<IExecutorCalculating<? extends CommandSender>>> getExecutorCalculations() {
-		return Collections.unmodifiableMap(EXECUTOR_CALCULATIONS);
+		return Collections.unmodifiableMap(executorCalculations);
 	}
 
 	// TODO: finish this javadoc
@@ -150,7 +151,7 @@ public class InjectedExecutorHandler {
 	 * @return a list
 	 */
 	public @Nullable List<IExecutorCompleting<? extends CommandSender>> getCompletions(String label) {
-		return EXECUTOR_COMPLETIONS.entrySet().stream().filter(e -> e.getKey().getLabel().equals(label)).map(Map.Entry::getValue).findFirst().orElse(null);
+		return executorCompletions.entrySet().stream().filter(e -> e.getKey().getLabel().equals(label)).map(Map.Entry::getValue).findFirst().orElse(null);
 	}
 
 	// TODO: finish this javadoc
@@ -159,14 +160,14 @@ public class InjectedExecutorHandler {
 	 * @return a list
 	 */
 	public @Nullable List<IExecutorCalculating<? extends CommandSender>> getCalculations(String label) {
-		return EXECUTOR_CALCULATIONS.entrySet().stream().filter(e -> e.getKey().getLabel().equals(label)).map(Map.Entry::getValue).findFirst().orElse(null);
+		return executorCalculations.entrySet().stream().filter(e -> e.getKey().getLabel().equals(label)).map(Map.Entry::getValue).findFirst().orElse(null);
 
 	}
 
 	@Override
 	public String toString() {
 		return "InjectedExecutorHandler{" +
-				"executorBases=" + EXECUTOR_CALCULATIONS +
+				"executorBases=" + executorCalculations +
 				", plugin=" + plugin +
 				'}';
 	}
