@@ -29,6 +29,7 @@ Messages:
     ### skipped bin, broadcast
     ## /Day
     day:
+      values: '&e&oEach value is a different time of day.'
       set-now-day: '&aIt is now daytime.'
       set-morning: '&aIt is now morning time.'
       set-noon: '&aIt is now noon.'
@@ -53,7 +54,7 @@ Messages:
       target-not-online: "&c&oTarget {0} isn't online." # 0 = playerName
       #errors.target-not-found
       console:
-        max: 'Target {0} has been health to max health.' # 0 = playerName
+        max: 'Target {0} has been healed to max health.' # 0 = playerName
         not-online: "Target {0} isn't online." # 0 = playerName
         not-found: 'Target {0} was not found.' # 0 = playerName
     ### skipped help
@@ -78,7 +79,7 @@ Messages:
       kick:
         line1: "&c&oYou have been banned."
         line2: "Expiration: {0}" # 0 = time left
-        toSender: "Target will be unbanned in: {0}" # 0 = time left
+        to-sender: "Target will be unbanned in: {0}" # 0 = time left
       #ban.target-already-banned
       will-be-unbanned: "They will be unbanned in: {0}" # 0 = time left
       #errors.target-not-found
