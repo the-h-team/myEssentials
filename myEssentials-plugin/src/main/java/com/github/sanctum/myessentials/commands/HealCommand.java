@@ -14,7 +14,7 @@ import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.util.events.PlayerHealEvent;
+import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,8 +47,7 @@ public final class HealCommand extends CommandBuilder {
 
 		if (args.length == 0) {
 			if (testPermission(player)) {
-				PlayerHealEvent event = new PlayerHealEvent(null, player, 20);
-				Bukkit.getPluginManager().callEvent(event);
+				Bukkit.getPluginManager().callEvent(new PlayerPendingHealEvent(null, player, 20));
 				return true;
 			}
 			return true;
@@ -61,7 +60,7 @@ public final class HealCommand extends CommandBuilder {
 					Player target = search.getPlayer();
 					if (testPermission(player)) {
 						assert target != null;
-						search.heal(new PlayerHealEvent(player, 20));
+						search.heal(player, 20);
 						sendMessage(player, "&a&oTarget " + target.getName() + " has been healed to max health.");
 						return true;
 					}
@@ -94,7 +93,7 @@ public final class HealCommand extends CommandBuilder {
 					Player target = search.getPlayer();
 					if (testPermission(sender)) {
 						assert target != null;
-						search.heal(new PlayerHealEvent(sender, 20));
+						search.heal(sender, 20);
 						sendMessage(sender, "Target " + target.getName() + " has been healed to max health.");
 						return true;
 					}

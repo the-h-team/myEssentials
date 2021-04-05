@@ -15,6 +15,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -452,10 +454,29 @@ public final class PlayerSearch implements CooldownFinder {
 		return true;
 	}
 
-	public void heal(PlayerHealingProcessor event) {
-		event.setTarget(getPlayer());
-		Bukkit.getPluginManager().callEvent(event);
-		event.patch().apply();
+	/**
+	 * Heal the target.
+	 *
+	 * @param amount health points between 0 and 20
+	 * @throws IllegalArgumentException if amount is over 20
+	 * @throws IllegalStateException if {@link #getPlayer()} is null
+	 */
+	public void heal(double amount) throws IllegalArgumentException {
+		heal(null, amount);
+	}
+
+	/**
+	 * Heal the target.
+	 *
+	 * @param healer a healer; use null for console
+	 * @param amount health points between 0 and 20
+	 * @throws IllegalArgumentException if amount is over 20
+	 * @throws IllegalStateException if {@link #getPlayer()} is null
+	 */
+	public void heal(@Nullable CommandSender healer, double amount) throws IllegalArgumentException {
+		final Player target = getPlayer();
+		if (target == null) throw new IllegalStateException("Target not present!");
+		Bukkit.getPluginManager().callEvent(new PlayerPendingHealEvent(healer, target, amount));
 	}
 
 	/**

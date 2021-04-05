@@ -1,43 +1,25 @@
 package com.github.sanctum.myessentials.util.events;
 
-import com.github.sanctum.labyrinth.library.Applicable;
-import com.github.sanctum.myessentials.util.moderation.PlayerHealingProcessor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The event which a target player is about to be healed, here you can configure information to be passed to the resulting event.
+ * Called when a target player is about to be healed.
+ * <p>
+ * Here, you can modify information to be passed to the final event
+ * or cancel the healing altogether.
  */
-public class PlayerPendingHealEvent extends PlayerHealingProcessor {
-
+public final class PlayerPendingHealEvent extends HealEvent implements Cancellable {
 	private static final HandlerList HANDLER_LIST = new HandlerList();
 
-	private final CommandSender sender;
+	protected boolean cancelled;
 
-	private Player target;
-
-	private double amount;
-
-	protected PlayerPendingHealEvent(@Nullable CommandSender healer, @NotNull Player target, double amount) {
-		this.sender = healer;
-		this.target = target;
-
-		if (amount > 20) {
-			throw new IllegalArgumentException("Amount's over twenty go past minecraft's limitations. Try with a lower amount.");
-		}
-
-		this.amount = amount;
-	}
-
-	public @NotNull Player getTarget() {
-		return target;
-	}
-
-	public @Nullable CommandSender getHealer() {
-		return sender;
+	public PlayerPendingHealEvent(@Nullable CommandSender healer, @NotNull Player target, double amount) {
+		super(healer, target, amount);
 	}
 
 	public void setAmount(double amount) {
@@ -45,17 +27,13 @@ public class PlayerPendingHealEvent extends PlayerHealingProcessor {
 	}
 
 	@Override
-	public double getAmount() {
-		return amount;
+	public boolean isCancelled() {
+		return cancelled;
 	}
 
 	@Override
-	protected Applicable patch() {
-		return null;
-	}
-
-	public static @NotNull HandlerList getHandlerList() {
-		return HANDLER_LIST;
+	public void setCancelled(boolean cancel) {
+		this.cancelled = cancel;
 	}
 
 	@Override
@@ -63,8 +41,7 @@ public class PlayerPendingHealEvent extends PlayerHealingProcessor {
 		return HANDLER_LIST;
 	}
 
-	@Override
-	public void setTarget(Player target) {
-		this.target = target;
+	public static @NotNull HandlerList getHandlerList() {
+		return HANDLER_LIST;
 	}
 }
