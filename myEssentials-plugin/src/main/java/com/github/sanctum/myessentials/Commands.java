@@ -2,6 +2,7 @@ package com.github.sanctum.myessentials;
 
 import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandMapper;
 import com.github.sanctum.myessentials.model.InternalCommandData;
@@ -9,6 +10,8 @@ import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -276,6 +279,22 @@ public final class Commands {
 					.collect()
 					.get(1);
 		});
+
+		AtomicReference<AtomicInteger> i = new AtomicReference<>(new AtomicInteger(18000));
+
+		CommandMapper.from(InternalCommandData.TRANSITION_COMMAND)
+				.apply((builder, player, commandLabel, args) -> Schedule.sync(() -> player.getWorld().setTime(i.get().getAndSet(i.get().get() - 1))).cancelAfter(task -> {
+					if (i.get().getAndSet(i.get().get() - 1) <= 0) {
+						task.cancel();
+					}
+				}).repeat(0, 4 * 20))
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read((builder, sender, commandLabel, args) -> {
+					return null;
+				});
+
 /*
 		CommandMapper.from(InternalCommandData.FLY_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {

@@ -44,27 +44,28 @@ public enum InternalCommandData implements CommandData {
     MESSAGE_COMMAND("message"),
     NIGHT_COMMAND("night"),
     ONLINELIST_COMMAND("online"),
-    POWERTOOL_COMMAND("powertool"),
-    RELOAD_COMMAND("reload"),
-    REPLY_COMMAND("reply"),
-    SOCIALSPY_COMMAND("socialspy"),
-    SPAWNMOB_COMMAND("spawnmob"),
-    STAFF_COMMAND("staff"),
-    TELEPORT_COMMAND("teleport"),
-    UNBAN_COMMAND("unban"),
-    UPDATE_COMMAND("update"),
-    WHOIS_COMMAND("whois"),
-    WORLD_COMMAND("world");
+	POWERTOOL_COMMAND("powertool"),
+	RELOAD_COMMAND("reload"),
+	REPLY_COMMAND("reply"),
+	SOCIALSPY_COMMAND("socialspy"),
+	SPAWNMOB_COMMAND("spawnmob"),
+	STAFF_COMMAND("staff"),
+	TELEPORT_COMMAND("teleport"),
+	UNBAN_COMMAND("unban"),
+	UPDATE_COMMAND("update"),
+	WHOIS_COMMAND("whois"),
+	WORLD_COMMAND("world"),
+	TRANSITION_COMMAND("transition");
 
 
-    private static FileManager fileManager;
-    public String configNode;
+	private static FileManager fileManager;
+	public String configNode;
 
-    InternalCommandData(String configNode) {
-        this.configNode = configNode;
-    }
+	InternalCommandData(String configNode) {
+		this.configNode = configNode;
+	}
 
-    @Override
+	@Override
     public @NotNull String getLabel() {
         return Objects.requireNonNull(fileManager.getConfig().getString(configNode + ".label"));
     }

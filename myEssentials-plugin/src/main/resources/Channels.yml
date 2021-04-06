@@ -1,8 +1,0 @@
-global:
-  is-main: true
-  tag: 'Global'
-  node: 'mess.chat.global'
-secret:
-  is-main: false
-  tag: 'Secret'
-  node: 'mess.chat.secret'
