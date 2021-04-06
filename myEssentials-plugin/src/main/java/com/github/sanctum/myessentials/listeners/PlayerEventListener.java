@@ -10,6 +10,7 @@ package com.github.sanctum.myessentials.listeners;
 
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
@@ -17,6 +18,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import org.bukkit.BanEntry;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,11 +49,11 @@ public final class PlayerEventListener implements Listener {
 				e.disallow(PlayerLoginEvent.Result.KICK_BANNED, KickReason.next()
 						.input(1, MyEssentialsAPI.getInstance().getPrefix())
 						.input(2, " ")
-						.input(3, "&c&oTemporarily banned.")
+						.input(3, ConfiguredMessage.LOGIN_TEMP_BANNED.toString())
 						.input(4, "")
-						.input(5, "&cReason:&r " + search.getBanEntry().orElse(null).getReason())
+						.input(5, ConfiguredMessage.LOGIN_BANNED_REASON.replace(search.getBanEntry().map(BanEntry::getReason).orElse("null")))
 						.input(6, "")
-						.input(7, "&6Expires: " + timer.fullTimeLeft())
+						.input(7, ConfiguredMessage.LOGIN_BAN_EXPIRES.replace(timer.fullTimeLeft()))
 						.toString());
 			} else {
 				PlayerSearch.look(p).unban();

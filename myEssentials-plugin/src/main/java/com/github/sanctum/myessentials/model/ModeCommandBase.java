@@ -39,7 +39,7 @@ public abstract class ModeCommandBase extends CommandBuilder {
         if (args.length == 0) {
             // player has permission
             player.setGameMode(gameMode);
-            sendMessage(player, "&6Your gamemode has been set to " + gamemodeName + ".");
+            sendMessage(player, ConfiguredMessage.PLAYER_GAMEMODE_SET.replace(gamemodeName));
             return true;
         }
         return setGameMode(player, args[0]);
@@ -58,15 +58,15 @@ public abstract class ModeCommandBase extends CommandBuilder {
         final Player player = Bukkit.getPlayer(playerName);
         if (player == null) {
             // Name isn't player
-            sendMessage(sender, "&cThat is not a valid player.");
+            sendMessage(sender, ConfiguredMessage.NOT_VALID_PLAYER);
             sendUsage(sender);
         } else if (!player.isOnline()) {
             // Player must be online
-            sendMessage(sender, "&cThe player must be online.");
+            sendMessage(sender, ConfiguredMessage.PLAYER_MUST_BE_ONLINE);
         } else {
             // valid player
             player.setGameMode(gameMode);
-            sendMessage(sender, "&6Set &e" + playerName + " &6to " + gamemodeName + ".");
+            sendMessage(sender, ConfiguredMessage.SET_GAMEMODE.replace(playerName, gamemodeName));
             return true;
         }
         return false;

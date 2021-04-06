@@ -1,6 +1,7 @@
 package com.github.sanctum.myessentials.listeners;
 
 import com.github.sanctum.labyrinth.library.Message;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.PlayerHealEvent;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import org.bukkit.Bukkit;
@@ -29,12 +30,12 @@ public final class HealingListener implements Listener {
         if (healer != null) {
             if (healer instanceof Player) {
                 Player heal = (Player) healer;
-                Message.form(target).send("&r[&2" + plugin + "&r] Player " + heal.getName() + " healed your wounds.");
+                Message.form(target).send(ConfiguredMessage.PLAYER_HEALED_YOU.replace(plugin, heal.getName()));
             } else {
-                Message.form(target).send("&r[&2" + plugin + "&r] &c&oConsole has healed your wounds.");
+                Message.form(target).send(ConfiguredMessage.CONSOLE_HEALED_YOU.replace(plugin));
             }
         } else {
-            Message.form(target).send("&r[&2" + plugin + "&r] Your wounds have been healed.");
+            Message.form(target).send(ConfiguredMessage.HEALED.replace(plugin));
         }
     }
 }
