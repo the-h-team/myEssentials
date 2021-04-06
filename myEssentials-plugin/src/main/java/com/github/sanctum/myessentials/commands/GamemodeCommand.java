@@ -87,7 +87,7 @@ public final class GamemodeCommand extends CommandBuilder {
 			sendMessage(sender, ConfiguredMessage.NOT_VALID_PLAYER);
 		} else if (!player.isOnline()) {
 			// Player must be online
-			sendMessage(sender, ConfiguredMessage.PLAYER_NOT_ONLINE);
+			sendMessage(sender, ConfiguredMessage.PLAYER_MUST_BE_ONLINE);
 		} else {
 			// We have a valid player
 			// valid player

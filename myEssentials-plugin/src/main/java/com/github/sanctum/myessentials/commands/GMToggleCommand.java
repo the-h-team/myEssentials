@@ -70,7 +70,7 @@ public final class GMToggleCommand extends CommandBuilder {
             sendUsage(sender);
         } else if (!player.isOnline()) {
             // Player must be online
-            sendMessage(sender, ConfiguredMessage.PLAYER_NOT_ONLINE);
+            sendMessage(sender, ConfiguredMessage.PLAYER_MUST_BE_ONLINE);
         } else {
             // valid player
             // get current gamemode

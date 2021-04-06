@@ -32,7 +32,7 @@ public enum ConfiguredMessage implements ProvidedMessage {
     @Section("Errors") MUST_BE_PLAYER(".must-be-player"),
     @Section("Errors") TRY_IN_SURVIVAL(".try-in-survival"),
     @Section("Errors") NOT_VALID_PLAYER(".not-valid-player"),
-    @Section("Errors") PLAYER_NOT_ONLINE(".player-not-online"),
+    @Section("Errors") PLAYER_MUST_BE_ONLINE(".player-not-online"),
     @Section("Errors") TARGET_NOT_FOUND(".target-not-found"), // Takes 1 replacement
 
     // Command messages (Default section)
