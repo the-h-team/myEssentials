@@ -16,6 +16,7 @@ import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.DateTimeCalculator;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.time.format.DateTimeParseException;
@@ -45,7 +46,7 @@ public final class TempBanCommand extends CommandBuilder {
 			return builder.forArgs(args)
 					.level(3)
 					.completeAt(getData().getLabel())
-					.filter(() -> Collections.singletonList("reason..."))
+					.filter(() -> Collections.singletonList(ConfiguredMessage.REASON.toString()))
 					.collect()
 					.get(3);
 		}
@@ -97,17 +98,17 @@ public final class TempBanCommand extends CommandBuilder {
 						try {
 							result = DateTimeCalculator.parseShort(args[1].toUpperCase());
 						} catch (DateTimeParseException ex) {
-							sendMessage(player, "&c&oInvalid time format, expected #d#h#m#s - Days, hours, minutes, seconds");
-							sendMessage(player, "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m");
+							sendMessage(player, ConfiguredMessage.INVALID_TIME_FORMAT);
+							sendMessage(player, ConfiguredMessage.TIME_EXAMPLE);
 							return true;
 						}
 					}
 
 					if (search.ban(player.getName(), kick -> {
-						kick.input(1, "&c&oYou have been banned.");
-						kick.input(2, "Expiration: " + search.getBanTimer().fullTimeLeft());
+						kick.input(1, ConfiguredMessage.YOU_HAVE_BEEN_BANNED.toString());
+						kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
 					}, result, false)) {
-						sendMessage(player, "Target Will be unbanned in: " + search.getBanTimer().fullTimeLeft());
+						sendMessage(player, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
 					} else {
 						if (search.getBanTimer() != null) {
 							if (search.getBanTimer().isComplete()) {
@@ -116,14 +117,14 @@ public final class TempBanCommand extends CommandBuilder {
 								Bukkit.dispatchCommand(player, commandLabel + " " + args[0] + " " + args[1]);
 								return true;
 							}
-							sendMessage(player, "Target is already banned.");
-							sendMessage(player, "They will be unbanned in: " + search.getBanTimer().fullTimeLeft());
+							sendMessage(player, ConfiguredMessage.TARGET_ALREADY_BANNED);
+							sendMessage(player, ConfiguredMessage.UNBANNED_TIME.replace(search.getBanTimer().fullTimeLeft()));
 						}
 					}
 				}
 			} else {
 				if (testPermission(player)) {
-					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;
@@ -144,8 +145,8 @@ public final class TempBanCommand extends CommandBuilder {
 			try {
 				result = DateTimeCalculator.parseShort(args[1].toUpperCase());
 			} catch (DateTimeParseException ex) {
-				sendMessage(player, "&c&oInvalid time format, expected #d#h#m#s - Days, hours, minutes, seconds");
-				sendMessage(player, "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m");
+				sendMessage(player, ConfiguredMessage.INVALID_TIME_FORMAT);
+				sendMessage(player, ConfiguredMessage.TIME_EXAMPLE);
 				return true;
 			}
 		}
@@ -153,12 +154,13 @@ public final class TempBanCommand extends CommandBuilder {
 			PlayerSearch search = PlayerSearch.look(args[0]);
 			if (search.isValid()) {
 				if (search.ban(player.getName(), kick -> {
-					kick.input(1, "&c&oYou have been banned.");
-					kick.input(3, "&c&oReason: &r" + get);
-					kick.input(2, "Expiration: " + search.getBanTimer().fullTimeLeft());
-					kick.reason(StringUtils.translate("&c&oReason: &r" + get));
+					kick.input(1, ConfiguredMessage.YOU_HAVE_BEEN_BANNED.toString());
+					final String replace = ConfiguredMessage.BAN_KICK_REASON.replace(get);
+					kick.input(3, replace);
+					kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
+					kick.reason(StringUtils.translate(replace));
 				}, result, false)) {
-					sendMessage(player, "Target will be unbanned in: " + search.getBanTimer().fullTimeLeft());
+					sendMessage(player, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
 				} else {
 					if (search.getBanTimer() != null) {
 						if (search.getBanTimer().isComplete()) {
@@ -167,14 +169,14 @@ public final class TempBanCommand extends CommandBuilder {
 							Bukkit.dispatchCommand(player, commandLabel + " " + args[0] + " " + args[1] + " " + get);
 							return true;
 						}
-						sendMessage(player, "Target is already banned.");
-						sendMessage(player, "They will be unbanned in: " + search.getBanTimer().fullTimeLeft());
+						sendMessage(player, ConfiguredMessage.TARGET_ALREADY_BANNED);
+						sendMessage(player, ConfiguredMessage.UNBANNED_TIME.replace(search.getBanTimer().fullTimeLeft()));
 					}
 				}
 
 			} else {
 				if (testPermission(player)) {
-					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;
@@ -211,17 +213,17 @@ public final class TempBanCommand extends CommandBuilder {
 							try {
 								banLength = DateTimeCalculator.parseShort(args[1].toUpperCase());
 							} catch (DateTimeParseException exc) {
-								sendMessage(sender, "&c&oInvalid time format.");
-								sendMessage(sender, "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m");
+								sendMessage(sender, ConfiguredMessage.INVALID_TIME_CONSOLE);
+								sendMessage(sender, ConfiguredMessage.TIME_EXAMPLE);
 								return true;
 							}
 						}
 					}
 					if (search.ban(sender.getName(), kick -> {
-						kick.input(1, "&c&oYou have been banned.");
-						kick.input(2, "Expiration: " + search.getBanTimer().fullTimeLeft());
+						kick.input(1, ConfiguredMessage.YOU_HAVE_BEEN_BANNED.toString());
+						kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
 					}, banLength, false)) {
-						sendMessage(sender, "Target Will be unbanned in: " + search.getBanTimer().fullTimeLeft());
+						sendMessage(sender, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
 					} else {
 						if (search.getBanTimer() != null) {
 							if (search.getBanTimer().isComplete()) {
@@ -230,14 +232,14 @@ public final class TempBanCommand extends CommandBuilder {
 								Bukkit.dispatchCommand(sender, commandLabel + " " + args[0] + " " + args[1]);
 								return true;
 							}
-							sendMessage(sender, "Target is already banned.");
-							sendMessage(sender, "They will be unbanned in: " + search.getBanTimer().fullTimeLeft());
+							sendMessage(sender, ConfiguredMessage.TARGET_ALREADY_BANNED);
+							sendMessage(sender, ConfiguredMessage.UNBANNED_TIME.replace(search.getBanTimer().fullTimeLeft()));
 						}
 					}
 				}
 			} else {
 				if (testPermission(sender)) {
-					sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;
@@ -261,8 +263,8 @@ public final class TempBanCommand extends CommandBuilder {
 				try {
 					banLength = DateTimeCalculator.parseShort(args[1].toUpperCase());
 				} catch (DateTimeParseException exc) {
-					sendMessage(sender, "&c&oInvalid time format.");
-					sendMessage(sender, "&7&oExample: &f0d0h2m30s &7&oor &f1h2m5s &7&oor &f2m");
+					sendMessage(sender, ConfiguredMessage.INVALID_TIME_CONSOLE);
+					sendMessage(sender, ConfiguredMessage.TIME_EXAMPLE);
 					return true;
 				}
 			}
@@ -271,12 +273,13 @@ public final class TempBanCommand extends CommandBuilder {
 			PlayerSearch search = PlayerSearch.look(args[0]);
 			if (search.isValid()) {
 				if (search.ban(sender.getName(), kick -> {
-					kick.input(1, "&c&oYou have been banned.");
-					kick.input(3, "&c&oReason: &r" + get);
-					kick.input(2, "Expiration: " + search.getBanTimer().fullTimeLeft());
-					kick.reason(StringUtils.translate("&c&oReason: &r" + get));
+					kick.input(1, ConfiguredMessage.YOU_HAVE_BEEN_BANNED.toString());
+					final String replace = ConfiguredMessage.BAN_KICK_REASON.replace(get);
+					kick.input(3, replace);
+					kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
+					kick.reason(StringUtils.translate(replace));
 				}, banLength, false)) {
-					sendMessage(sender, "Target will be unbanned in: " + search.getBanTimer().fullTimeLeft());
+					sendMessage(sender, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
 				} else {
 					if (search.getBanTimer() != null) {
 						if (search.getBanTimer().isComplete()) {
@@ -285,14 +288,14 @@ public final class TempBanCommand extends CommandBuilder {
 							Bukkit.dispatchCommand(sender, commandLabel + " " + args[0] + " " + args[1] + " " + get);
 							return true;
 						}
-						sendMessage(sender, "Target is already banned.");
-						sendMessage(sender, "They will be unbanned in: " + search.getBanTimer().fullTimeLeft());
+						sendMessage(sender, ConfiguredMessage.TARGET_ALREADY_BANNED);
+						sendMessage(sender, ConfiguredMessage.UNBANNED_TIME.replace(search.getBanTimer().fullTimeLeft()));
 					}
 				}
 
 			} else {
 				if (testPermission(sender)) {
-					sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;

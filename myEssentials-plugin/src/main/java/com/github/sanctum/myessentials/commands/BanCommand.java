@@ -14,6 +14,7 @@ import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.Arrays;
 import java.util.List;
@@ -58,13 +59,13 @@ public final class BanCommand extends CommandBuilder {
 					OfflinePlayer target = search.getOfflinePlayer();
 
 					if (search.ban(player.getName())) {
-						sendMessage(player, "Target banned");
+						sendMessage(player, ConfiguredMessage.BANNED_TARGET);
 					} else {
-						sendMessage(player, "Target is already banned.");
+						sendMessage(player, ConfiguredMessage.TARGET_ALREADY_BANNED);
 					}
 
 				} else {
-					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;
@@ -85,13 +86,13 @@ public final class BanCommand extends CommandBuilder {
 				OfflinePlayer target = search.getOfflinePlayer();
 
 				if (search.ban(player.getName(), get)) {
-					sendMessage(player, "Target banned for '" + get + "'");
+					sendMessage(player, ConfiguredMessage.BANNED_REASON.replace(get));
 				} else {
-					sendMessage(player, "Target is already banned.");
+					sendMessage(player, ConfiguredMessage.TARGET_ALREADY_BANNED);
 				}
 
 			} else {
-				sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+				sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 				return true;
 			}
 		}
@@ -114,13 +115,13 @@ public final class BanCommand extends CommandBuilder {
 					OfflinePlayer target = search.getOfflinePlayer();
 
 					if (search.ban(sender.getName())) {
-						sendMessage(sender, "Target banned");
+						sendMessage(sender, ConfiguredMessage.BANNED_TARGET);
 					} else {
-						sendMessage(sender, "Target is already banned.");
+						sendMessage(sender, ConfiguredMessage.TARGET_ALREADY_BANNED);
 					}
 
 				} else {
-					sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;
@@ -141,13 +142,13 @@ public final class BanCommand extends CommandBuilder {
 				OfflinePlayer target = search.getOfflinePlayer();
 
 				if (search.ban(sender.getName(), get)) {
-					sendMessage(sender, "Target banned for '" + get + "'");
+					sendMessage(sender, ConfiguredMessage.BANNED_REASON.replace(get));
 				} else {
-					sendMessage(sender, "Target is already banned.");
+					sendMessage(sender, ConfiguredMessage.TARGET_ALREADY_BANNED);
 				}
 
 			} else {
-				sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+				sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 				return true;
 			}
 		}

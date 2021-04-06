@@ -46,7 +46,7 @@ public final class InvseeCommand extends CommandBuilder {
 				Player target = Bukkit.getPlayer(args[0]);
 
 				if (player == target) {
-					sendMessage(player, "&c&oYou can't edit your own inventory this way.");
+					sendMessage(player, ConfiguredMessage.INVSEE_DENY_SELF);
 					return true;
 				}
 
@@ -54,7 +54,7 @@ public final class InvseeCommand extends CommandBuilder {
 				SharedMenu.open(target);
 
 			} else {
-				sendMessage(player, "&c&oPlayer not found!");
+				sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND);
 				return true;
 			}
 

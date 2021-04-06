@@ -23,6 +23,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -97,7 +99,7 @@ public final class WorldCommand extends CommandBuilder {
 				}
 				if (taskScheduled.containsKey(player.getUniqueId()) && taskScheduled.get(player.getUniqueId())) {
 					taskScheduled.put(player.getUniqueId(), false);
-					sendMessage(player, "Stopping search...");
+					sendMessage(player, ConfiguredMessage.STOPPING_SEARCH);
 					return true;
 				}
 				taskScheduled.put(player.getUniqueId(), true);
@@ -114,18 +116,18 @@ public final class WorldCommand extends CommandBuilder {
 
 				}).cancelAfter(player).cancelAfter(task -> {
 					if (taskScheduled.containsKey(player.getUniqueId()) && !taskScheduled.get(player.getUniqueId())) {
-						sendMessage(player, "Search interrupted...");
+						sendMessage(player, ConfiguredMessage.SEARCH_INTERRUPTED);
 						task.cancel();
 					}
 					if (!taskScheduled.containsKey(player.getUniqueId())) {
-						sendMessage(player, "Search interrupted...");
+						sendMessage(player, ConfiguredMessage.SEARCH_INTERRUPTED);
 						task.cancel();
 					}
 					if (teleportLocation.get() != null) {
 						if (hasSurface(teleportLocation.get())) {
 							player.teleport(teleportLocation.get());
 							teleportLocation.set(null);
-							sendMessage(player, "&aYou've been teleported to the safest location in world " + world);
+							sendMessage(player, ConfiguredMessage.TELEPORTED_SAFEST_LOCATION.replace(world));
 							taskScheduled.remove(player.getUniqueId());
 							task.cancel();
 						}

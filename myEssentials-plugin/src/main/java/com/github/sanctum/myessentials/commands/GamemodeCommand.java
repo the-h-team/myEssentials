@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
@@ -83,15 +84,15 @@ public final class GamemodeCommand extends CommandBuilder {
 		final Player player = Bukkit.getPlayer(playerName);
 		if (player == null) {
 			// Name isn't a player
-			sendMessage(sender, "&cThat is not a valid player.");
+			sendMessage(sender, ConfiguredMessage.NOT_VALID_PLAYER);
 		} else if (!player.isOnline()) {
 			// Player must be online
-			sendMessage(sender, "&cThe player must be online.");
+			sendMessage(sender, ConfiguredMessage.PLAYER_NOT_ONLINE);
 		} else {
 			// We have a valid player
 			// valid player
 			player.setGameMode(gameMode);
-			sendMessage(sender, "&6Set &e" + playerName + " &6to " + gamemodeName + ".");
+			sendMessage(sender, ConfiguredMessage.SET_GAMEMODE.replace(playerName, gamemodeName));
 		}
 		return false;
 	}
