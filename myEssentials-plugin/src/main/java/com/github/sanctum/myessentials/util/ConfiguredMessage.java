@@ -25,17 +25,17 @@ import org.jetbrains.annotations.Nullable;
  * Provides configurable messages.
  */
 public enum ConfiguredMessage implements ProvidedMessage {
-    // Info
+    // === Info ===
     @Section("Info") PREFIX(".prefix"),
 
-    // Errors
+    // === Errors ===
     @Section("Errors") MUST_BE_PLAYER(".must-be-player"),
     @Section("Errors") TRY_IN_SURVIVAL(".try-in-survival"),
     @Section("Errors") NOT_VALID_PLAYER(".not-valid-player"),
     @Section("Errors") PLAYER_MUST_BE_ONLINE(".player-not-online"),
     @Section("Errors") TARGET_NOT_FOUND(".target-not-found"), // Takes 1 replacement
 
-    // Command messages (Default section)
+    // === Command messages (Default section) ===
     // /Fly
     FLIGHT_OFF(".fly.flight-off"),
     FLIGHT_ON(".fly.flight-on"),
@@ -104,7 +104,19 @@ public enum ConfiguredMessage implements ProvidedMessage {
     TARGET_KICKED(".kick.target-kicked"),
     TARGET_OFFLINE(".kick.target-offline"),
     CUSTOM_KICK_REASON(".kick.custom-reason"), // Takes 1 replacement
-    TARGET_KICKED_WITH_REASON(".kick.target-kicked-reason") // Takes 1 replacement
+    TARGET_KICKED_WITH_REASON(".kick.target-kicked-reason"), // Takes 1 replacement
+    // ModeBase (/gm[a,c,s,sp])
+    PLAYER_SET_MODE(".mode-base.player-set-gamemode"), // Takes 1 replacement
+
+    // === Event messages ===
+    // PlayerHealEvent
+    @Section("Events") PLAYER_HEALED_YOU(".PlayerHealEvent.player-healed-you"), // Takes 2 replacements
+    @Section("Events") CONSOLE_HEALED_YOU(".PlayerHealEvent.console-healed-you"), // Takes 1 replacement
+    @Section("Events") HEALED(".PlayerHealEvent.general"),
+    // PlayerLoginEvent
+    @Section("Events") LOGIN_TEMP_BANNED(".PlayerLoginEvent.temp-banned"),
+    @Section("Events") LOGIN_BANNED_REASON(".PlayerLoginEvent.reason"), // Takes 1 replacement
+    @Section("Events") LOGIN_BAN_EXPIRES(".PlayerLoginEvent.expires"), // Takes 1 replacement
     ;
 
     private static FileManager fileManager;

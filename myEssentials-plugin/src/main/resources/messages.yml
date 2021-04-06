@@ -110,3 +110,20 @@ Messages:
       #errors.target-not-found
       custom-reason: "&eReason: &r{0}" # 0 = reason text
       target-kicked-reason: "Target kicked for '{0}'" # 0 = reason
+    ## /Gm[a,c,s,sp]
+    mode-base:
+      player-set-gamemode: "&6Your gamemode has been set to {0}."
+      #errors.not-valid-player
+      #errors.player-not-online
+      #gamemode.set-gamemode
+
+  # Event messages
+  Events:
+    PlayerHealEvent:
+      player-healed-you: "&r[&2{0}&r] Player {1} healed your wounds." # 0 = plugin name, 1 = healer name
+      console-healed-you: "&r[&2{0}&r] &c&oConsole has healed your wounds." # 0 = plugin name
+      general: "&r[&2{0}&r] Your wounds have been healed."
+    PlayerLoginEvent:
+      temp-banned: "&c&oTemporarily banned."
+      reason: "&cReason:&r {0}" # 0 = a player's ban reason
+      expires: "&6Expires: {0}" # 0 = full time left
