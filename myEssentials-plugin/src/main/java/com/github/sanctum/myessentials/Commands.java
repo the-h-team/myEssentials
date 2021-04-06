@@ -10,12 +10,11 @@ import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,9 +30,16 @@ public final class Commands {
 	private static TabCompletionBuilder banTab;
 	private static TabCompletionBuilder tempBanTab;
 	private static TabCompletionBuilder unbanTab;
+	private static int i;
+	private static boolean sent;
 
 	// Utility class
 	private Commands() {
+	}
+
+	private static boolean canStop(World w, int start, int stop) {
+		int time = (int) w.getTime();
+		return time <= start || time >= stop;
 	}
 
 	protected static void register() {
@@ -280,14 +286,28 @@ public final class Commands {
 					.get(1);
 		});
 
-		AtomicReference<AtomicInteger> i = new AtomicReference<>(new AtomicInteger(18000));
 
 		CommandMapper.from(InternalCommandData.TRANSITION_COMMAND)
-				.apply((builder, player, commandLabel, args) -> Schedule.sync(() -> player.getWorld().setTime(i.get().getAndSet(i.get().get() - 1))).cancelAfter(task -> {
-					if (i.get().getAndSet(i.get().get() - 1) <= 0) {
+				.apply((builder, player, commandLabel, args) -> Schedule.sync(() -> {
+					if (!canStop(player.getWorld(), 13000, 24000)) {
+						if (!sent) {
+							i = (int) player.getWorld().getTime();
+							sent = true;
+						}
+						player.getWorld().setTime(i);
+						Bukkit.broadcastMessage("Setting time to " + i);
+						i += 20;
+					} else {
+						builder.sendMessage(player, "&cIts not dark enough yet.");
+					}
+				}).cancelAfter(task -> {
+					if (canStop(player.getWorld(), 13000, 24000)) {
+						i = 0;
+						sent = false;
+						Bukkit.broadcastMessage("Task cancelled");
 						task.cancel();
 					}
-				}).repeat(0, 4 * 20))
+				}).repeat(0, 1))
 				.next((builder, sender, commandLabel, args) -> {
 
 				})

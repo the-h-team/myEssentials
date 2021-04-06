@@ -10,17 +10,10 @@
  */
 package com.github.sanctum.myessentials.util;
 
+import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Objects;
-
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +28,7 @@ public enum ConfiguredMessage implements ProvidedMessage {
     FLIGHT_ON("Commands.fly.flight-on"),
     PREFIX("Info.prefix");
 
-    private static YamlConfiguration yamlConfiguration;
+    private static FileManager fileManager;
 
     private final String key;
 
@@ -46,7 +39,7 @@ public enum ConfiguredMessage implements ProvidedMessage {
     @Override
     @Nullable
     public String get() {
-        return yamlConfiguration.getString("Messages.".concat(key));
+        return fileManager.getConfig().getString("Messages".concat(key));
     }
 
     @Override
@@ -56,28 +49,11 @@ public enum ConfiguredMessage implements ProvidedMessage {
     }
 
     public static void loadProperties(Essentials essentials) {
-        final YamlConfiguration defaults = new YamlConfiguration();
+        if (fileManager == null) fileManager = essentials.getFileList().find("messages", "Configuration");
         final InputStream resource = essentials.getResource("messages.yml");
-        try {
-            defaults.load(new InputStreamReader(Objects.requireNonNull(resource)));
-        } catch (IOException e) {
-            throw new IllegalStateException("Messages missing from the .jar!", e);
-        } catch (InvalidConfigurationException e) {
-            throw new IllegalStateException("messages.yml corrupted! Please check the jar.");
+        if (!fileManager.exists()) {
+            assert resource != null;
+            FileManager.copy(resource, fileManager.getFile());
         }
-        final File file = new File(essentials.getDataFolder(), "messages.yml");
-        if (file.exists()) {
-            yamlConfiguration = new YamlConfiguration();
-            yamlConfiguration.addDefaults(defaults);
-            try {
-                yamlConfiguration.load(new InputStreamReader(new FileInputStream(file)));
-                return;
-            } catch (IOException e) {
-                essentials.getLogger().severe("Unable to load external copy of messages.yml");
-            } catch (InvalidConfigurationException e) {
-                throw new IllegalStateException("Unable to properly load messages.yml from disk!");
-            }
-        }
-        yamlConfiguration = defaults;
     }
 }

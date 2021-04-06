@@ -95,14 +95,14 @@ public enum InternalCommandData implements CommandData {
     }
 
     public static void defaultOrReload(Essentials plugin) {
-        if (fileManager == null) fileManager = plugin.getFileList().find("commands", null);
-        if (!fileManager.exists()) {
-            final InputStream resource = plugin.getResource("commands.yml");
-            if (resource == null) {
-                throw new IllegalStateException("Unable to load internal command data from the jar! something is very wrong");
-            }
-            FileManager.copy(resource, fileManager.getFile());
-        }
+        if (fileManager == null) fileManager = plugin.getFileList().find("commands", "Configuration");
+	    if (!fileManager.exists()) {
+		    final InputStream resource = plugin.getResource("commands.yml");
+		    if (resource == null) {
+			    throw new IllegalStateException("Unable to load internal command data from the jar! something is very wrong");
+		    }
+		    FileManager.copy(resource, fileManager.getFile());
+	    }
         if (fileManager.exists() && !fileManager.getConfig().getKeys(false).isEmpty()) {
             fileManager.reload();
         }

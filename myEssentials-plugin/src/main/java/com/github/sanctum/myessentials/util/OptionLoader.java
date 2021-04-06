@@ -13,7 +13,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 public enum OptionLoader {
 	SPECIFIED, SILENT_KICK, SILENT_BAN, GUI_SINGLE_SIZE, GUI_SCALED_SIZE;
 
-	private static final FileManager CONFIG = MyEssentialsAPI.getInstance().getFileList().find("Config", "Configuration");
+	private static final FileManager CONFIG = MyEssentialsAPI.getInstance().getFileList().find("config", "Configuration");
 	private static final FileConfiguration SEARCH = CONFIG.getConfig();
 
 	public boolean enabled() {
@@ -166,7 +166,7 @@ public enum OptionLoader {
 
 	public static void checkConfig() {
 		if (!CONFIG.exists()) {
-			InputStream copy = Essentials.getInstance().getResource("Config.yml");
+			InputStream copy = Essentials.getInstance().getResource("config.yml");
 			assert copy != null;
 			FileManager.copy(copy, CONFIG.getFile());
 			CONFIG.reload();

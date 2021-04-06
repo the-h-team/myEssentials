@@ -156,6 +156,12 @@ staff:
   usage: '&6/staff&r'
   description: 'Give yourself the quick-access moderation tools.'
   permission: 'mess.staff.utility'
+transition:
+  label: transition
+  usage: '&6/transition&r'
+  description: 'awdawdawd'
+  permission: 'mess.staff.transition'
+  aliases: [ "tr" ]
 teleport:
   label: teleport
   usage: '&6/teleport&r <&eplayerName&r> <&etargetName&r> &7| <x> <y> <z>&f;&6/teleport &r <&etargetName&r> &7| <x> <y> <z>'
