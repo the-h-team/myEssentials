@@ -183,15 +183,15 @@ public final class Commands {
 
 								if (search.kick(KickReason.next()
 										.input(1, MyEssentialsAPI.getInstance().getPrefix())
-										.input(2, "&c&oYou were kicked.")
-										.input(3, "&eReason: &rNone specified."), false)) {
-									builder.sendMessage(player, "Target kicked");
+										.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
+										.input(3, ConfiguredMessage.DEFAULT_KICK_REASON.toString()), false)) {
+									builder.sendMessage(player, ConfiguredMessage.TARGET_KICKED);
 								} else {
-									builder.sendMessage(player, "Target is offline.");
+									builder.sendMessage(player, ConfiguredMessage.TARGET_OFFLINE);
 								}
 
 							} else {
-								builder.sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+								builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 								return;
 							}
 							return;
@@ -211,15 +211,15 @@ public final class Commands {
 
 							if (search.kick((KickReason.next()
 									.input(1, MyEssentialsAPI.getInstance().getPrefix())
-									.input(2, "&c&oYou were kicked.")
-									.input(3, "&eReason: &r" + get)), false)) {
-								builder.sendMessage(player, "Target kicked for '" + get + "'");
+									.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
+									.input(3, ConfiguredMessage.CUSTOM_KICK_REASON.replace(get))), false)) {
+								builder.sendMessage(player, ConfiguredMessage.TARGET_KICKED_WITH_REASON.replace(get));
 							} else {
-								builder.sendMessage(player, "Target is offline.");
+								builder.sendMessage(player, ConfiguredMessage.TARGET_OFFLINE);
 							}
 
 						} else {
-							builder.sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+							builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 						}
 					}
 
@@ -238,15 +238,15 @@ public final class Commands {
 
 						if (search.kick(KickReason.next()
 								.input(1, MyEssentialsAPI.getInstance().getPrefix())
-								.input(2, "&c&oYou were kicked.")
-								.input(3, "&eReason: &rNone specified."), true)) {
-							builder.sendMessage(sender, "Target kicked");
+								.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
+								.input(3, ConfiguredMessage.DEFAULT_KICK_REASON.toString()), true)) {
+							builder.sendMessage(sender, ConfiguredMessage.TARGET_KICKED);
 						} else {
-							builder.sendMessage(sender, "Target is offline.");
+							builder.sendMessage(sender, ConfiguredMessage.TARGET_OFFLINE);
 						}
 
 					} else {
-						builder.sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+						builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 						return;
 					}
 					return;
@@ -266,25 +266,23 @@ public final class Commands {
 
 					if (search.kick((KickReason.next()
 							.input(1, MyEssentialsAPI.getInstance().getPrefix())
-							.input(2, "&c&oYou were kicked.")
-							.input(3, "&eReason: &r" + get)), true)) {
-						builder.sendMessage(sender, "Target kicked for '" + get + "'");
+							.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
+							.input(3, ConfiguredMessage.CUSTOM_KICK_REASON.replace(get))), true)) {
+						builder.sendMessage(sender, ConfiguredMessage.TARGET_KICKED_WITH_REASON.replace(get));
 					} else {
-						builder.sendMessage(sender, "Target is offline.");
+						builder.sendMessage(sender, ConfiguredMessage.TARGET_OFFLINE);
 					}
 
 				} else {
-					builder.sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+					builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 				}
 			}
-		}).read((builder, sender, commandLabel, args) -> {
-			return kickTab.forArgs(args)
-					.level(1)
-					.completeAt(builder.getData().getLabel())
-					.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
-					.collect()
-					.get(1);
-		});
+		}).read((builder, sender, commandLabel, args) -> kickTab.forArgs(args)
+				.level(1)
+				.completeAt(builder.getData().getLabel())
+				.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+				.collect()
+				.get(1));
 
 
 		CommandMapper.from(InternalCommandData.TRANSITION_COMMAND)

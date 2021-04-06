@@ -14,6 +14,7 @@ import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.List;
@@ -61,19 +62,19 @@ public final class HealCommand extends CommandBuilder {
 					if (testPermission(player)) {
 						assert target != null;
 						search.heal(player, 20);
-						sendMessage(player, "&a&oTarget " + target.getName() + " has been healed to max health.");
+						sendMessage(player, ConfiguredMessage.HEAL_TARGET_MAXED.replace(target.getName()));
 						return true;
 					}
 				} else {
 					if (testPermission(player)) {
-						sendMessage(player, "&c&oTarget " + search.getOfflinePlayer().getName() + " isn't online.");
+						sendMessage(player, ConfiguredMessage.HEAL_TARGET_NOT_ONLINE.replace(search.getOfflinePlayer().getName()));
 						return true;
 					}
 					return true;
 				}
 			} else {
 				if (testPermission(player)) {
-					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;
@@ -94,19 +95,19 @@ public final class HealCommand extends CommandBuilder {
 					if (testPermission(sender)) {
 						assert target != null;
 						search.heal(sender, 20);
-						sendMessage(sender, "Target " + target.getName() + " has been healed to max health.");
+						sendMessage(sender, ConfiguredMessage.CONSOLE_HEAL_TARGET_MAXED.replace(target.getName()));
 						return true;
 					}
 				} else {
 					if (testPermission(sender)) {
-						sendMessage(sender, "Target " + search.getOfflinePlayer().getName() + " isn't online.");
+						sendMessage(sender, ConfiguredMessage.CONSOLE_HEAL_TARGET_NOT_ONLINE.replace(search.getOfflinePlayer().getName()));
 						return true;
 					}
 					return true;
 				}
 			} else {
 				if (testPermission(sender)) {
-					sendMessage(sender, "Target " + args[0] + " was not found.");
+					sendMessage(sender, ConfiguredMessage.CONSOLE_HEAL_TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;

@@ -14,6 +14,7 @@ import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,14 +53,14 @@ public final class UnbanCommand extends CommandBuilder {
 				OfflinePlayer target = search.getOfflinePlayer();
 
 				if (search.unban()) {
-					sendMessage(player, "Target unbanned");
+					sendMessage(player, ConfiguredMessage.TARGET_UNBANNED);
 				} else {
-					sendMessage(player, "Target is already not banned.");
+					sendMessage(player, ConfiguredMessage.TARGET_NOT_BANNED);
 				}
 
 			} else {
 				if (testPermission(player)) {
-					sendMessage(player, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;
@@ -80,14 +81,14 @@ public final class UnbanCommand extends CommandBuilder {
 				OfflinePlayer target = search.getOfflinePlayer();
 
 				if (search.unban()) {
-					sendMessage(sender, "Target unbanned");
+					sendMessage(sender, ConfiguredMessage.TARGET_UNBANNED);
 				} else {
-					sendMessage(sender, "Target is already not banned.");
+					sendMessage(sender, ConfiguredMessage.TARGET_NOT_BANNED);
 				}
 
 			} else {
 				if (testPermission(sender)) {
-					sendMessage(sender, "&c&oTarget " + args[0] + " was not found.");
+					sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 					return true;
 				}
 				return true;

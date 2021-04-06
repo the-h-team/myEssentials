@@ -40,11 +40,11 @@ public final class BackCommand extends CommandBuilder {
 			}
 			Location previous = api.getPreviousLocation(player);
 			if (previous == null) {
-				sendMessage(player, "&cNo previous location was found.");
+				sendMessage(player, ConfiguredMessage.NO_PREVIOUS_LOCATION);
 				return true;
 			}
 			player.teleport(previous);
-			sendMessage(player, "&aTeleporting to your previous location.");
+			sendMessage(player, ConfiguredMessage.TELEPORTED_PREVIOUS);
 			return true;
 		}
 

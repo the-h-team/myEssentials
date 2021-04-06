@@ -17,6 +17,8 @@ import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +42,7 @@ public final class NightCommand extends CommandBuilder {
 				.map("night", () -> {
 					if (r.nextBoolean()) {
 						if (r.nextInt(28) < 6) {
-							sendMessage(player, "&e&oEach value is a different time of night.");
+							sendMessage(player, ConfiguredMessage.NIGHT_VALUES_DESC);
 						}
 					}
 				})
@@ -54,7 +56,7 @@ public final class NightCommand extends CommandBuilder {
 		if (args.length == 0) {
 			if (testPermission(player)) {
 				player.getWorld().setTime(0);
-				sendMessage(player, "&aIt is now day time.");
+				sendMessage(player, ConfiguredMessage.SET_DAY);
 				return true;
 			}
 			return true;
@@ -63,7 +65,7 @@ public final class NightCommand extends CommandBuilder {
 			if (args[0].equalsIgnoreCase("night")) {
 				if (testPermission(player)) {
 					player.getWorld().setTime(13000);
-					sendMessage(player, "&aIt is now night time.");
+					sendMessage(player, ConfiguredMessage.SET_NIGHT);
 					return true;
 				}
 				return true;
@@ -71,7 +73,7 @@ public final class NightCommand extends CommandBuilder {
 			if (args[0].equalsIgnoreCase("midnight")) {
 				if (testPermission(player)) {
 					player.getWorld().setTime(18000);
-					sendMessage(player, "&aIt is now mid-night time.");
+					sendMessage(player, ConfiguredMessage.SET_MIDNIGHT);
 					return true;
 				}
 				return true;
@@ -79,7 +81,7 @@ public final class NightCommand extends CommandBuilder {
 			if (args[0].equalsIgnoreCase("dusk")) {
 				if (testPermission(player)) {
 					player.getWorld().setTime(22000);
-					sendMessage(player, "&aIt is now dusk time.");
+					sendMessage(player, ConfiguredMessage.SET_DUSK);
 					return true;
 				}
 				return true;

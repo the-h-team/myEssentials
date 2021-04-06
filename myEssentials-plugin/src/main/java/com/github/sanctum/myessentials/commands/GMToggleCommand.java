@@ -37,11 +37,11 @@ public final class GMToggleCommand extends CommandBuilder {
             } else if (original == GameMode.CREATIVE) {
                 newMode = GameMode.SURVIVAL;
             } else {
-                sendMessage(player, "You are not currently in survival or creative.");
+                sendMessage(player, ConfiguredMessage.NOT_IN_SURVIVAL_OR_CREATIVE);
                 return true;
             }
             player.setGameMode(newMode);
-            sendMessage(player, "&6Your gamemode has been set to " + newMode.name().toLowerCase() + ".");
+            sendMessage(player, ConfiguredMessage.PLAYER_GAMEMODE_SET.replace(newMode.name().toLowerCase()));
             return true;
         } else if (args.length > 1) {
             sendUsage(player);
@@ -66,11 +66,11 @@ public final class GMToggleCommand extends CommandBuilder {
         final Player player = Bukkit.getPlayer(playerName);
         if (player == null) {
             // Name isn't player
-            sendMessage(sender, "&cThat is not a valid player.");
+            sendMessage(sender, ConfiguredMessage.NOT_VALID_PLAYER);
             sendUsage(sender);
         } else if (!player.isOnline()) {
             // Player must be online
-            sendMessage(sender, "&cThe player must be online.");
+            sendMessage(sender, ConfiguredMessage.PLAYER_MUST_BE_ONLINE);
         } else {
             // valid player
             // get current gamemode
@@ -81,11 +81,11 @@ public final class GMToggleCommand extends CommandBuilder {
             } else if (current == GameMode.CREATIVE) {
                 newMode = GameMode.SURVIVAL;
             } else {
-                sendMessage(sender, "The player is not currently in survival or creative.");
+                sendMessage(sender, ConfiguredMessage.TARGET_NOT_SURVIVAL_CREATIVE);
                 return true;
             }
             player.setGameMode(newMode);
-            sendMessage(sender, "&6Set &e" + playerName + " &6to " + newMode.name().toLowerCase() + ".");
+            sendMessage(sender, ConfiguredMessage.TARGET_GAMEMODE_SET.replace(playerName, newMode.name().toLowerCase()));
             return true;
         }
         return false;
