@@ -20,6 +20,10 @@ import org.jetbrains.annotations.Nullable;
 public enum InternalCommandData implements CommandData {
 	FLY_COMMAND("fly"),
 	TPA_COMMAND("tpa"),
+	TPA_HERE_COMMAND("tpahere"),
+    TPA_CANCEL_COMMAND("tpacancel"),
+    TP_ACCEPT_COMMAND("tpaccept"),
+	TP_REJECT_COMMAND("tpreject"),
 	BACK_COMMAND("back"),
 	BAN_COMMAND("ban"),
 	TEMPBAN_COMMAND("tempban"),

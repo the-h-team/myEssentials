@@ -11,6 +11,8 @@ package com.github.sanctum.myessentials.util.teleportation;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Set;
+
 /**
  * Performs teleport operations and provides information.
  */
@@ -30,10 +32,10 @@ public interface TeleportRunner {
      * Request teleportation from one to another player.
      *
      * @param requester the player requesting teleport
-     * @param target the target player
-     * @return an object describing the request status
+     * @param target the target player to be teleported
+     * @param destination the destination player for the target
      */
-    TeleportRequest requestTeleport(@NotNull Player requester, @NotNull Player target);
+    void requestTeleport(@NotNull Player requester, @NotNull Player target, @NotNull Player destination);
 
     /**
      * Request teleportation from one to another player, specifying the
@@ -41,10 +43,10 @@ public interface TeleportRunner {
      *
      * @param requester the player requesting teleport
      * @param target the target player
+     * @param destination the destination player for the target
      * @param expiration an expiration in seconds
-     * @return an object describing the request status
      */
-    TeleportRequest requestTeleportCustom(@NotNull Player requester, @NotNull Player target, long expiration);
+    void requestTeleportCustom(@NotNull Player requester, @NotNull Player target, @NotNull Player destination, long expiration);
 
     /**
      * Accept a teleport request.
@@ -52,6 +54,13 @@ public interface TeleportRunner {
      * @param request request to accept
      */
     void acceptTeleport(TeleportRequest request);
+
+    /**
+     * Cancel a teleport request.
+     *
+     * @param request request to cancel
+     */
+    void cancelRequest(TeleportRequest request);
 
     /**
      * Reject a teleport request.
@@ -72,4 +81,18 @@ public interface TeleportRunner {
      * @return true only if the request was accepted and completed
      */
     boolean queryTeleportStatus(TeleportRequest request);
+
+    /**
+     * Get all active teleport requests.
+     *
+     * @return all active teleport requests
+     */
+    @NotNull Set<TeleportRequest> getActiveRequests();
+
+    /**
+     * Get all expired teleport requests.
+     *
+     * @return all expired teleport requests
+     */
+    @NotNull Set<TeleportRequest> getExpiredRequests();
 }

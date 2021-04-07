@@ -171,8 +171,29 @@ teleport:
 tpa:
   label: tpa
   usage: '&6/tpa&r <&eplayerName&r>'
-  description: 'Go back to your previous location'
+  description: 'Ask a player if you may teleport'
   permission: 'mess.teleport.request'
+tpahere:
+  label: tpahere
+  usage: '&6/tpahere&r <&eplayerName&r>'
+  description: 'Ask a player to teleport to you'
+  permission: 'mess.teleport.request.here'
+tpacancel:
+  label: tpacancel
+  usage: '&6/tpacancel&r'
+  description: 'Cancel a teleport request you sent'
+  permission: 'mess.teleport.request'
+tpaccept:
+  label: tpaccept
+  usage: '&6/tpaccept&r'
+  description: 'Accept a teleport request'
+  permission: 'mess.teleport.accept'
+tpreject:
+  label: tpreject
+  usage: '&6/tpreject&r'
+  description: 'Reject a teleport request'
+  permission: 'mess.teleport.reject'
+  aliases: ["tpdeny"]
 unban:
   label: unban
   usage: '&6/unban&r <&eplayerName&r>'
