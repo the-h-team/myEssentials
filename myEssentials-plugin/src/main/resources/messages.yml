@@ -115,6 +115,12 @@ Messages:
       #errors.not-valid-player
       #errors.player-not-online
       #gamemode.set-gamemode
+    transition:
+      transition-in-progress: '&cA transition is already in progress.'
+      already-day: '&cIt is already daytime.'
+      #day.set-day
+      already-night: '&cIt is already nighttime.'
+      too-fast: "&cToo fast, Marty! This thing can do 88mph, alright--but it can't go THAT fast."
 
   # Event messages
   Events:
