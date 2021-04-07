@@ -58,7 +58,7 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
 
     @Override
     public void cancelRequest(TeleportRequest request) {
-        request.rejectTeleport();
+        request.cancelTeleport();
     }
 
     @Override
