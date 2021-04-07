@@ -10,6 +10,7 @@ import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -26,6 +27,7 @@ import org.bukkit.util.Vector;
 public final class Commands {
 
 	private static TabCompletionBuilder kickTab;
+	private static TabCompletionBuilder transitionTab;
 	private static TabCompletionBuilder kickTabAll;
 	private static TabCompletionBuilder banTab;
 	private static TabCompletionBuilder tempBanTab;
@@ -285,33 +287,182 @@ public final class Commands {
 				.get(1));
 
 
-		CommandMapper.from(InternalCommandData.TRANSITION_COMMAND)
-				.apply((builder, player, commandLabel, args) -> Schedule.sync(() -> {
-					if (!canStop(player.getWorld(), 13000, 24000)) {
-						if (!sent) {
-							i = (int) player.getWorld().getTime();
-							sent = true;
+		CommandMapper.load(InternalCommandData.TRANSITION_COMMAND, () -> transitionTab = TabCompletion.build(InternalCommandData.TRANSITION_COMMAND.getLabel()))
+				.apply((builder, player, commandLabel, args) -> {
+
+					if (builder.testPermission(player)) {
+						if (args.length == 0) {
+							if (sent) {
+								builder.sendMessage(player, "&cA time scheduled task is already running.");
+								return;
+							}
+							if (canStop(player.getWorld(), 13000, 24000)) {
+								builder.sendMessage(player, "&cIt is already day time.");
+								return;
+							}
+							Schedule.sync(() -> {
+								if (!canStop(player.getWorld(), 13000, 24000)) {
+									if (!sent) {
+										i = (int) player.getWorld().getTime();
+										sent = true;
+									}
+									player.getWorld().setTime(i);
+									i += 20;
+								} else {
+									builder.sendMessage(player, "&cIts now day time.");
+								}
+							}).cancelAfter(task -> {
+								if (canStop(player.getWorld(), 13000, 24000)) {
+									i = 0;
+									sent = false;
+									task.cancel();
+								}
+							}).repeat(0, 1);
+							return;
 						}
-						player.getWorld().setTime(i);
-						Bukkit.broadcastMessage("Setting time to " + i);
-						i += 20;
-					} else {
-						builder.sendMessage(player, "&cIts not dark enough yet.");
+						if (args.length == 1) {
+							switch (args[0].toLowerCase()) {
+								case "day":
+									if (canStop(player.getWorld(), 13000, 24000)) {
+										builder.sendMessage(player, "&cIt is already day time.");
+										return;
+									}
+									if (sent) {
+										builder.sendMessage(player, "&cA time scheduled task is already running.");
+										return;
+									}
+									Schedule.sync(() -> {
+										if (!canStop(player.getWorld(), 13000, 24000)) {
+											if (!sent) {
+												i = (int) player.getWorld().getTime();
+												sent = true;
+											}
+											player.getWorld().setTime(i);
+											i += 20;
+										} else {
+											builder.sendMessage(player, "&cIts now day time.");
+										}
+									}).cancelAfter(task -> {
+										if (canStop(player.getWorld(), 13000, 24000)) {
+											i = 0;
+											sent = false;
+											task.cancel();
+										}
+									}).repeat(0, 1);
+									break;
+								case "night":
+									if (canStop(player.getWorld(), 0, 13000)) {
+										builder.sendMessage(player, "&cIt is already night time.");
+										return;
+									}
+									if (sent) {
+										builder.sendMessage(player, "&cA time scheduled task is already running.");
+										return;
+									}
+									Schedule.sync(() -> {
+										if (!canStop(player.getWorld(), 0, 13000)) {
+											if (!sent) {
+												i = (int) player.getWorld().getTime();
+												sent = true;
+											}
+											player.getWorld().setTime(i);
+											i += 20;
+										} else {
+											builder.sendMessage(player, "&cIts now night time.");
+										}
+									}).cancelAfter(task -> {
+										if (canStop(player.getWorld(), 0, 13000)) {
+											i = 0;
+											sent = false;
+											task.cancel();
+										}
+									}).repeat(0, 1);
+									break;
+							}
+						}
+						if (args.length == 2) {
+							try {
+								Integer.parseInt(args[1]);
+							} catch (NumberFormatException e) {
+								builder.sendMessage(player, "&c" + e.getMessage());
+								return;
+							}
+							if (sent) {
+								builder.sendMessage(player, "&cA time scheduled task is already running.");
+								return;
+							}
+							if (Integer.parseInt(args[1]) > 500) {
+								builder.sendMessage(player, "&cToo fast! What're you trying to do? Time travel");
+								return;
+							}
+							switch (args[0].toLowerCase()) {
+								case "day":
+									if (canStop(player.getWorld(), 13000, 24000)) {
+										builder.sendMessage(player, "&cIt is already day time.");
+										return;
+									}
+									Schedule.sync(() -> {
+										if (!canStop(player.getWorld(), 13000, 24000)) {
+											if (!sent) {
+												i = (int) player.getWorld().getTime();
+												sent = true;
+											}
+											player.getWorld().setTime(i);
+											i += 20 + Integer.parseInt(args[1]);
+										} else {
+											builder.sendMessage(player, "&aIts now day time.");
+										}
+									}).cancelAfter(task -> {
+										if (canStop(player.getWorld(), 13000, 24000)) {
+											i = 0;
+											sent = false;
+											task.cancel();
+										}
+									}).repeat(0, 1);
+									break;
+								case "night":
+									Schedule.sync(() -> {
+										if (canStop(player.getWorld(), 0, 13000)) {
+											builder.sendMessage(player, "&cIt is already night time.");
+											return;
+										}
+										if (!canStop(player.getWorld(), 0, 13000)) {
+											if (!sent) {
+												i = (int) player.getWorld().getTime();
+												sent = true;
+											}
+											player.getWorld().setTime(i);
+											i += 20 + Integer.parseInt(args[1]);
+										} else {
+											builder.sendMessage(player, "&cIts now night time.");
+										}
+									}).cancelAfter(task -> {
+										if (canStop(player.getWorld(), 0, 13000)) {
+											i = 0;
+											sent = false;
+											task.cancel();
+										}
+									}).repeat(0, 1);
+									break;
+							}
+						}
 					}
-				}).cancelAfter(task -> {
-					if (canStop(player.getWorld(), 13000, 24000)) {
-						i = 0;
-						sent = false;
-						Bukkit.broadcastMessage("Task cancelled");
-						task.cancel();
-					}
-				}).repeat(0, 1))
+				})
 				.next((builder, sender, commandLabel, args) -> {
 
 				})
-				.read((builder, sender, commandLabel, args) -> {
-					return null;
-				});
+				.read((builder, sender, commandLabel, args) -> transitionTab.forArgs(args)
+						.level(1)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> {
+							List<String> list = new ArrayList<>();
+							if (builder.testPermission(sender)) {
+								list.add("day");
+								list.add("night");
+							}
+							return list;
+						})
+						.collect().get(1));
 
 /*
 		CommandMapper.from(InternalCommandData.FLY_COMMAND)
