@@ -42,24 +42,24 @@ public class TpaHereCommand extends CommandBuilder {
             api.getTeleportRunner().requestTeleport(player, target, player);
             sendMessage(player, "&aRequest sent to &e{0}".replaceAll("\\{0}", target.getDisplayName()));
             player.spigot().sendMessage(textLib.textRunnable(
-                    "To cancel this request, click&7[",
+                    "To cancel this request, click &7[",
                     "&lhere",
-                    "&7]&r or type &7/tpacancel",
+                    "&7]&r or type &7/" + InternalCommandData.TPA_CANCEL_COMMAND.getLabel(),
                     "Click to cancel",
-                    "tpacancel"));
+                    InternalCommandData.TPA_CANCEL_COMMAND.getLabel()));
             sendMessage(target, "&c{0} &6has requested that you teleport.".replaceAll("\\{0}", player.getDisplayName()));
             target.spigot().sendMessage(textLib.textRunnable(
                     "To accept this request, click &7[",
                     "&lhere",
-                    "&7]&r or type &7/tpaccept",
+                    "&7]&r or type &7/" + InternalCommandData.TP_ACCEPT_COMMAND.getLabel(),
                     "Accept",
-                    "tpaccept"));
+                    InternalCommandData.TP_ACCEPT_COMMAND.getLabel()));
             target.spigot().sendMessage(textLib.textRunnable(
                     "To reject, click &7[",
                     "&lhere",
-                    "&7]&r or type &7/tpreject",
+                    "&7]&r or type &7/" + InternalCommandData.TP_REJECT_COMMAND.getLabel(),
                     "Reject",
-                    "tpreject"));
+                    InternalCommandData.TP_REJECT_COMMAND.getLabel()));
         });
         return true;
     }
