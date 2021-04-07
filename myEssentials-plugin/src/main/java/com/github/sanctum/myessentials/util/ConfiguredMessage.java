@@ -15,6 +15,8 @@ import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
 import java.io.InputStream;
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.util.EnumMap;
 
@@ -184,6 +186,7 @@ public enum ConfiguredMessage implements ProvidedMessage {
         }
     }
 
+    @Retention(RetentionPolicy.RUNTIME)
     public @interface Section {
         String value();
     }
