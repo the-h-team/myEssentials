@@ -293,11 +293,11 @@ public final class Commands {
 					if (builder.testPermission(player)) {
 						if (args.length == 0) {
 							if (sent) {
-								builder.sendMessage(player, "&cA time scheduled task is already running.");
+								builder.sendMessage(player, ConfiguredMessage.TRANSITION_IN_PROGRESS);
 								return;
 							}
 							if (canStop(player.getWorld(), 13000, 24000)) {
-								builder.sendMessage(player, "&cIt is already day time.");
+								builder.sendMessage(player, ConfiguredMessage.ALREADY_DAY);
 								return;
 							}
 							Schedule.sync(() -> {
@@ -309,7 +309,7 @@ public final class Commands {
 									player.getWorld().setTime(i);
 									i += 20;
 								} else {
-									builder.sendMessage(player, "&cIts now day time.");
+									builder.sendMessage(player, ConfiguredMessage.SET_DAY);
 								}
 							}).cancelAfter(task -> {
 								if (canStop(player.getWorld(), 13000, 24000)) {
@@ -324,11 +324,11 @@ public final class Commands {
 							switch (args[0].toLowerCase()) {
 								case "day":
 									if (canStop(player.getWorld(), 13000, 24000)) {
-										builder.sendMessage(player, "&cIt is already day time.");
+										builder.sendMessage(player, ConfiguredMessage.ALREADY_DAY);
 										return;
 									}
 									if (sent) {
-										builder.sendMessage(player, "&cA time scheduled task is already running.");
+										builder.sendMessage(player, ConfiguredMessage.TRANSITION_IN_PROGRESS);
 										return;
 									}
 									Schedule.sync(() -> {
@@ -340,7 +340,7 @@ public final class Commands {
 											player.getWorld().setTime(i);
 											i += 20;
 										} else {
-											builder.sendMessage(player, "&cIts now day time.");
+											builder.sendMessage(player, ConfiguredMessage.SET_DAY);
 										}
 									}).cancelAfter(task -> {
 										if (canStop(player.getWorld(), 13000, 24000)) {
@@ -352,11 +352,11 @@ public final class Commands {
 									break;
 								case "night":
 									if (canStop(player.getWorld(), 0, 13000)) {
-										builder.sendMessage(player, "&cIt is already night time.");
+										builder.sendMessage(player, ConfiguredMessage.ALREADY_NIGHT);
 										return;
 									}
 									if (sent) {
-										builder.sendMessage(player, "&cA time scheduled task is already running.");
+										builder.sendMessage(player, ConfiguredMessage.TRANSITION_IN_PROGRESS);
 										return;
 									}
 									Schedule.sync(() -> {
@@ -368,7 +368,7 @@ public final class Commands {
 											player.getWorld().setTime(i);
 											i += 20;
 										} else {
-											builder.sendMessage(player, "&cIts now night time.");
+											builder.sendMessage(player, ConfiguredMessage.SET_NIGHT);
 										}
 									}).cancelAfter(task -> {
 										if (canStop(player.getWorld(), 0, 13000)) {
@@ -388,17 +388,17 @@ public final class Commands {
 								return;
 							}
 							if (sent) {
-								builder.sendMessage(player, "&cA time scheduled task is already running.");
+								builder.sendMessage(player, ConfiguredMessage.TRANSITION_IN_PROGRESS);
 								return;
 							}
 							if (Integer.parseInt(args[1]) > 500) {
-								builder.sendMessage(player, "&cToo fast! What're you trying to do? Time travel");
+								builder.sendMessage(player, ConfiguredMessage.TRANSITION_TOO_FAST);
 								return;
 							}
 							switch (args[0].toLowerCase()) {
 								case "day":
 									if (canStop(player.getWorld(), 13000, 24000)) {
-										builder.sendMessage(player, "&cIt is already day time.");
+										builder.sendMessage(player, ConfiguredMessage.ALREADY_DAY);
 										return;
 									}
 									Schedule.sync(() -> {
@@ -410,7 +410,7 @@ public final class Commands {
 											player.getWorld().setTime(i);
 											i += 20 + Integer.parseInt(args[1]);
 										} else {
-											builder.sendMessage(player, "&aIts now day time.");
+											builder.sendMessage(player, ConfiguredMessage.SET_DAY);
 										}
 									}).cancelAfter(task -> {
 										if (canStop(player.getWorld(), 13000, 24000)) {
@@ -423,7 +423,7 @@ public final class Commands {
 								case "night":
 									Schedule.sync(() -> {
 										if (canStop(player.getWorld(), 0, 13000)) {
-											builder.sendMessage(player, "&cIt is already night time.");
+											builder.sendMessage(player, ConfiguredMessage.ALREADY_NIGHT);
 											return;
 										}
 										if (!canStop(player.getWorld(), 0, 13000)) {
@@ -434,7 +434,7 @@ public final class Commands {
 											player.getWorld().setTime(i);
 											i += 20 + Integer.parseInt(args[1]);
 										} else {
-											builder.sendMessage(player, "&cIts now night time.");
+											builder.sendMessage(player, ConfiguredMessage.SET_NIGHT);
 										}
 									}).cancelAfter(task -> {
 										if (canStop(player.getWorld(), 0, 13000)) {
