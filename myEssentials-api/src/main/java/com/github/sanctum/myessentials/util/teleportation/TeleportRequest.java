@@ -18,22 +18,24 @@ import java.util.Objects;
  */
 public abstract class TeleportRequest {
 
-    protected final Destination destination;
     protected final Player teleporting;
+    protected final Destination destination;
     protected final Player requester;
+    protected final Player requested;
     protected final LocalDateTime time = LocalDateTime.now();
     protected final LocalDateTime expiration;
     protected boolean isComplete;
     protected Status status = Status.PENDING;
 
-    protected TeleportRequest(Destination destination, Player requester, Player teleporting, long expirationDelay) {
+    protected TeleportRequest(Player teleporting, Destination destination, Player requester, Player requested, long expirationDelay) {
+        this.teleporting = teleporting;
         this.destination = destination;
         this.requester = requester;
-        this.teleporting = teleporting;
+        this.requested = requested;
         this.expiration = time.plusSeconds(expirationDelay);
     }
-    protected TeleportRequest(Destination destination, Player requester, Player teleporting) {
-        this(destination, requester, teleporting, 120L);
+    protected TeleportRequest(Player teleporting, Destination destination, Player requester, Player requested) {
+        this(teleporting, destination, requester, requested, 120L);
     }
 
     /**
@@ -61,6 +63,15 @@ public abstract class TeleportRequest {
      */
     public Player getPlayerRequesting() {
         return requester;
+    }
+
+    /**
+     * Get the player that was requested.
+     *
+     * @return player that was requested
+     */
+    public Player getPlayerRequested() {
+        return requested;
     }
 
     /**
@@ -107,7 +118,7 @@ public abstract class TeleportRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(destination, teleporting, time, expiration);
+        return Objects.hash(teleporting, destination, requester, requested, time, expiration);
     }
 
     @Override
@@ -118,6 +129,8 @@ public abstract class TeleportRequest {
         return isComplete == request.isComplete &&
                 destination.equals(request.destination) &&
                 teleporting.equals(request.teleporting) &&
+                requester.equals(request.requester) &&
+                requested.equals(request.requested) &&
                 time.equals(request.time) &&
                 expiration.equals(request.expiration) &&
                 status == request.status;
