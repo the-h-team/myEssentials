@@ -50,26 +50,26 @@ public final class TpaCommand extends CommandBuilder {
         }
         Optional.ofNullable(Bukkit.getPlayerExact(args[0])).ifPresent(target -> {
             api.getTeleportRunner().requestTeleport(player, player, target);
-            sendMessage(player, "&aRequest sent to &e{0}");
+            sendMessage(player, "&aRequest sent to &e{0}".replaceAll("\\{0}", target.getDisplayName()));
             player.spigot().sendMessage(textLib.textRunnable(
                     "To cancel this request, click&7[",
                     "&lhere",
                     "&7]&r or type &7/tpacancel",
                     "Click to cancel",
-                    "/tpacancel"));
-            sendMessage(target, "&c{0} &6has requested to teleport to you.");
+                    "tpacancel"));
+            sendMessage(target, "&c{0} &6has requested to teleport to you.".replaceAll("\\{0}", player.getDisplayName()));
             target.spigot().sendMessage(textLib.textRunnable(
                     "To accept this request, click &7[",
                     "&lhere",
                     "&7]&r or type &7/tpaccept",
                     "Accept",
-                    "/tpaccept"));
+                    "tpaccept"));
             target.spigot().sendMessage(textLib.textRunnable(
                     "To reject, click &7[",
                     "&lhere",
                     "&7]&r or type &7/tpreject",
                     "Reject",
-                    "/tpreject"));
+                    "tpreject"));
         });
         return true;
     }

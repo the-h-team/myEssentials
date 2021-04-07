@@ -102,7 +102,7 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
         private final BukkitRunnable expirationTask = new BukkitRunnable() {
             @Override
             public void run() {
-                if (time.isBefore(LocalDateTime.now())) {
+                if (expiration.isBefore(LocalDateTime.now())) {
                     if (!isComplete) {
                         pending.remove(TeleportRequestImpl.this);
                         expired.add(TeleportRequestImpl.this);
