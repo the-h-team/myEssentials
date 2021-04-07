@@ -157,10 +157,12 @@ public final class Commands {
 								}
 
 							} else {
-								// TODO: player not online
+								// player not online
+								builder.sendMessage(player, ConfiguredMessage.PLAYER_MUST_BE_ONLINE);
 							}
 						} else {
-							// TODO: player isnt found.
+							// player isn't found.
+							builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
 						}
 					}
 
