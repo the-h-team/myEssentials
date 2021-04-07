@@ -33,7 +33,7 @@ public final class TpaCommand extends CommandBuilder {
     @Override
     public @Nullable
     List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-        if (args.length > 1) return Collections.emptyList();
+        if (args.length > 1 || !testPermission(player)) return Collections.emptyList();
         return null;
     }
 
