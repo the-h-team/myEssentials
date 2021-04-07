@@ -67,6 +67,7 @@ public abstract class ModeCommandBase extends CommandBuilder {
             // valid player
             player.setGameMode(gameMode);
             sendMessage(sender, ConfiguredMessage.SET_GAMEMODE.replace(playerName, gamemodeName));
+            sendMessage(player, ConfiguredMessage.PLAYER_GAMEMODE_SET.replace(gamemodeName));
             return true;
         }
         return false;

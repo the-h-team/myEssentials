@@ -105,8 +105,28 @@ public enum ConfiguredMessage implements ProvidedMessage {
     TARGET_OFFLINE(".kick.target-offline"),
     CUSTOM_KICK_REASON(".kick.custom-reason"), // Takes 1 replacement
     TARGET_KICKED_WITH_REASON(".kick.target-kicked-reason"), // Takes 1 replacement
-    // ModeBase (/gm[a,c,s,sp])
-    PLAYER_SET_MODE(".mode-base.player-set-gamemode"), // Takes 1 replacement
+    // /Transition
+    TRANSITION_IN_PROGRESS(".transition.transition-in-progress"),
+    ALREADY_DAY(".transition.already-day"),
+    ALREADY_NIGHT(".transition.already-night"),
+    TRANSITION_TOO_FAST(".transition.too-fast"),
+    // /Tpa
+    TPA_SENT(".tpa.request-sent"), // Takes 1 replacement
+    TPA_TO_CANCEL_TEXT(".tpa.to-cancel.text"),
+    TPA_TO_CANCEL_BUTTON(".tpa.to-cancel.button"),
+    TPA_TO_CANCEL_TEXT2(".tpa.to-cancel.text2"), // Takes 1 replacement
+    TPA_TO_CANCEL_HOVER(".tpa.to-cancel.hover"),
+    TPA_REQUEST_TO_YOU(".tpa.request-to-you"),
+    TPA_TO_ACCEPT_TEXT(".tpa.to-accept.text"),
+    TPA_TO_ACCEPT_BUTTON(".tpa.to-accept.button"),
+    TPA_TO_ACCEPT_TEXT2(".tpa.to-accept.text2"), // Takes 1 replacement
+    TPA_TO_ACCEPT_HOVER(".tpa.to-accept.hover"),
+    TPA_TO_REJECT_TEXT(".tpa.to-reject.text"),
+    TPA_TO_REJECT_BUTTON(".tpa.to-reject.button"),
+    TPA_TO_REJECT_TEXT2(".tpa.to-reject.text2"), // Takes 1 replacement
+    TPA_TO_REJECT_HOVER(".tpa.to-reject.hover"),
+    // /TpaHere
+    TPA_HERE_REQUESTED(".tpa-here.requested"), // Takes 1 replacement
 
     // === Event messages ===
     // PlayerHealEvent

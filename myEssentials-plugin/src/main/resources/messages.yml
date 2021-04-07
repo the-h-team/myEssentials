@@ -66,7 +66,7 @@ Messages:
     ## /Night
     night:
       values: '&e&oEach value is a different time of night.'
-      #day.now-day
+      #day.set-day
       set-night: '&aIt is now nighttime.'
       set-midnight: '&aIt is now midnight.'
       set-dusk: '&aIt is now dusk.'
@@ -111,11 +111,38 @@ Messages:
       custom-reason: "&eReason: &r{0}" # 0 = reason text
       target-kicked-reason: "Target kicked for '{0}'" # 0 = reason
     ## /Gm[a,c,s,sp]
-    mode-base:
-      player-set-gamemode: "&6Your gamemode has been set to {0}."
+      #gm-toggle.player-gamemode-set
       #errors.not-valid-player
       #errors.player-not-online
       #gamemode.set-gamemode
+    transition:
+      transition-in-progress: '&cA transition is already in progress.'
+      already-day: '&cIt is already daytime.'
+      #day.set-day
+      already-night: '&cIt is already nighttime.'
+      too-fast: "&cToo fast, Marty! This thing can do 88mph, alright--but it can't go THAT fast."
+    tpa:
+      request-sent: "&aRequest sent to &e{0}" # 0 = player name
+      to-cancel:
+        text: "To cancel this request, click &7["
+        button: "&lhere"
+        text2: "&7]&r or type &7/{0}" # 0 = command label
+        hover: "Click to cancel"
+      request-to-you: "&c{0} &6has requested to teleport to you." # 0 = player name
+      to-accept:
+        text: "To accept this request, click &7["
+        button: "&lhere"
+        text2: "&7]&r or type &7/{0}" # 0 = command label
+        hover: "Accept"
+      to-reject:
+        text: "To reject this request, click &7["
+        button: "&lhere"
+        text2: "&7]&r or type &7/{0}" # 0 = command label
+        hover: "Reject"
+    tpa-here:
+      #tpa.request-sent,to-cancel
+      requested: "&c{0} &6has requested that you teleport." # 0 = player name
+      #tpa.to-accept,to-reject
 
   # Event messages
   Events:

@@ -18,20 +18,24 @@ import java.util.Objects;
  */
 public abstract class TeleportRequest {
 
-    protected final Destination destination;
     protected final Player teleporting;
+    protected final Destination destination;
+    protected final Player requester;
+    protected final Player requested;
     protected final LocalDateTime time = LocalDateTime.now();
     protected final LocalDateTime expiration;
     protected boolean isComplete;
     protected Status status = Status.PENDING;
 
-    protected TeleportRequest(Destination destination, Player teleporting, long expirationDelay) {
-        this.destination = destination;
+    protected TeleportRequest(Player teleporting, Destination destination, Player requester, Player requested, long expirationDelay) {
         this.teleporting = teleporting;
+        this.destination = destination;
+        this.requester = requester;
+        this.requested = requested;
         this.expiration = time.plusSeconds(expirationDelay);
     }
-    protected TeleportRequest(Destination destination, Player teleporting) {
-        this(destination, teleporting, 120L);
+    protected TeleportRequest(Player teleporting, Destination destination, Player requester, Player requested) {
+        this(teleporting, destination, requester, requested, 120L);
     }
 
     /**
@@ -50,6 +54,24 @@ public abstract class TeleportRequest {
      */
     public Player getPlayerTeleporting() {
         return teleporting;
+    }
+
+    /**
+     * Get the player that made this request.
+     *
+     * @return the player that made this request
+     */
+    public Player getPlayerRequesting() {
+        return requester;
+    }
+
+    /**
+     * Get the player that was requested.
+     *
+     * @return player that was requested
+     */
+    public Player getPlayerRequested() {
+        return requested;
     }
 
     /**
@@ -85,13 +107,18 @@ public abstract class TeleportRequest {
     protected abstract void acceptTeleport();
 
     /**
+     * Cancel the teleport request.
+     */
+    protected abstract void cancelTeleport();
+
+    /**
      * Reject the teleport request.
      */
     protected abstract void rejectTeleport();
 
     @Override
     public int hashCode() {
-        return Objects.hash(destination, teleporting, time, expiration);
+        return Objects.hash(teleporting, destination, requester, requested, time, expiration);
     }
 
     @Override
@@ -102,6 +129,8 @@ public abstract class TeleportRequest {
         return isComplete == request.isComplete &&
                 destination.equals(request.destination) &&
                 teleporting.equals(request.teleporting) &&
+                requester.equals(request.requester) &&
+                requested.equals(request.requested) &&
                 time.equals(request.time) &&
                 expiration.equals(request.expiration) &&
                 status == request.status;
@@ -125,6 +154,10 @@ public abstract class TeleportRequest {
         /**
          * The request was accepted.
          */
-        ACCEPTED
+        ACCEPTED,
+        /**
+         * The request was withdrawn by the requester.
+         */
+        CANCELLED
     }
 }
