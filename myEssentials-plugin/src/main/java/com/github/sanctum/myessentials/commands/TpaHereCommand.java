@@ -44,25 +44,25 @@ public class TpaHereCommand extends CommandBuilder {
         }
         Optional.ofNullable(Bukkit.getPlayerExact(args[0])).ifPresent(target -> {
             api.getTeleportRunner().requestTeleport(player, target, player);
-            sendMessage(player, "&aRequest sent to &e{0}".replaceAll("\\{0}", target.getDisplayName()));
+            sendMessage(player, ConfiguredMessage.TPA_SENT.replace(target.getDisplayName()));
             player.spigot().sendMessage(textLib.textRunnable(
-                    "To cancel this request, click &7[",
-                    "&lhere",
-                    "&7]&r or type &7/" + InternalCommandData.TPA_CANCEL_COMMAND.getLabel(),
-                    "Click to cancel",
+                    ConfiguredMessage.TPA_TO_CANCEL_TEXT.toString(),
+                    ConfiguredMessage.TPA_TO_CANCEL_BUTTON.toString(),
+                    ConfiguredMessage.TPA_TO_CANCEL_TEXT2.replace(InternalCommandData.TPA_CANCEL_COMMAND.getLabel()),
+                    ConfiguredMessage.TPA_TO_CANCEL_HOVER.toString(),
                     InternalCommandData.TPA_CANCEL_COMMAND.getLabel()));
-            sendMessage(target, "&c{0} &6has requested that you teleport.".replaceAll("\\{0}", player.getDisplayName()));
+            sendMessage(target, ConfiguredMessage.TPA_HERE_REQUESTED.replace(player.getDisplayName()));
             target.spigot().sendMessage(textLib.textRunnable(
-                    "To accept this request, click &7[",
-                    "&lhere",
-                    "&7]&r or type &7/" + InternalCommandData.TP_ACCEPT_COMMAND.getLabel(),
-                    "Accept",
+                    ConfiguredMessage.TPA_TO_ACCEPT_TEXT.toString(),
+                    ConfiguredMessage.TPA_TO_ACCEPT_BUTTON.toString(),
+                    ConfiguredMessage.TPA_TO_ACCEPT_TEXT2.replace(InternalCommandData.TP_ACCEPT_COMMAND.getLabel()),
+                    ConfiguredMessage.TPA_TO_ACCEPT_HOVER.toString(),
                     InternalCommandData.TP_ACCEPT_COMMAND.getLabel()));
             target.spigot().sendMessage(textLib.textRunnable(
-                    "To reject, click &7[",
-                    "&lhere",
-                    "&7]&r or type &7/" + InternalCommandData.TP_REJECT_COMMAND.getLabel(),
-                    "Reject",
+                    ConfiguredMessage.TPA_TO_REJECT_TEXT.toString(),
+                    ConfiguredMessage.TPA_TO_REJECT_BUTTON.toString(),
+                    ConfiguredMessage.TPA_TO_REJECT_TEXT2.replace(InternalCommandData.TP_REJECT_COMMAND.getLabel()),
+                    ConfiguredMessage.TPA_TO_REJECT_HOVER.toString(),
                     InternalCommandData.TP_REJECT_COMMAND.getLabel()));
         });
         return true;

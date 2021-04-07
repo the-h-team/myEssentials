@@ -139,7 +139,7 @@ Messages:
         button: "&lhere"
         text2: "&7]&r or type &7/{0}" # 0 = command label
         hover: "Reject"
-    tpahere:
+    tpa-here:
       #tpa.request-sent,to-cancel
       requested: "&c{0} &6has requested that you teleport." # 0 = player name
       #tpa.to-accept,to-reject
