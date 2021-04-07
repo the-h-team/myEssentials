@@ -17,7 +17,6 @@ import com.github.sanctum.myessentials.util.ConfiguredMessage;
 
 import java.util.*;
 
-import com.github.sanctum.myessentials.util.teleportation.Destination;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
