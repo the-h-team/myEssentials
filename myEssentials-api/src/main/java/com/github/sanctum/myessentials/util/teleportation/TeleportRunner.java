@@ -11,6 +11,8 @@ package com.github.sanctum.myessentials.util.teleportation;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Set;
+
 /**
  * Performs teleport operations and provides information.
  */
@@ -54,6 +56,13 @@ public interface TeleportRunner {
     void acceptTeleport(TeleportRequest request);
 
     /**
+     * Cancel a teleport request.
+     *
+     * @param request request to cancel
+     */
+    void cancelRequest(TeleportRequest request);
+
+    /**
      * Reject a teleport request.
      *
      * @param request request to reject
@@ -72,4 +81,18 @@ public interface TeleportRunner {
      * @return true only if the request was accepted and completed
      */
     boolean queryTeleportStatus(TeleportRequest request);
+
+    /**
+     * Get all active teleport requests.
+     *
+     * @return all active teleport requests
+     */
+    @NotNull Set<TeleportRequest> getActiveRequests();
+
+    /**
+     * Get all expired teleport requests.
+     *
+     * @return all expired teleport requests
+     */
+    @NotNull Set<TeleportRequest> getExpiredRequests();
 }

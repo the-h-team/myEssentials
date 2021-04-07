@@ -6,6 +6,7 @@ import com.github.sanctum.myessentials.util.events.PendingTeleportToLocationEven
 import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
 import com.github.sanctum.myessentials.util.events.TeleportEvent;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -56,6 +57,11 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     }
 
     @Override
+    public void cancelRequest(TeleportRequest request) {
+        request.rejectTeleport();
+    }
+
+    @Override
     public void rejectTeleport(TeleportRequest request) {
         request.rejectTeleport();
     }
@@ -63,6 +69,16 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     @Override
     public boolean queryTeleportStatus(TeleportRequest request) {
         return successful.contains(request);
+    }
+
+    @Override
+    public @NotNull Set<TeleportRequest> getActiveRequests() {
+        return Collections.unmodifiableSet(pending);
+    }
+
+    @Override
+    public @NotNull Set<TeleportRequest> getExpiredRequests() {
+        return expired;
     }
 
     // Process successful teleport, move requests to successful map
@@ -112,6 +128,15 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
                 event = new PendingTeleportToLocationEvent(teleporting, destination.toLocation());
             }
             Bukkit.getPluginManager().callEvent(event);
+            isComplete = true;
+        }
+
+        @Override
+        protected void cancelTeleport() {
+            if (isComplete) return;
+            status = Status.CANCELLED;
+            if (!expirationTask.isCancelled()) expirationTask.cancel();
+            pending.remove(this);
             isComplete = true;
         }
 

@@ -85,6 +85,11 @@ public abstract class TeleportRequest {
     protected abstract void acceptTeleport();
 
     /**
+     * Cancel the teleport request.
+     */
+    protected abstract void cancelTeleport();
+
+    /**
      * Reject the teleport request.
      */
     protected abstract void rejectTeleport();
@@ -125,6 +130,10 @@ public abstract class TeleportRequest {
         /**
          * The request was accepted.
          */
-        ACCEPTED
+        ACCEPTED,
+        /**
+         * The request was withdrawn by the requester.
+         */
+        CANCELLED
     }
 }
