@@ -105,8 +105,6 @@ public enum ConfiguredMessage implements ProvidedMessage {
     TARGET_OFFLINE(".kick.target-offline"),
     CUSTOM_KICK_REASON(".kick.custom-reason"), // Takes 1 replacement
     TARGET_KICKED_WITH_REASON(".kick.target-kicked-reason"), // Takes 1 replacement
-    // ModeBase (/gm[a,c,s,sp])
-    PLAYER_SET_MODE(".mode-base.player-set-gamemode"), // Takes 1 replacement
 
     // === Event messages ===
     // PlayerHealEvent
