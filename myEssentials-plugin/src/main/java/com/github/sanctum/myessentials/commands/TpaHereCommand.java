@@ -35,7 +35,11 @@ public class TpaHereCommand extends CommandBuilder {
 
     @Override
     public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
-        if (!testPermission(player) || args.length != 1) {
+        if (!testPermission(player)) {
+            return false;
+        }
+        if (args.length != 1) {
+            sendUsage(player);
             return false;
         }
         Optional.ofNullable(Bukkit.getPlayerExact(args[0])).ifPresent(target -> {
