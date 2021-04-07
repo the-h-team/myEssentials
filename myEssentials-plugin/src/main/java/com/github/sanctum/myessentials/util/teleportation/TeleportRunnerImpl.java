@@ -92,10 +92,7 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     // Process successful teleport, move requests to successful map
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onTeleportComplete(TeleportEvent event) {
-        event.getRequest().ifPresent(request -> {
-            pending.remove(request);
-            successful.add(request);
-        });
+        event.getRequest().ifPresent(successful::add);
     }
 
     private final class TeleportRequestImpl extends TeleportRequest {
@@ -134,22 +131,25 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
                 event = new PendingTeleportToLocationEvent(requested, destination.toLocation());
             }
             Bukkit.getPluginManager().callEvent(event);
-            isComplete = true;
+            cleanup();
         }
 
         @Override
         protected void cancelTeleport() {
             if (isComplete) return;
             status = Status.CANCELLED;
-            if (!expirationTask.isCancelled()) expirationTask.cancel();
-            pending.remove(this);
-            isComplete = true;
+            cleanup();
         }
 
         @Override
         protected void rejectTeleport() {
             if (isComplete) return;
             status = Status.REJECTED;
+            cleanup();
+        }
+
+        private void cleanup() {
+            if (!expirationTask.isCancelled()) expirationTask.cancel();
             pending.remove(this);
             isComplete = true;
         }
