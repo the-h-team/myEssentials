@@ -40,15 +40,15 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     }
 
     @Override
-    public TeleportRequest requestTeleport(@NotNull Player requester, @NotNull Player target) {
+    public void requestTeleport(@NotNull Player requester, @NotNull Player target, @NotNull Player destination) {
         // TODO: message code
-        return new TeleportRequestImpl(new Destination(target), requester);
+        pending.add(new TeleportRequestImpl(new Destination(destination), requester, target));
     }
 
     @Override
-    public TeleportRequest requestTeleportCustom(@NotNull Player requester, @NotNull Player target, long expiration) {
+    public void requestTeleportCustom(@NotNull Player requester, @NotNull Player target, @NotNull Player destination, long expiration) {
         // TODO: messaging
-        return new TeleportRequestImpl(new Destination(target), target, expiration);
+        pending.add(new TeleportRequestImpl(new Destination(destination), requester, target, expiration));
     }
 
     @Override
@@ -104,15 +104,13 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
             }
         };
 
-        protected TeleportRequestImpl(Destination destination, Player teleporting, long expirationDelay) {
-            super(destination, teleporting, expirationDelay);
-            pending.add(this);
+        protected TeleportRequestImpl(Destination destination, Player requester, Player teleporting, long expirationDelay) {
+            super(destination, requester, teleporting, expirationDelay);
             expirationTask.runTaskTimer(plugin, 0L, 20L);
         }
 
-        protected TeleportRequestImpl(Destination destination, Player teleporting) {
-            super(destination, teleporting);
-            pending.add(this);
+        protected TeleportRequestImpl(Destination destination, Player requester, Player teleporting) {
+            super(destination, requester, teleporting);
             expirationTask.runTaskTimer(plugin, 0L, 20L);
         }
 

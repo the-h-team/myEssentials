@@ -17,6 +17,7 @@ import com.github.sanctum.myessentials.util.ConfiguredMessage;
 
 import java.util.*;
 
+import com.github.sanctum.myessentials.util.teleportation.Destination;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -49,7 +50,7 @@ public final class TpaCommand extends CommandBuilder {
             return false;
         }
         Optional.ofNullable(Bukkit.getPlayerExact(args[0])).ifPresent(target -> {
-            api.getTeleportRunner().requestTeleport(player, target);
+            api.getTeleportRunner().requestTeleport(player, player, target);
             sendMessage(player, "&aRequest sent to &e{0}");
             player.spigot().sendMessage(textLib.textRunnable(
                     "To cancel this request, click&7[",

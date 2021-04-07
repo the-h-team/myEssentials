@@ -20,18 +20,20 @@ public abstract class TeleportRequest {
 
     protected final Destination destination;
     protected final Player teleporting;
+    protected final Player requester;
     protected final LocalDateTime time = LocalDateTime.now();
     protected final LocalDateTime expiration;
     protected boolean isComplete;
     protected Status status = Status.PENDING;
 
-    protected TeleportRequest(Destination destination, Player teleporting, long expirationDelay) {
+    protected TeleportRequest(Destination destination, Player requester, Player teleporting, long expirationDelay) {
         this.destination = destination;
+        this.requester = requester;
         this.teleporting = teleporting;
         this.expiration = time.plusSeconds(expirationDelay);
     }
-    protected TeleportRequest(Destination destination, Player teleporting) {
-        this(destination, teleporting, 120L);
+    protected TeleportRequest(Destination destination, Player requester, Player teleporting) {
+        this(destination, requester, teleporting, 120L);
     }
 
     /**
@@ -50,6 +52,15 @@ public abstract class TeleportRequest {
      */
     public Player getPlayerTeleporting() {
         return teleporting;
+    }
+
+    /**
+     * Get the player that made this request.
+     *
+     * @return the player that made this request
+     */
+    public Player getPlayerRequesting() {
+        return requester;
     }
 
     /**

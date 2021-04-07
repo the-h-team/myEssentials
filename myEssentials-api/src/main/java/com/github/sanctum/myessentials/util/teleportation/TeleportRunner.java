@@ -32,10 +32,10 @@ public interface TeleportRunner {
      * Request teleportation from one to another player.
      *
      * @param requester the player requesting teleport
-     * @param target the target player
-     * @return an object describing the request status
+     * @param target the target player to be teleported
+     * @param destination the destination player for the target
      */
-    TeleportRequest requestTeleport(@NotNull Player requester, @NotNull Player target);
+    void requestTeleport(@NotNull Player requester, @NotNull Player target, @NotNull Player destination);
 
     /**
      * Request teleportation from one to another player, specifying the
@@ -43,10 +43,10 @@ public interface TeleportRunner {
      *
      * @param requester the player requesting teleport
      * @param target the target player
+     * @param destination the destination player for the target
      * @param expiration an expiration in seconds
-     * @return an object describing the request status
      */
-    TeleportRequest requestTeleportCustom(@NotNull Player requester, @NotNull Player target, long expiration);
+    void requestTeleportCustom(@NotNull Player requester, @NotNull Player target, @NotNull Player destination, long expiration);
 
     /**
      * Accept a teleport request.
