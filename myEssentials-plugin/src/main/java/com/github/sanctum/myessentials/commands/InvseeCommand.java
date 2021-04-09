@@ -51,7 +51,7 @@ public final class InvseeCommand extends CommandBuilder {
 				}
 
 				assert target != null;
-				SharedMenu.open(target);
+				player.openInventory(SharedMenu.open(target));
 
 			} else {
 				sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND);

@@ -58,9 +58,9 @@ public abstract class CommandBuilder {
 
     public void sendMessage(CommandSender sender, ProvidedMessage message) {
         if (!(sender instanceof Player)) {
-            JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(message.toString());
+            Message.loggedFor(JavaPlugin.getProvidingPlugin(getClass())).info(message.toString());
         } else {
-            new Message((Player) sender, MyEssentialsAPI.getInstance().getPrefix()).send(message.toString());
+            Message.form((Player) sender).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(message.toString());
         }
     }
 
@@ -70,9 +70,9 @@ public abstract class CommandBuilder {
 
     public void sendMessage(CommandSender sender, String text) {
         if (!(sender instanceof Player)) {
-            JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(text);
+            Message.loggedFor(JavaPlugin.getProvidingPlugin(getClass())).info(text);
         } else {
-            new Message((Player) sender, MyEssentialsAPI.getInstance().getPrefix()).send(text);
+            Message.form((Player) sender).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(text);
         }
     }
 
