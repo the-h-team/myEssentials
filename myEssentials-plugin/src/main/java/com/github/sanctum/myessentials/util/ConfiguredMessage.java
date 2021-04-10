@@ -157,7 +157,7 @@ public enum ConfiguredMessage implements ProvidedMessage {
                 field.setAccessible(true);
                 final Annotation[] declaredAnnotations = field.getDeclaredAnnotations();
                 for (Annotation annotation : declaredAnnotations) {
-                    if (annotation.annotationType().isInstance(Section.class)) {
+                    if (annotation.annotationType() == Section.class) {
                         return ((Section) annotation).value();
                     }
                 }
