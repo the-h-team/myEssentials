@@ -77,6 +77,6 @@ public abstract class CommandBuilder {
     }
 
     protected String color(String text) {
-        return StringUtils.translate(text);
+        return StringUtils.use(text).translate();
     }
 }
