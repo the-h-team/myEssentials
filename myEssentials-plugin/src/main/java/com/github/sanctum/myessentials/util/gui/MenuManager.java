@@ -22,11 +22,8 @@ import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -38,8 +35,6 @@ import org.jetbrains.annotations.NotNull;
 public final class MenuManager {
 
 	private static MenuManager instance;
-
-	private final Map<Select, UUID> util = new HashMap<>();
 	private final NamespacedKey addonKey = new NamespacedKey(Essentials.getInstance(), "essentials_addon");
 
 	// utility class
@@ -50,10 +45,6 @@ public final class MenuManager {
 
 	public static NamespacedKey getAddonKey() {
 		return getInstance().addonKey;
-	}
-
-	public static UUID getId(Select type) {
-		return getInstance().util.get(type);
 	}
 
 	protected static List<String> color(String... text) {
@@ -148,17 +139,16 @@ public final class MenuManager {
 							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
 							.setCloseAction(PaginatedClose::clear)
-							.setupProcess(element -> element.applyLogic(e -> {
-								if (MenuManager.getId(Select.ACTIVATED_ADDONS).equals(e.getId())) {
-									e.buildItem(() -> {
-										EssentialsAddon addon = AddonQuery.find(e.getContext());
-										ItemStack i = new ItemStack(Material.CHEST);
+							.setupProcess(e -> {
+								e.buildItem(() -> {
+									EssentialsAddon addon = AddonQuery.find(e.getContext());
+									ItemStack i = new ItemStack(Material.CHEST);
 
-										ItemMeta meta = i.getItemMeta();
+									ItemMeta meta = i.getItemMeta();
 
-										meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription()));
+									meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription()));
 
-										meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
+									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
 
 										meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
 
@@ -178,8 +168,7 @@ public final class MenuManager {
 										}
 										Select.ACTIVATED_ADDONS.supply().open(p);
 									});
-								}
-							}))
+							})
 							.addBorder()
 							.setBorderType(Material.GRAY_STAINED_GLASS_PANE)
 							.setFillType(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
@@ -198,17 +187,16 @@ public final class MenuManager {
 							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
 							.setCloseAction(PaginatedClose::clear)
-							.setupProcess(element -> element.applyLogic(e -> {
-								if (MenuManager.getId(Select.DEACTIVATED_ADDONS).equals(e.getId())) {
-									e.buildItem(() -> {
-										EssentialsAddon addon = AddonQuery.find(e.getContext());
-										ItemStack i = new ItemStack(Material.CHEST);
+							.setupProcess(e -> {
+								e.buildItem(() -> {
+									EssentialsAddon addon = AddonQuery.find(e.getContext());
+									ItemStack i = new ItemStack(Material.CHEST);
 
-										ItemMeta meta = i.getItemMeta();
+									ItemMeta meta = i.getItemMeta();
 
-										meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription()));
+									meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription()));
 
-										meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
+									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
 
 										meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
 
@@ -228,8 +216,7 @@ public final class MenuManager {
 										}
 										Select.DEACTIVATED_ADDONS.supply().open(p);
 									});
-								}
-							}))
+							})
 							.addBorder()
 							.setBorderType(Material.GRAY_STAINED_GLASS_PANE)
 							.setFillType(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
@@ -248,29 +235,27 @@ public final class MenuManager {
 							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
 							.setCloseAction(PaginatedClose::clear)
-							.setupProcess(element -> element.applyLogic(e -> {
-								if (MenuManager.getId(Select.REGISTERED_ADDONS).equals(e.getId())) {
-									e.buildItem(() -> {
-										EssentialsAddon addon = AddonQuery.find(e.getContext());
-										ItemStack i = new ItemStack(Material.CHEST);
+							.setupProcess(e -> {
+								e.buildItem(() -> {
+									EssentialsAddon addon = AddonQuery.find(e.getContext());
+									ItemStack i = new ItemStack(Material.CHEST);
 
-										ItemMeta meta = i.getItemMeta();
+									ItemMeta meta = i.getItemMeta();
 
-										meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oActive: &6&o" + AddonQuery.getEnabledAddons().contains(addon.getAddonName())));
+									meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oActive: &6&o" + AddonQuery.getEnabledAddons().contains(addon.getAddonName())));
 
-										meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
+									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
 
-										meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
+									meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
 
-										i.setItemMeta(meta);
+									i.setItemMeta(meta);
 
-										return i;
-									});
-									e.action().setClick(click -> {
-										Player p = click.getPlayer();
-									});
-								}
-							}))
+									return i;
+								});
+								e.action().setClick(click -> {
+									Player p = click.getPlayer();
+								});
+							})
 							.addBorder()
 							.setBorderType(Material.GRAY_STAINED_GLASS_PANE)
 							.setFillType(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
@@ -282,7 +267,6 @@ public final class MenuManager {
 				default:
 					throw new IllegalStateException("Unexpected menu type: " + this);
 			}
-			getInstance().util.put(this, builder.getId());
 			menu = builder.build();
 			return menu;
 		}
