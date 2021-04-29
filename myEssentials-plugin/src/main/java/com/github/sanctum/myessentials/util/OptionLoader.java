@@ -11,7 +11,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public enum OptionLoader {
-	SPECIFIED, SILENT_KICK, SILENT_BAN, GUI_SINGLE_SIZE, GUI_SCALED_SIZE;
+	SPECIFIED, SILENT_KICK, SILENT_BAN, GUI_SINGLE_SIZE, GUI_SCALED_SIZE, GROUP_COLOR, GROUP_PREFIX;
 
 	private static final FileManager CONFIG = MyEssentialsAPI.getInstance().getFileList().find("config", "Configuration");
 	private static final FileConfiguration SEARCH = CONFIG.getConfig();
@@ -102,6 +102,12 @@ public enum OptionLoader {
 			case GUI_SINGLE_SIZE:
 				break;
 			case GUI_SCALED_SIZE:
+				break;
+			case GROUP_COLOR:
+				result = SEARCH.isString("Format.groups." + path + ".color") ? SEARCH.getString("Format.groups." + path + ".color") : "&f";
+				break;
+			case GROUP_PREFIX:
+				result = SEARCH.isString("Format.groups." + path + ".prefix") ? SEARCH.getString("Format.groups." + path + ".prefix") : "&7[&fDefault&7]";
 				break;
 		}
 		return result;

@@ -5,6 +5,7 @@ import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.specifier.ConsoleResultingCommandExecutor;
 import com.github.sanctum.myessentials.model.specifier.PlayerResultingCommandExecutor;
 import com.github.sanctum.myessentials.model.specifier.PlayerResultingTabCompleter;
+import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -75,6 +76,23 @@ public final class CommandMapper {
 	 */
 	public static @NotNull CommandMapper from(@NotNull CommandData data) {
 		return new CommandMapper(data);
+	}
+
+	/**
+	 * Assign the data from an {@link CommandData} inheritable into
+	 * the server's executor map.
+	 *
+	 * @param data    The command properties to register. This information is precisely grabbing
+	 *                information such as {@link CommandData#getLabel()}, {@link CommandData#getDescription()},
+	 *                {@link CommandData#getPermissionNode()} and more.
+	 * @param builder Similar to {@link CommandMapper#load(CommandData, Applicable...)} load data on command structure
+	 *                initialization with the underlying command data information.
+	 * @return An instantiated Command Mapper.
+	 */
+	public static @NotNull CommandMapper from(@NotNull CommandData data, Consumer<CommandBuilder> builder) {
+		CommandMapper mapper = new CommandMapper(data);
+		builder.accept(mapper.builder);
+		return mapper;
 	}
 
 	/**

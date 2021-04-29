@@ -10,9 +10,22 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.library.ListUtils;
+import com.github.sanctum.labyrinth.library.TextLib;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.OptionLoader;
+import com.github.sanctum.myessentials.util.PlayerWrapper;
+import com.github.sanctum.myessentials.util.factory.GroupFinder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +36,8 @@ public final class OnlineListCommand extends CommandBuilder {
 		super(InternalCommandData.ONLINELIST_COMMAND);
 	}
 
+	private final PlayerWrapper wrapper = new PlayerWrapper();
+
 	@Override
 	public @Nullable
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
@@ -31,11 +46,45 @@ public final class OnlineListCommand extends CommandBuilder {
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
+		List<BaseComponent> list = new ArrayList<>();
+		TextLib lib = TextLib.getInstance();
+		sendMessage(player, "&fThere are currently &b" + wrapper.list().size() + " &7/ &3" + Bukkit.getMaxPlayers() + "&f players online.");
+		sendMessage(player, "&f&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		Map<String, List<Player>> map = new HashMap<>();
+		for (Player p : wrapper.sort()) {
+			String group = GroupFinder.group(p, p.getWorld().getName());
+			if (map.get(group) == null) {
+				List<Player> l = new ArrayList<>();
+				l.add(p);
+				map.put(group, l);
+			} else {
+				List<Player> l = map.get(group);
+				l.add(p);
+				map.put(group, l);
+			}
+		}
+		for (Map.Entry<String, List<Player>> entry : map.entrySet()) {
+
+			BaseComponent c = lib.textSuggestable(OptionLoader.GROUP_PREFIX.getString(entry.getKey()) + ": ", "", "", "");
+			List<TextComponent> l = ListUtils.use(entry.getValue().stream().map(p -> lib.textSuggestable("", OptionLoader.GROUP_COLOR.getString(entry.getKey()) + p.getDisplayName(), "&7Click to message me.", "msg " + p.getName() + " ")).collect(Collectors.toList())).append(b -> {
+				b.addExtra(", ");
+				return b;
+			});
+			for (BaseComponent b : l) {
+				c.addExtra(b);
+			}
+			list.add(c);
+		}
+		for (BaseComponent b : list) {
+			sendComponent(player, b);
+		}
+		sendMessage(player, "&f&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		return true;
 	}
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
+		sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
+		return true;
 	}
 }

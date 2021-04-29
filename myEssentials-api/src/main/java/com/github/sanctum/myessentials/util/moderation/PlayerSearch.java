@@ -7,16 +7,15 @@ import com.github.sanctum.labyrinth.library.SkullItem;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CooldownFinder;
+import com.github.sanctum.myessentials.util.OfflinePlayerWrapper;
 import com.github.sanctum.myessentials.util.ProvidedMessage;
-import java.util.Arrays;
+import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -51,7 +50,7 @@ public final class PlayerSearch implements CooldownFinder {
 	}
 
 	protected PlayerSearch(String name) {
-		OfflinePlayer search = Arrays.stream(Bukkit.getOfflinePlayers()).filter(p -> Objects.equals(p.getName(), name)).findFirst().orElse(null);
+		OfflinePlayer search = new OfflinePlayerWrapper().get(name).orElse(null);
 		this.uuid = search != null ? search.getUniqueId() : null;
 	}
 
@@ -135,6 +134,10 @@ public final class PlayerSearch implements CooldownFinder {
 	 */
 	public boolean isValid() {
 		return uuid != null;
+	}
+
+	public boolean isVanished() {
+		return false;
 	}
 
 	/**

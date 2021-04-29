@@ -2,17 +2,29 @@ package com.github.sanctum.myessentials;
 
 import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
+import com.github.sanctum.labyrinth.library.Cooldown;
+import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandMapper;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.DateTimeCalculator;
+import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
+import com.github.sanctum.myessentials.util.gui.MenuManager;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
+import org.bukkit.BanEntry;
+import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.OfflinePlayer;
@@ -31,6 +43,10 @@ public final class Commands {
 	private static TabCompletionBuilder transitionTab;
 	private static TabCompletionBuilder kickTabAll;
 	private static TabCompletionBuilder banTab;
+	private static TabCompletionBuilder healTab;
+	private static TabCompletionBuilder dayTab;
+	private static TabCompletionBuilder nightTab;
+	private static TabCompletionBuilder staffTab;
 	private static TabCompletionBuilder tempBanTab;
 	private static TabCompletionBuilder unbanTab;
 	private static int i;
@@ -172,7 +188,7 @@ public final class Commands {
 			search.sendMessage(ConfiguredMessage.MUST_BE_PLAYER);
 		}).read((builder, sender, commandLabel, args) -> new ArrayList<>());
 
-		CommandMapper.load(InternalCommandData.BAN_COMMAND, () -> banTab = TabCompletion.build(InternalCommandData.BACK_COMMAND.getLabel()))
+		CommandMapper.from(InternalCommandData.BAN_COMMAND, builder -> banTab = TabCompletion.build(builder.getData().getLabel()))
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						builder.sendUsage(player);
@@ -272,20 +288,60 @@ public final class Commands {
 
 						} else {
 							builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
-							return;
 						}
 					}
 				})
-				.read((builder, p, commandLabel, args) -> {
-					return banTab.forArgs(args)
-							.level(1)
-							.completeAt(builder.getData().getLabel())
-							.filter(() -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
-							.collect()
-							.get(1);
-				});
+				.read((builder, p, commandLabel, args) -> banTab.forArgs(args)
+						.level(1)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
+						.collect()
+						.get(1));
 
-		CommandMapper.load(InternalCommandData.KICK_COMMAND, () -> kickTab = TabCompletion.build(InternalCommandData.KICK_COMMAND.getLabel()))
+		CommandMapper.from(InternalCommandData.UNBAN_COMMAND, builder -> unbanTab = TabCompletion.build(builder.getData().getLabel()))
+				.apply((builder, player, commandLabel, args) -> {
+					if (builder.testPermission(player)) {
+						if (args.length == 1) {
+							PlayerSearch search = PlayerSearch.look(args[0]);
+							if (search.isValid()) {
+
+								if (search.unban()) {
+									builder.sendMessage(player, ConfiguredMessage.TARGET_UNBANNED);
+								} else {
+									builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_BANNED);
+								}
+
+							} else {
+								builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+							}
+						}
+					}
+				})
+				.next((builder, player, commandLabel, args) -> {
+					if (builder.testPermission(player)) {
+						if (args.length == 1) {
+							PlayerSearch search = PlayerSearch.look(args[0]);
+							if (search.isValid()) {
+
+								if (search.unban()) {
+									builder.sendMessage(player, ConfiguredMessage.TARGET_UNBANNED);
+								} else {
+									builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_BANNED);
+								}
+
+							} else {
+								builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+							}
+						}
+					}
+				})
+				.read((builder, sender, commandLabel, args) -> unbanTab.forArgs(args)
+						.level(1)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> Bukkit.getBanList(BanList.Type.NAME).getBanEntries().stream().map(BanEntry::getTarget).collect(Collectors.toList()))
+						.collect().get(1));
+
+		CommandMapper.from(InternalCommandData.KICK_COMMAND, builder -> kickTab = TabCompletion.build(builder.getData().getLabel()))
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						builder.sendUsage(player);
@@ -402,8 +458,470 @@ public final class Commands {
 				.collect()
 				.get(1));
 
+		CommandMapper.from(InternalCommandData.TEMPBAN_COMMAND, builder -> tempBanTab = TabCompletion.build(builder.getData().getLabel()))
+				.apply((builder, player, commandLabel, args) -> {
+					if (args.length == 0) {
+						builder.sendUsage(player);
+						return;
+					}
 
-		CommandMapper.load(InternalCommandData.TRANSITION_COMMAND, () -> transitionTab = TabCompletion.build(InternalCommandData.TRANSITION_COMMAND.getLabel()))
+					if (args.length == 1) {
+						builder.sendUsage(player);
+						return;
+					}
+
+
+					if (args.length == 2) {
+						if (builder.testPermission(player)) {
+							PlayerSearch search = PlayerSearch.look(args[0]);
+							if (search.isValid()) {
+								long result;
+								try {
+									result = DateTimeCalculator.parse(args[1].toUpperCase());
+								} catch (DateTimeParseException e) {
+									try {
+										result = DateTimeCalculator.parseShort(args[1].toUpperCase());
+									} catch (DateTimeParseException ex) {
+										builder.sendMessage(player, ConfiguredMessage.INVALID_TIME_FORMAT);
+										builder.sendMessage(player, ConfiguredMessage.TIME_EXAMPLE);
+										return;
+									}
+								}
+
+								if (search.ban(player.getName(), kick -> {
+									kick.input(1, ConfiguredMessage.YOU_HAVE_BEEN_BANNED.toString());
+									kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
+								}, result, false)) {
+									builder.sendMessage(player, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
+								} else {
+									if (search.getBanTimer() != null) {
+										if (search.getBanTimer().isComplete()) {
+											Cooldown.remove(search.getBanTimer());
+											search.unban(false);
+											Bukkit.dispatchCommand(player, commandLabel + " " + args[0] + " " + args[1]);
+											return;
+										}
+										builder.sendMessage(player, ConfiguredMessage.TARGET_ALREADY_BANNED);
+										builder.sendMessage(player, ConfiguredMessage.UNBANNED_TIME.replace(search.getBanTimer().fullTimeLeft()));
+									}
+								}
+							}
+						} else {
+							if (builder.testPermission(player)) {
+								builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+								return;
+							}
+							return;
+						}
+						return;
+					}
+
+					StringBuilder sbuilder = new StringBuilder();
+					for (int i = 2; i < args.length; i++) {
+						sbuilder.append(args[i]).append(" ");
+					}
+					String get = sbuilder.toString().trim();
+
+					long result;
+					try {
+						result = DateTimeCalculator.parse(args[1].toUpperCase());
+					} catch (DateTimeParseException e) {
+						try {
+							result = DateTimeCalculator.parseShort(args[1].toUpperCase());
+						} catch (DateTimeParseException ex) {
+							builder.sendMessage(player, ConfiguredMessage.INVALID_TIME_FORMAT);
+							builder.sendMessage(player, ConfiguredMessage.TIME_EXAMPLE);
+							return;
+						}
+					}
+					if (builder.testPermission(player)) {
+						PlayerSearch search = PlayerSearch.look(args[0]);
+						if (search.isValid()) {
+							if (search.ban(player.getName(), kick -> {
+								kick.input(1, ConfiguredMessage.YOU_HAVE_BEEN_BANNED.toString());
+								final String replace = ConfiguredMessage.BAN_KICK_REASON.replace(get);
+								kick.input(3, replace);
+								kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
+								kick.reason(StringUtils.translate(replace));
+							}, result, false)) {
+								builder.sendMessage(player, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
+							} else {
+								if (search.getBanTimer() != null) {
+									if (search.getBanTimer().isComplete()) {
+										Cooldown.remove(search.getBanTimer());
+										search.unban(false);
+										Bukkit.dispatchCommand(player, commandLabel + " " + args[0] + " " + args[1] + " " + get);
+										return;
+									}
+									builder.sendMessage(player, ConfiguredMessage.TARGET_ALREADY_BANNED);
+									builder.sendMessage(player, ConfiguredMessage.UNBANNED_TIME.replace(search.getBanTimer().fullTimeLeft()));
+								}
+							}
+
+						} else {
+							if (builder.testPermission(player)) {
+								builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+							}
+						}
+					}
+				})
+				.next((builder, sender, commandLabel, args) -> {
+					if (args.length == 0) {
+						builder.sendUsage(sender);
+						return;
+					}
+
+					if (args.length == 1) {
+						builder.sendUsage(sender);
+						return;
+					}
+
+
+					if (args.length == 2) {
+						if (builder.testPermission(sender)) {
+							PlayerSearch search = PlayerSearch.look(args[0]);
+							if (search.isValid()) {
+								long banLength;
+								try {
+									banLength = DateTimeCalculator.parse(args[1].toUpperCase());
+								} catch (DateTimeParseException e) {
+									try {
+										banLength = DateTimeCalculator.parseDays(args[1].toUpperCase());
+									} catch (DateTimeParseException ex) {
+										try {
+											banLength = DateTimeCalculator.parseShort(args[1].toUpperCase());
+										} catch (DateTimeParseException exc) {
+											builder.sendMessage(sender, ConfiguredMessage.INVALID_TIME_CONSOLE);
+											builder.sendMessage(sender, ConfiguredMessage.TIME_EXAMPLE);
+											return;
+										}
+									}
+								}
+								if (search.ban(sender.getName(), kick -> {
+									kick.input(1, ConfiguredMessage.YOU_HAVE_BEEN_BANNED.toString());
+									kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
+								}, banLength, false)) {
+									builder.sendMessage(sender, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
+								} else {
+									if (search.getBanTimer() != null) {
+										if (search.getBanTimer().isComplete()) {
+											Cooldown.remove(search.getBanTimer());
+											search.unban(false);
+											Bukkit.dispatchCommand(sender, commandLabel + " " + args[0] + " " + args[1]);
+											return;
+										}
+										builder.sendMessage(sender, ConfiguredMessage.TARGET_ALREADY_BANNED);
+										builder.sendMessage(sender, ConfiguredMessage.UNBANNED_TIME.replace(search.getBanTimer().fullTimeLeft()));
+									}
+								}
+							}
+						} else {
+							if (builder.testPermission(sender)) {
+								builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+								return;
+							}
+							return;
+						}
+						return;
+					}
+
+					StringBuilder sbuilder = new StringBuilder();
+					for (int i = 2; i < args.length; i++) {
+						sbuilder.append(args[i]).append(" ");
+					}
+					String get = sbuilder.toString().trim();
+
+					long banLength;
+					try {
+						banLength = DateTimeCalculator.parse(args[1].toUpperCase());
+					} catch (DateTimeParseException e) {
+						try {
+							banLength = DateTimeCalculator.parseDays(args[1].toUpperCase());
+						} catch (DateTimeParseException ex) {
+							try {
+								banLength = DateTimeCalculator.parseShort(args[1].toUpperCase());
+							} catch (DateTimeParseException exc) {
+								builder.sendMessage(sender, ConfiguredMessage.INVALID_TIME_CONSOLE);
+								builder.sendMessage(sender, ConfiguredMessage.TIME_EXAMPLE);
+								return;
+							}
+						}
+					}
+					if (builder.testPermission(sender)) {
+						PlayerSearch search = PlayerSearch.look(args[0]);
+						if (search.isValid()) {
+							if (search.ban(sender.getName(), kick -> {
+								kick.input(1, ConfiguredMessage.YOU_HAVE_BEEN_BANNED.toString());
+								final String replace = ConfiguredMessage.BAN_KICK_REASON.replace(get);
+								kick.input(3, replace);
+								kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
+								kick.reason(StringUtils.translate(replace));
+							}, banLength, false)) {
+								builder.sendMessage(sender, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
+							} else {
+								if (search.getBanTimer() != null) {
+									if (search.getBanTimer().isComplete()) {
+										Cooldown.remove(search.getBanTimer());
+										search.unban(false);
+										Bukkit.dispatchCommand(sender, commandLabel + " " + args[0] + " " + args[1] + " " + get);
+										return;
+									}
+									builder.sendMessage(sender, ConfiguredMessage.TARGET_ALREADY_BANNED);
+									builder.sendMessage(sender, ConfiguredMessage.UNBANNED_TIME.replace(search.getBanTimer().fullTimeLeft()));
+								}
+							}
+
+						} else {
+							if (builder.testPermission(sender)) {
+								builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+							}
+						}
+					}
+				})
+				.read((builder, player, commandLabel, args) -> {
+					if (args.length == 3) {
+						return tempBanTab.forArgs(args)
+								.level(3)
+								.completeAt(builder.getData().getLabel())
+								.filter(() -> Collections.singletonList(ConfiguredMessage.REASON.toString()))
+								.collect()
+								.get(3);
+					}
+
+					if (args.length == 2) {
+						return tempBanTab.forArgs(args)
+								.level(2)
+								.completeAt(builder.getData().getLabel())
+								.filter(() -> {
+									List<String> result = new ArrayList<>(Arrays.asList("1s", "1m", "1h", "1d", "2s", "2m", "3h", "3d"));
+									Collections.sort(result);
+									return result;
+								})
+								.collect()
+								.get(2);
+					}
+
+					return tempBanTab.forArgs(args)
+							.level(1)
+							.completeAt(builder.getData().getLabel())
+							.filter(() -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
+							.collect()
+							.get(1);
+				});
+
+		CommandMapper.from(InternalCommandData.DAY_COMMAND, builder -> dayTab = TabCompletion.build(builder.getData().getLabel()))
+				.apply((builder, player, commandLabel, args) -> {
+					if (args.length == 0) {
+						if (builder.testPermission(player)) {
+							player.getWorld().setTime(0);
+							builder.sendMessage(player, ConfiguredMessage.SET_DAY);
+							return;
+						}
+						return;
+					}
+					if (args.length == 1) {
+						if (args[0].equalsIgnoreCase("morning")) {
+							if (builder.testPermission(player)) {
+								player.getWorld().setTime(0);
+								builder.sendMessage(player, ConfiguredMessage.SET_MORNING);
+								return;
+							}
+							return;
+						}
+						if (args[0].equalsIgnoreCase("noon")) {
+							if (builder.testPermission(player)) {
+								player.getWorld().setTime(6000);
+								builder.sendMessage(player, ConfiguredMessage.SET_NOON);
+								return;
+							}
+							return;
+						}
+						if (args[0].equalsIgnoreCase("afternoon")) {
+							if (builder.testPermission(player)) {
+								player.getWorld().setTime(9500);
+								builder.sendMessage(player, ConfiguredMessage.SET_AFTERNOON);
+								return;
+							}
+							return;
+						}
+						builder.sendUsage(player);
+					}
+				})
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read((builder, player, commandLabel, args) -> dayTab
+						.forArgs(args)
+						.level(1)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> Arrays.asList("morning", "noon", "afternoon"))
+						.map("morning", () -> {
+							Random r = new Random();
+							if (r.nextBoolean()) {
+								if (r.nextInt(28) < 6) {
+									builder.sendMessage(player, ConfiguredMessage.DAY_VALUES_DESC);
+								}
+							}
+						})
+						.collect()
+						.get(1));
+
+		CommandMapper.from(InternalCommandData.NIGHT_COMMAND, builder -> nightTab = TabCompletion.build(builder.getData().getLabel()))
+				.apply((builder, player, commandLabel, args) -> {
+					if (args.length == 0) {
+						if (builder.testPermission(player)) {
+							player.getWorld().setTime(0);
+							builder.sendMessage(player, ConfiguredMessage.SET_DAY);
+							return;
+						}
+						return;
+					}
+					if (args.length == 1) {
+						if (args[0].equalsIgnoreCase("night")) {
+							if (builder.testPermission(player)) {
+								player.getWorld().setTime(13000);
+								builder.sendMessage(player, ConfiguredMessage.SET_NIGHT);
+								return;
+							}
+							return;
+						}
+						if (args[0].equalsIgnoreCase("midnight")) {
+							if (builder.testPermission(player)) {
+								player.getWorld().setTime(18000);
+								builder.sendMessage(player, ConfiguredMessage.SET_MIDNIGHT);
+								return;
+							}
+							return;
+						}
+						if (args[0].equalsIgnoreCase("dusk")) {
+							if (builder.testPermission(player)) {
+								player.getWorld().setTime(22000);
+								builder.sendMessage(player, ConfiguredMessage.SET_DUSK);
+								return;
+							}
+							return;
+						}
+						builder.sendUsage(player);
+					}
+				})
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read((builder, player, commandLabel, args) -> nightTab
+						.forArgs(args)
+						.level(1)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> Arrays.asList("night", "midnight", "dusk"))
+						.map("night", () -> {
+							Random r = new Random();
+							if (r.nextBoolean()) {
+								if (r.nextInt(28) < 6) {
+									builder.sendMessage(player, ConfiguredMessage.NIGHT_VALUES_DESC);
+								}
+							}
+						})
+						.collect()
+						.get(1));
+
+		CommandMapper.from(InternalCommandData.GOD_COMMAND)
+				.apply((builder, player, commandLabel, args) -> {
+
+				})
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read(CommandBuilder::tabComplete);
+
+		CommandMapper.from(InternalCommandData.BIN_COMMAND)
+				.apply((builder, player, commandLabel, args) -> {
+					player.openInventory(MenuManager.Select.DONATION_BIN.share().getInventory());
+				})
+				.next((builder, sender, commandLabel, args) -> {
+					builder.sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
+				})
+				.read(CommandBuilder::tabComplete);
+
+		CommandMapper.from(InternalCommandData.FEED_COMMAND)
+				.apply((builder, player, commandLabel, args) -> {
+
+				})
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read(CommandBuilder::tabComplete);
+
+		CommandMapper.from(InternalCommandData.INVSEE_COMMAND)
+				.apply((builder, player, commandLabel, args) -> {
+					if (args.length == 0) {
+						builder.sendUsage(player);
+						return;
+					}
+
+					if (args.length == 1) {
+
+						if (Bukkit.getPlayer(args[0]) != null) {
+							Player target = Bukkit.getPlayer(args[0]);
+
+							if (player == target) {
+								builder.sendMessage(player, ConfiguredMessage.INVSEE_DENY_SELF);
+								return;
+							}
+
+							assert target != null;
+							player.openInventory(SharedMenu.open(target));
+
+						} else {
+							builder.sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND);
+						}
+					}
+				})
+				.next((builder, sender, commandLabel, args) -> builder.sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER))
+				.read(CommandBuilder::tabComplete);
+
+		CommandMapper.from(InternalCommandData.HEAL_COMMAND, builder -> healTab = TabCompletion.build(builder.getData().getLabel()))
+				.apply((builder, player, commandLabel, args) -> {
+					if (args.length == 0) {
+						if (builder.testPermission(player)) {
+							Bukkit.getPluginManager().callEvent(new PlayerPendingHealEvent(null, player, 20));
+							return;
+						}
+						return;
+					}
+
+					if (args.length == 1) {
+						PlayerSearch search = PlayerSearch.look(args[0]);
+						if (search.isValid()) {
+							if (search.isOnline()) {
+								Player target = search.getPlayer();
+								if (builder.testPermission(player)) {
+									assert target != null;
+									search.heal(player, 20);
+									builder.sendMessage(player, ConfiguredMessage.HEAL_TARGET_MAXED.replace(target.getName()));
+								}
+							} else {
+								if (builder.testPermission(player)) {
+									builder.sendMessage(player, ConfiguredMessage.HEAL_TARGET_NOT_ONLINE.replace(search.getOfflinePlayer().getName()));
+								}
+							}
+						} else {
+							if (builder.testPermission(player)) {
+								builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+							}
+						}
+					}
+				})
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read((builder, player, commandLabel, args) -> healTab.forArgs(args)
+						.level(1)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+						.collect()
+						.get(1));
+
+
+		CommandMapper.from(InternalCommandData.TRANSITION_COMMAND, builder -> transitionTab = TabCompletion.build(builder.getData().getLabel()))
 				.apply((builder, player, commandLabel, args) -> {
 
 					if (builder.testPermission(player)) {

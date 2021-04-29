@@ -14,6 +14,7 @@ import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.util.ProvidedMessage;
 import java.util.List;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -74,6 +75,14 @@ public abstract class CommandBuilder {
         } else {
             Message.form((Player) sender).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(text);
         }
+    }
+
+    public void sendComponent(Player player, BaseComponent component) {
+        Message.form(player).build(component);
+    }
+
+    public void sendComponent(Player player, BaseComponent... component) {
+        Message.form(player).build(component);
     }
 
     protected String color(String text) {

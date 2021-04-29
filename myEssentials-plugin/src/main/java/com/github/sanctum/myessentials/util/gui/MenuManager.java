@@ -278,7 +278,7 @@ public final class MenuManager {
 				return SharedMenu.get("My-Bin");
 			}
 
-			return null;
+			throw new IllegalStateException("Invalid menu type present.");
 		}
 	}
 

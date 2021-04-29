@@ -1,0 +1,8 @@
+Format:
+  groups:
+    Default:
+      color: '&f'
+      prefix: '&7[&fDefault&7]'
+    Admin:
+      color: '&c'
+      prefix: '&7[&cAdmin&7]'
