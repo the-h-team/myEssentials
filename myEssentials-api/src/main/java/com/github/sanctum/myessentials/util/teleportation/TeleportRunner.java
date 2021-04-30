@@ -31,22 +31,22 @@ public interface TeleportRunner {
     /**
      * Request teleportation from one to another player.
      *
-     * @param requester the player requesting teleport
-     * @param target the target player to be teleported
-     * @param destination the destination player for the target
+     * @param requester the player requesting
+     * @param requested the player requested
+     * @param type the request type
      */
-    void requestTeleport(@NotNull Player requester, @NotNull Player target, @NotNull Player destination);
+    void requestTeleport(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type);
 
     /**
      * Request teleportation from one to another player, specifying the
      * time after which the request will expire.
      *
-     * @param requester the player requesting teleport
-     * @param target the target player
-     * @param destination the destination player for the target
+     * @param requester the player requesting
+     * @param requested the player requested
+     * @param type the request type
      * @param expiration an expiration in seconds
      */
-    void requestTeleportCustom(@NotNull Player requester, @NotNull Player target, @NotNull Player destination, long expiration);
+    void requestTeleportCustom(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type, long expiration);
 
     /**
      * Accept a teleport request.

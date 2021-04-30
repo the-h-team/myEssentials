@@ -40,23 +40,15 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     }
 
     @Override
-    public void requestTeleport(@NotNull Player requester, @NotNull Player target, @NotNull Player destination) {
+    public void requestTeleport(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type) {
         // TODO: message code
-        if (requester.equals(destination)) {
-            pending.add(new TeleportRequestImpl(target, new Destination(destination), requester, target));
-        } else {
-            pending.add(new TeleportRequestImpl(target, new Destination(destination), requester, destination));
-        }
+        pending.add(new TeleportRequestImpl(requester, requested, type));
     }
 
     @Override
-    public void requestTeleportCustom(@NotNull Player requester, @NotNull Player target, @NotNull Player destination, long expiration) {
+    public void requestTeleportCustom(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type, long expiration) {
         // TODO: messaging
-        if (requester.equals(destination)) {
-            pending.add(new TeleportRequestImpl(target, new Destination(destination), requester, target, expiration));
-        } else {
-            pending.add(new TeleportRequestImpl(target, new Destination(destination), requester, destination, expiration));
-        }
+        pending.add(new TeleportRequestImpl(requester, requested, type, expiration));
     }
 
     @Override
@@ -109,13 +101,13 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
             }
         };
 
-        protected TeleportRequestImpl(Player teleporting, Destination destination, Player requester, Player requested, long expirationDelay) {
-            super(teleporting, destination, requester, requested, expirationDelay);
+        protected TeleportRequestImpl(Player requester, Player requested, Type type, long expirationDelay) {
+            super(requester, requested, type, expirationDelay);
             expirationTask.runTaskTimer(plugin, 0L, 20L);
         }
 
-        protected TeleportRequestImpl(Player teleporting, Destination destination, Player requester, Player requested) {
-            super(teleporting, destination, requester, requested);
+        protected TeleportRequestImpl(Player requester, Player requested, Type type) {
+            super(requester, requested, type);
             expirationTask.runTaskTimer(plugin, 0L, 20L);
         }
 
@@ -126,9 +118,9 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
             final Optional<Player> destinationPlayer = destination.getDestinationPlayer();
             final PendingTeleportEvent event;
             if (destinationPlayer.isPresent()) {
-                event = new PendingTeleportToPlayerEvent(requested, destinationPlayer.get());
+                event = new PendingTeleportToPlayerEvent(teleporting, destinationPlayer.get());
             } else {
-                event = new PendingTeleportToLocationEvent(requested, destination.toLocation());
+                event = new PendingTeleportToLocationEvent(teleporting, destination.toLocation());
             }
             Bukkit.getPluginManager().callEvent(event);
             cleanup();

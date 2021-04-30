@@ -12,30 +12,41 @@ import org.bukkit.entity.Player;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Describes a request to teleport.
  */
 public abstract class TeleportRequest {
 
+    protected final Player requester;
+    protected final Type type;
     protected final Player teleporting;
     protected final Destination destination;
-    protected final Player requester;
-    protected final Player requested;
     protected final LocalDateTime time = LocalDateTime.now();
     protected final LocalDateTime expiration;
     protected boolean isComplete;
     protected Status status = Status.PENDING;
 
-    protected TeleportRequest(Player teleporting, Destination destination, Player requester, Player requested, long expirationDelay) {
-        this.teleporting = teleporting;
-        this.destination = destination;
+    protected TeleportRequest(Player requester, Player requested, Type type, long expirationDelay) {
         this.requester = requester;
-        this.requested = requested;
+        this.type = type;
+        switch (type) {
+            case NORMAL_TELEPORT:
+                this.destination = new Destination(requested);
+                this.teleporting = requester;
+                break;
+            case TELEPORT_HERE:
+                this.destination = new Destination(requester);
+                this.teleporting = requested;
+                break;
+            default:
+                throw new IllegalStateException();
+        }
         this.expiration = time.plusSeconds(expirationDelay);
     }
-    protected TeleportRequest(Player teleporting, Destination destination, Player requester, Player requested) {
-        this(teleporting, destination, requester, requested, 120L);
+    protected TeleportRequest(Player requester, Player requested, Type type) {
+        this(requester, requested, type, 120L);
     }
 
     /**
@@ -66,12 +77,12 @@ public abstract class TeleportRequest {
     }
 
     /**
-     * Get the player that was requested.
+     * Get the player that was requested, if applicable.
      *
      * @return player that was requested
      */
-    public Player getPlayerRequested() {
-        return requested;
+    public Optional<Player> getPlayerRequested() {
+        return destination.getDestinationPlayer();
     }
 
     /**
@@ -102,6 +113,15 @@ public abstract class TeleportRequest {
     }
 
     /**
+     * Get the type of this teleport request.
+     *
+     * @return the type of this teleport request
+     */
+    public Type getType() {
+        return type;
+    }
+
+    /**
      * Accept the teleport request.
      */
     protected abstract void acceptTeleport();
@@ -118,7 +138,7 @@ public abstract class TeleportRequest {
 
     @Override
     public int hashCode() {
-        return Objects.hash(teleporting, destination, requester, requested, time, expiration);
+        return Objects.hash(teleporting, destination, type, requester, time, expiration);
     }
 
     @Override
@@ -130,10 +150,10 @@ public abstract class TeleportRequest {
                 destination.equals(request.destination) &&
                 teleporting.equals(request.teleporting) &&
                 requester.equals(request.requester) &&
-                requested.equals(request.requested) &&
                 time.equals(request.time) &&
                 expiration.equals(request.expiration) &&
-                status == request.status;
+                status == request.status &&
+                type == request.type;
     }
 
     /**
@@ -159,5 +179,16 @@ public abstract class TeleportRequest {
          * The request was withdrawn by the requester.
          */
         CANCELLED
+    }
+
+    public enum Type {
+        /**
+         * The player is requesting to be teleported to the target.
+         */
+        NORMAL_TELEPORT,
+        /**
+         * The player is requesting the target be teleported to them.
+         */
+        TELEPORT_HERE
     }
 }

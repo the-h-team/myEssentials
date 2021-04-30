@@ -26,7 +26,7 @@ public final class TPRejectCommand extends CommandBuilder {
     public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
         if (!testPermission(player)) return false;
         final Optional<TeleportRequest> any = api.getTeleportRunner().getActiveRequests().stream()
-                .filter(r -> r.getPlayerRequested().equals(player))
+                .filter(r -> r.getPlayerRequested().map(value -> value.equals(player)).orElse(false))
                 .findAny();
         if (any.isPresent()) {
             api.getTeleportRunner().rejectTeleport(any.get());

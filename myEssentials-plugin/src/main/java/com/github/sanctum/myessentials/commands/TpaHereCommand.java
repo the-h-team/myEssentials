@@ -4,6 +4,7 @@ import com.github.sanctum.labyrinth.library.TextLib;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -43,7 +44,7 @@ public class TpaHereCommand extends CommandBuilder {
             return false;
         }
         Optional.ofNullable(Bukkit.getPlayerExact(args[0])).ifPresent(target -> {
-            api.getTeleportRunner().requestTeleport(player, target, player);
+            api.getTeleportRunner().requestTeleport(player, target, TeleportRequest.Type.TELEPORT_HERE);
             sendMessage(player, ConfiguredMessage.TPA_SENT.replace(target.getDisplayName()));
             player.spigot().sendMessage(textLib.textRunnable(
                     ConfiguredMessage.TPA_TO_CANCEL_TEXT.toString(),
