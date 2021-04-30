@@ -34,8 +34,10 @@ public interface TeleportRunner {
      * @param requester the player requesting
      * @param requested the player requested
      * @param type the request type
+     * @throws ExistingTeleportRequestException if a similar pending request
+     * already exists
      */
-    void requestTeleport(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type);
+    void requestTeleport(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type) throws ExistingTeleportRequestException;
 
     /**
      * Request teleportation from one to another player, specifying the
@@ -45,8 +47,10 @@ public interface TeleportRunner {
      * @param requested the player requested
      * @param type the request type
      * @param expiration an expiration in seconds
+     * @throws ExistingTeleportRequestException if a similar pending request
+     * already exists
      */
-    void requestTeleportCustom(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type, long expiration);
+    void requestTeleportCustom(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type, long expiration) throws ExistingTeleportRequestException;
 
     /**
      * Accept a teleport request.

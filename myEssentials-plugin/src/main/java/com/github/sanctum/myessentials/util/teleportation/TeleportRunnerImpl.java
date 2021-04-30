@@ -40,14 +40,22 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     }
 
     @Override
-    public void requestTeleport(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type) {
+    public void requestTeleport(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type) throws ExistingTeleportRequestException{
         // TODO: message code
+        final Optional<TeleportRequest> existingRequest = pending.stream()
+                .filter(tr -> requester == tr.requester && requested == tr.destination.player && type == tr.type)
+                .findAny();
+        if (existingRequest.isPresent()) throw new ExistingTeleportRequestException(existingRequest.get());
         pending.add(new TeleportRequestImpl(requester, requested, type));
     }
 
     @Override
-    public void requestTeleportCustom(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type, long expiration) {
+    public void requestTeleportCustom(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type, long expiration) throws ExistingTeleportRequestException {
         // TODO: messaging
+        final Optional<TeleportRequest> existingRequest = pending.stream()
+                .filter(tr -> requester == tr.requester && requested == tr.destination.player && type == tr.type)
+                .findAny();
+        if (existingRequest.isPresent()) throw new ExistingTeleportRequestException(existingRequest.get());
         pending.add(new TeleportRequestImpl(requester, requested, type, expiration));
     }
 
