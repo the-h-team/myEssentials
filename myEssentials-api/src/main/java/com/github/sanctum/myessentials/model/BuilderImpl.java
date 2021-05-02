@@ -30,7 +30,7 @@ public final class BuilderImpl extends CommandBuilder {
 				return pr.execute(this, player, alias, args);
 			}
 		}
-		return null;
+		return defaultCompletion(player, alias, args);
 	}
 
 	@Override

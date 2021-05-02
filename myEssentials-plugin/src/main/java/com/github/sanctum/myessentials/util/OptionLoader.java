@@ -4,14 +4,17 @@ import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.gui.InventoryRows;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.io.InputStream;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public enum OptionLoader {
-	SPECIFIED, SILENT_KICK, SILENT_BAN, GUI_SINGLE_SIZE, GUI_SCALED_SIZE, GROUP_COLOR, GROUP_PREFIX;
+	SPECIFIED, SILENT_KICK, SILENT_BAN, GUI_SINGLE_SIZE, GUI_SCALED_SIZE, GROUP_COLOR, GROUP_PREFIX, TEST_COMMAND;
 
 	private static final FileManager CONFIG = MyEssentialsAPI.getInstance().getFileList().find("config", "Configuration");
 	private static final FileConfiguration SEARCH = CONFIG.getConfig();
@@ -20,10 +23,10 @@ public enum OptionLoader {
 		boolean result = false;
 		switch (this) {
 			case SILENT_BAN:
-				result = SEARCH.getBoolean("Procedures.moderation.silent-ban");
+				result = SEARCH.getBoolean("Procedure.moderation.silent-ban");
 				break;
 			case SILENT_KICK:
-				result = SEARCH.getBoolean("Procedures.moderation.silent-kick");
+				result = SEARCH.getBoolean("Procedure.moderation.silent-kick");
 				break;
 		}
 		return result;
@@ -151,6 +154,33 @@ public enum OptionLoader {
 		return result;
 	}
 
+	public CommandData from(String label, String usage, String desc, String perm) {
+		if (this == TEST_COMMAND) {
+			return new CommandData() {
+				@Override
+				public @NotNull String getLabel() {
+					return label;
+				}
+
+				@Override
+				public @NotNull String getUsage() {
+					return usage;
+				}
+
+				@Override
+				public @NotNull String getDescription() {
+					return desc;
+				}
+
+				@Override
+				public @Nullable String getPermissionNode() {
+					return perm;
+				}
+			};
+		}
+		throw new IllegalStateException("Invalid use of test command!");
+	}
+
 	public static void recordRemainingBans() {
 		for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
 			PlayerSearch search = PlayerSearch.look(player);
@@ -174,7 +204,7 @@ public enum OptionLoader {
 		if (!CONFIG.exists()) {
 			InputStream copy = Essentials.getInstance().getResource("config.yml");
 			assert copy != null;
-			FileManager.copy(copy, CONFIG.getFile());
+			FileManager.copy(copy, CONFIG);
 			CONFIG.reload();
 		}
 	}

@@ -12,6 +12,7 @@ import com.github.sanctum.myessentials.model.CommandMapper;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.DateTimeCalculator;
+import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.gui.MenuManager;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
@@ -386,7 +387,8 @@ public final class Commands {
 							if (search.kick((KickReason.next()
 									.input(1, MyEssentialsAPI.getInstance().getPrefix())
 									.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
-									.input(3, ConfiguredMessage.CUSTOM_KICK_REASON.replace(get))), false)) {
+									.input(3, ConfiguredMessage.CUSTOM_KICK_REASON.replace(get))
+									.reason(get)), false)) {
 								builder.sendMessage(player, ConfiguredMessage.TARGET_KICKED_WITH_REASON.replace(get));
 							} else {
 								builder.sendMessage(player, ConfiguredMessage.TARGET_OFFLINE);
@@ -441,7 +443,8 @@ public final class Commands {
 					if (search.kick((KickReason.next()
 							.input(1, MyEssentialsAPI.getInstance().getPrefix())
 							.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
-							.input(3, ConfiguredMessage.CUSTOM_KICK_REASON.replace(get))), true)) {
+							.input(3, ConfiguredMessage.CUSTOM_KICK_REASON.replace(get))
+							.reason(get)), true)) {
 						builder.sendMessage(sender, ConfiguredMessage.TARGET_KICKED_WITH_REASON.replace(get));
 					} else {
 						builder.sendMessage(sender, ConfiguredMessage.TARGET_OFFLINE);
@@ -542,7 +545,7 @@ public final class Commands {
 								final String replace = ConfiguredMessage.BAN_KICK_REASON.replace(get);
 								kick.input(3, replace);
 								kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
-								kick.reason(StringUtils.translate(replace));
+								kick.reason(StringUtils.translate(get));
 							}, result, false)) {
 								builder.sendMessage(player, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
 							} else {
@@ -655,7 +658,7 @@ public final class Commands {
 								final String replace = ConfiguredMessage.BAN_KICK_REASON.replace(get);
 								kick.input(3, replace);
 								kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
-								kick.reason(StringUtils.translate(replace));
+								kick.reason(StringUtils.translate(get));
 							}, banLength, false)) {
 								builder.sendMessage(sender, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
 							} else {
@@ -678,36 +681,24 @@ public final class Commands {
 						}
 					}
 				})
-				.read((builder, player, commandLabel, args) -> {
-					if (args.length == 3) {
-						return tempBanTab.forArgs(args)
-								.level(3)
-								.completeAt(builder.getData().getLabel())
-								.filter(() -> Collections.singletonList(ConfiguredMessage.REASON.toString()))
-								.collect()
-								.get(3);
-					}
-
-					if (args.length == 2) {
-						return tempBanTab.forArgs(args)
-								.level(2)
-								.completeAt(builder.getData().getLabel())
-								.filter(() -> {
-									List<String> result = new ArrayList<>(Arrays.asList("1s", "1m", "1h", "1d", "2s", "2m", "3h", "3d"));
-									Collections.sort(result);
-									return result;
-								})
-								.collect()
-								.get(2);
-					}
-
-					return tempBanTab.forArgs(args)
-							.level(1)
-							.completeAt(builder.getData().getLabel())
-							.filter(() -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
-							.collect()
-							.get(1);
-				});
+				.read((builder, player, commandLabel, args) -> tempBanTab.forArgs(args)
+						.level(1)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
+						.collect()
+						.level(2)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> {
+							List<String> result = new ArrayList<>(Arrays.asList("1s", "1m", "1h", "1d", "2s", "2m", "3h", "3d"));
+							Collections.sort(result);
+							return result;
+						})
+						.collect()
+						.level(3)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> Collections.singletonList(ConfiguredMessage.REASON.toString()))
+						.collect()
+						.get(args.length));
 
 		CommandMapper.from(InternalCommandData.DAY_COMMAND, builder -> dayTab = TabCompletion.build(builder.getData().getLabel()))
 				.apply((builder, player, commandLabel, args) -> {
@@ -770,8 +761,8 @@ public final class Commands {
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						if (builder.testPermission(player)) {
-							player.getWorld().setTime(0);
-							builder.sendMessage(player, ConfiguredMessage.SET_DAY);
+							player.getWorld().setTime(16000);
+							builder.sendMessage(player, ConfiguredMessage.SET_NIGHT);
 							return;
 						}
 						return;
@@ -823,6 +814,19 @@ public final class Commands {
 						.collect()
 						.get(1));
 
+		CommandMapper.from(OptionLoader.TEST_COMMAND.from("vault", "/vault", "The player personal vault", "mess.vault.use"))
+				.apply((builder, player, commandLabel, args) -> {
+					PlayerSearch search = PlayerSearch.look(player);
+					SharedMenu vault = search.getVault().orElse(null);
+					if (vault != null) {
+						player.openInventory(vault.getInventory());
+					}
+				})
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read(CommandBuilder::defaultCompletion);
+
 		CommandMapper.from(InternalCommandData.GOD_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {
 
@@ -830,7 +834,52 @@ public final class Commands {
 				.next((builder, sender, commandLabel, args) -> {
 
 				})
-				.read(CommandBuilder::tabComplete);
+				.read(CommandBuilder::defaultCompletion);
+
+		CommandMapper.from(InternalCommandData.KICKALL_COMMAND)
+				.apply((builder, player, commandLabel, args) -> {
+					if (args.length == 0) {
+						if (builder.testPermission(player)) {
+							for (Player p : Bukkit.getOnlinePlayers()) {
+								Bukkit.dispatchCommand(player, "kick " + p.getName());
+							}
+							return;
+						}
+						return;
+					}
+
+					StringBuilder sbuilder = new StringBuilder();
+					for (String arg : args) {
+						sbuilder.append(arg).append(" ");
+					}
+					if (builder.testPermission(player)) {
+						for (Player p : Bukkit.getOnlinePlayers()) {
+							Bukkit.dispatchCommand(player, "kick " + p.getName() + " " + sbuilder.toString().trim());
+						}
+					}
+				})
+				.next((builder, sender, commandLabel, args) -> {
+					if (args.length == 0) {
+						if (builder.testPermission(sender)) {
+							for (Player p : Bukkit.getOnlinePlayers()) {
+								Bukkit.dispatchCommand(sender, "kick " + p.getName());
+							}
+							return;
+						}
+						return;
+					}
+
+					StringBuilder sbuilder = new StringBuilder();
+					for (String arg : args) {
+						sbuilder.append(arg).append(" ");
+					}
+					if (builder.testPermission(sender)) {
+						for (Player p : Bukkit.getOnlinePlayers()) {
+							Bukkit.dispatchCommand(sender, "kick " + p.getName() + " " + sbuilder.toString().trim());
+						}
+					}
+				})
+				.read(CommandBuilder::defaultCompletion);
 
 		CommandMapper.from(InternalCommandData.BIN_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {
@@ -839,7 +888,7 @@ public final class Commands {
 				.next((builder, sender, commandLabel, args) -> {
 					builder.sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
 				})
-				.read(CommandBuilder::tabComplete);
+				.read(CommandBuilder::defaultCompletion);
 
 		CommandMapper.from(InternalCommandData.FEED_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {
@@ -848,7 +897,7 @@ public final class Commands {
 				.next((builder, sender, commandLabel, args) -> {
 
 				})
-				.read(CommandBuilder::tabComplete);
+				.read(CommandBuilder::defaultCompletion);
 
 		CommandMapper.from(InternalCommandData.INVSEE_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {
@@ -876,7 +925,7 @@ public final class Commands {
 					}
 				})
 				.next((builder, sender, commandLabel, args) -> builder.sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER))
-				.read(CommandBuilder::tabComplete);
+				.read(CommandBuilder::defaultCompletion);
 
 		CommandMapper.from(InternalCommandData.HEAL_COMMAND, builder -> healTab = TabCompletion.build(builder.getData().getLabel()))
 				.apply((builder, player, commandLabel, args) -> {

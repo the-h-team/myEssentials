@@ -110,4 +110,5 @@ public final class CommandMapper {
 	public static @NotNull CommandMapper load(@NotNull CommandData data, Applicable... applicable) {
 		return new CommandMapper(data, applicable);
 	}
+
 }

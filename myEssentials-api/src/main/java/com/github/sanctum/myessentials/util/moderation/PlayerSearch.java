@@ -133,7 +133,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return true if the desired player is valid.
 	 */
 	public boolean isValid() {
-		return uuid != null;
+		return uuid != null && getPlayer().isValid();
 	}
 
 	public boolean isVanished() {

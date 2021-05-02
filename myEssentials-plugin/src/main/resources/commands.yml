@@ -109,12 +109,6 @@ kick:
   usage: '&6/kick&r <&eplayerName&r> &7| optional [reason]'
   description: 'Kick a player of specification from the server.'
   permission: 'mess.staff.kick'
-message:
-  label: message
-  usage: '&6/message&r <&eplayerName&r> <&etext...&r>'
-  description: 'Message an online player'
-  permission: 'mess.staff.message'
-  aliases: ["msg"]
 night:
   label: night
   usage: '&6/night&r'
@@ -141,11 +135,6 @@ reply:
   description: 'Reply to a recently received message'
   permission: 'mess.staff.reply'
   aliases: ["r"]
-socialspy:
-  label: socialspy
-  usage: '&6/socialspy&r'
-  description: 'Toggle the ability to see every time a player gets messaged'
-  permission: 'mess.staff.socialspy'
 spawnmob:
   label: spawnmob
   usage: '&6/spawnmob&r <&emobs...&r> &7| optional [amount]'

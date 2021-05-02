@@ -17,7 +17,7 @@ public final class MessengerImpl implements Messenger {
 
     @Override
     public void broadcastMessage(String message) {
-        Bukkit.broadcastMessage(StringUtils.translate(message));
+        Bukkit.broadcastMessage(StringUtils.use(message).translate());
     }
 
     @Override

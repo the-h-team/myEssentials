@@ -88,4 +88,8 @@ public abstract class CommandBuilder {
     protected String color(String text) {
         return StringUtils.use(text).translate();
     }
+
+    public List<String> defaultCompletion(Player player, String s, String[] strings) {
+        return null;
+    }
 }

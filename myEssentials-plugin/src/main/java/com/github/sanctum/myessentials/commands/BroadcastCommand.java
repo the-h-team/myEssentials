@@ -30,30 +30,6 @@ public final class BroadcastCommand extends CommandBuilder {
 
 	@Override
 	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-
-
-		if (args.length == 2) {
-			return builder
-					.forArgs(args)
-					.level(2)
-					.completeAt(getData().getLabel())
-					.filter(() -> Collections.singletonList("goes"))
-					.map("goes", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
-					.collect()
-					.get(2);
-		}
-
-		if (args.length == 3) {
-			return builder
-					.forArgs(args)
-					.level(3)
-					.completeAt(getData().getLabel())
-					.filter(() -> Collections.singletonList("here"))
-					.map("here", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
-					.collect()
-					.get(3);
-		}
-
 		return builder
 				.forArgs(args)
 				.level(1)
@@ -61,7 +37,17 @@ public final class BroadcastCommand extends CommandBuilder {
 				.filter(() -> Collections.singletonList("message"))
 				.map("message", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
 				.collect()
-				.get(1);
+				.level(2)
+				.completeAt(getData().getLabel())
+				.filter(() -> Collections.singletonList("goes"))
+				.map("goes", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
+				.collect()
+				.level(3)
+				.completeAt(getData().getLabel())
+				.filter(() -> Collections.singletonList("here"))
+				.map("here", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
+				.collect()
+				.get(args.length);
 	}
 
 	@Override

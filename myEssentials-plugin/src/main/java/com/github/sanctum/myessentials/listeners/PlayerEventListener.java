@@ -10,6 +10,7 @@ package com.github.sanctum.myessentials.listeners;
 
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.commands.PowertoolCommand;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
@@ -18,17 +19,21 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import org.bukkit.BanEntry;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 public final class PlayerEventListener implements Listener {
 	private static PlayerEventListener instance;
@@ -72,6 +77,23 @@ public final class PlayerEventListener implements Listener {
 	public void onTeleport(PlayerTeleportEvent e) {
 		if (!e.getFrom().equals(e.getTo())) {
 			prevLocations.put(e.getPlayer().getUniqueId(), e.getPlayer().getLocation());
+		}
+	}
+
+	@EventHandler
+	public void onInteract(PlayerInteractEvent e) {
+		if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+			if (e.getItem() != null) {
+				ItemStack i = e.getItem();
+				if (i.hasItemMeta()) {
+					if (i.getItemMeta().getPersistentDataContainer().has(PowertoolCommand.KEY, PersistentDataType.STRING)) {
+						e.setCancelled(true);
+						String command = i.getItemMeta().getPersistentDataContainer().get(PowertoolCommand.KEY, PersistentDataType.STRING);
+						Bukkit.dispatchCommand(e.getPlayer(), command);
+
+					}
+				}
+			}
 		}
 	}
 

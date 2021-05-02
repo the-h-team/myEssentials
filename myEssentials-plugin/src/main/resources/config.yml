@@ -1,3 +1,10 @@
+Procedure:
+  moderation:
+    silent-ban: true
+    silent-kick: false
+  gui:
+    scaled-size: THREE
+    single-size: THREE
 Format:
   groups:
     Default:
