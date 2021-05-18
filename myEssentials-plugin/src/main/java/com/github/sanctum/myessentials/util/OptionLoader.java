@@ -7,6 +7,8 @@ import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -175,6 +177,38 @@ public enum OptionLoader {
 				@Override
 				public @Nullable String getPermissionNode() {
 					return perm;
+				}
+			};
+		}
+		throw new IllegalStateException("Invalid use of test command!");
+	}
+
+	public CommandData from(String label, String usage, String desc, String perm, String... alias) {
+		if (this == TEST_COMMAND) {
+			return new CommandData() {
+				@Override
+				public @NotNull String getLabel() {
+					return label;
+				}
+
+				@Override
+				public @NotNull String getUsage() {
+					return usage;
+				}
+
+				@Override
+				public @NotNull String getDescription() {
+					return desc;
+				}
+
+				@Override
+				public @Nullable String getPermissionNode() {
+					return perm;
+				}
+
+				@Override
+				public @NotNull List<String> getAliases() {
+					return Arrays.asList(alias);
 				}
 			};
 		}

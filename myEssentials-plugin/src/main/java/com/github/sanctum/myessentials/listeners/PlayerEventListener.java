@@ -8,20 +8,28 @@
  */
 package com.github.sanctum.myessentials.listeners;
 
+import com.github.sanctum.labyrinth.data.Region;
 import com.github.sanctum.labyrinth.library.Cooldown;
+import com.github.sanctum.labyrinth.library.Message;
+import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.commands.PowertoolCommand;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
-import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import org.bukkit.BanEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -37,11 +45,36 @@ import org.bukkit.persistence.PersistentDataType;
 
 public final class PlayerEventListener implements Listener {
 	private static PlayerEventListener instance;
+	private final Map<UUID, Boolean> taskScheduled = new HashMap<>();
+	private final AtomicReference<Location> teleportLocation = new AtomicReference<>();
 
 	private final Map<UUID, Location> prevLocations = new HashMap<>();
 
 	{
 		instance = this;
+	}
+
+	public void sendMessage(Player p, String text) {
+		Message.form(p).send(text);
+	}
+
+	public int random(int bounds) {
+		return (int) (Math.random() * bounds * (Math.random() > 0.5 ? 1 : -1));
+	}
+
+	/**
+	 * Checks if a location is safe (solid ground with 2 breathable blocks)
+	 *
+	 * @param location Location to check
+	 * @return True if location is safe
+	 */
+	public boolean hasSurface(Location location) {
+		Block feet = location.getBlock();
+		Block head = feet.getRelative(BlockFace.UP);
+		if (!feet.getType().isAir() && !feet.getLocation().add(0, 1, 0).getBlock().getType().isAir() && !head.getType().isAir()) {
+			return false; // not transparent (will suffocate)
+		}
+		return feet.getRelative(BlockFace.DOWN).getType().isSolid(); // not solid
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -66,11 +99,59 @@ public final class PlayerEventListener implements Listener {
 				e.allow();
 			}
 		}
-	}
 
-	@EventHandler
-	public void onHeal(PlayerPendingHealEvent e) {
-		e.setAmount(2);
+		if (e.getResult() == PlayerLoginEvent.Result.ALLOWED) {
+			Schedule.sync(() -> {
+				if (Region.spawn().isPresent()) {
+					if (Region.spawn().get().contains(e.getPlayer())) {
+						if (p.getLocation().getBlock().getType() == Material.ORANGE_CARPET) {
+							if (!taskScheduled.containsKey(p.getUniqueId())) {
+								taskScheduled.put(p.getUniqueId(), true);
+
+								Schedule.sync(() -> {
+									int x = random(10500);
+									int z = random(3500);
+									int y = 150;
+									teleportLocation.set(new Location(p.getWorld(), x, y, z));
+									y = Objects.requireNonNull(teleportLocation.get().getWorld()).getHighestBlockYAt(teleportLocation.get());
+									teleportLocation.get().setY(y);
+									Message.form(p).action(MyEssentialsAPI.getInstance().getPrefix() + " Searching for suitable location...");
+									p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 10, 1);
+
+								}).cancelAfter(p).cancelAfter(task -> {
+									if (taskScheduled.containsKey(p.getUniqueId()) && !taskScheduled.get(p.getUniqueId())) {
+										sendMessage(p, ConfiguredMessage.SEARCH_INTERRUPTED.toString());
+										task.cancel();
+										return;
+									}
+									if (!taskScheduled.containsKey(p.getUniqueId())) {
+										sendMessage(p, ConfiguredMessage.SEARCH_INTERRUPTED.toString());
+										task.cancel();
+										return;
+									}
+									if (teleportLocation.get() != null) {
+										if (hasSurface(teleportLocation.get())) {
+											p.teleport(teleportLocation.get());
+											teleportLocation.set(null);
+											sendMessage(p, ConfiguredMessage.TELEPORTED_SAFEST_LOCATION.replace(p.getWorld().getName()));
+											taskScheduled.remove(p.getUniqueId());
+											task.cancel();
+										}
+									}
+								}).repeat(0, 3 * 20);
+							}
+
+						} else {
+							if (taskScheduled.containsKey(p.getUniqueId()) && taskScheduled.get(p.getUniqueId())) {
+								taskScheduled.remove(p.getUniqueId());
+								sendMessage(p, ConfiguredMessage.STOPPING_SEARCH.toString());
+							}
+						}
+					}
+				}
+			}).repeatReal(0, 2 * 20);
+		}
+
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)

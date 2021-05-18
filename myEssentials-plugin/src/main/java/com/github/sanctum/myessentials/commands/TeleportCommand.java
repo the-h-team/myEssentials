@@ -12,15 +12,14 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-
+import com.github.sanctum.myessentials.util.PlayerWrapper;
+import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import com.github.sanctum.myessentials.util.teleportation.Destination;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import com.github.sanctum.myessentials.util.PlayerWrapper;
-import com.github.sanctum.myessentials.util.teleportation.Destination;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.HumanEntity;
@@ -72,6 +71,17 @@ public final class TeleportCommand extends CommandBuilder {
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (!testPermission(player)) {
 			return false;
+		}
+		if (args.length < 2) {
+			if (args.length == 1) {
+				PlayerSearch search = PlayerSearch.look(args[0]);
+				if (search.isValid()) {
+					if (search.isOnline()) {
+						player.teleport(search.getPlayer());
+					}
+				}
+			}
+			return true;
 		}
 		return consoleView(player, commandLabel, args);
 	}

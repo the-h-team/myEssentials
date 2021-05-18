@@ -4,7 +4,10 @@ import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.Cooldown;
+import com.github.sanctum.labyrinth.library.ListUtils;
+import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
+import com.github.sanctum.labyrinth.library.TextLib;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandBuilder;
@@ -13,6 +16,7 @@ import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.DateTimeCalculator;
 import com.github.sanctum.myessentials.util.OptionLoader;
+import com.github.sanctum.myessentials.util.events.PlayerPendingFeedEvent;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.gui.MenuManager;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
@@ -21,9 +25,11 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
@@ -35,6 +41,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -45,6 +52,7 @@ public final class Commands {
 	private static TabCompletionBuilder kickTabAll;
 	private static TabCompletionBuilder banTab;
 	private static TabCompletionBuilder healTab;
+	private static TabCompletionBuilder feedTab;
 	private static TabCompletionBuilder dayTab;
 	private static TabCompletionBuilder nightTab;
 	private static TabCompletionBuilder staffTab;
@@ -817,10 +825,32 @@ public final class Commands {
 		CommandMapper.from(OptionLoader.TEST_COMMAND.from("vault", "/vault", "The player personal vault", "mess.vault.use"))
 				.apply((builder, player, commandLabel, args) -> {
 					PlayerSearch search = PlayerSearch.look(player);
-					SharedMenu vault = search.getVault().orElse(null);
-					if (vault != null) {
-						player.openInventory(vault.getInventory());
+					search.getVault().ifPresent(vault -> player.openInventory(vault.getInventory()));
+				})
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read(CommandBuilder::defaultCompletion);
+
+		CommandMapper.from(OptionLoader.TEST_COMMAND.from("sudo", "/sudo", "Make someone perform a command.", "mess.vault.use", "s", "make"))
+				.apply((builder, player, commandLabel, args) -> {
+					if (args.length > 1) {
+						PlayerSearch search = PlayerSearch.look(args[0]);
+
+						StringBuilder builder1 = new StringBuilder();
+						for (int j = 1; j < args.length; j++) {
+							builder1.append(args[j]).append(" ");
+						}
+
+						if (search.isValid()) {
+							if (search.isOnline()) {
+								search.getPlayer().performCommand(builder1.toString().trim());
+								builder.sendMessage(player, "&aMaking target perform &7: &r" + builder1.toString().trim());
+							}
+						}
+
 					}
+
 				})
 				.next((builder, sender, commandLabel, args) -> {
 
@@ -829,7 +859,36 @@ public final class Commands {
 
 		CommandMapper.from(InternalCommandData.GOD_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {
-
+					if (builder.testPermission(player)) {
+						PlayerSearch search = PlayerSearch.look(player);
+						if (args.length == 0) {
+							if (search.isValid()) {
+								if (search.isOnline()) {
+									if (search.isInvincible()) {
+										builder.sendMessage(player, ConfiguredMessage.GOD_DISABLED);
+										search.setInvincible(false);
+									} else {
+										builder.sendMessage(player, ConfiguredMessage.GOD_ENABLED);
+										search.setInvincible(true);
+									}
+								}
+							}
+						}
+						if (args.length == 1) {
+							PlayerSearch target = PlayerSearch.look(args[0]);
+							if (target.isValid()) {
+								if (target.isOnline()) {
+									if (target.isInvincible()) {
+										builder.sendMessage(player, ConfiguredMessage.GOD_DISABLED_OTHER.replace(target.getOfflinePlayer().getName()));
+										target.setInvincible(false);
+									} else {
+										builder.sendMessage(player, ConfiguredMessage.GOD_ENABLED_OTHER.replace(target.getOfflinePlayer().getName()));
+										target.setInvincible(true);
+									}
+								}
+							}
+						}
+					}
 				})
 				.next((builder, sender, commandLabel, args) -> {
 
@@ -890,14 +949,47 @@ public final class Commands {
 				})
 				.read(CommandBuilder::defaultCompletion);
 
-		CommandMapper.from(InternalCommandData.FEED_COMMAND)
+		CommandMapper.from(InternalCommandData.FEED_COMMAND, builder -> feedTab = TabCompletion.build(builder.getData().getLabel()))
 				.apply((builder, player, commandLabel, args) -> {
+					if (args.length == 0) {
+						if (builder.testPermission(player)) {
+							Bukkit.getPluginManager().callEvent(new PlayerPendingFeedEvent(null, player, 20));
+							return;
+						}
+						return;
+					}
 
+					if (args.length == 1) {
+						PlayerSearch search = PlayerSearch.look(args[0]);
+						if (search.isValid()) {
+							if (search.isOnline()) {
+								Player target = search.getPlayer();
+								if (builder.testPermission(player)) {
+									assert target != null;
+									search.feed(player, 20);
+									builder.sendMessage(player, ConfiguredMessage.HEAL_TARGET_MAXED.replace(target.getName()));
+								}
+							} else {
+								if (builder.testPermission(player)) {
+									builder.sendMessage(player, ConfiguredMessage.HEAL_TARGET_NOT_ONLINE.replace(search.getOfflinePlayer().getName()));
+								}
+							}
+						} else {
+							if (builder.testPermission(player)) {
+								builder.sendMessage(player, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+							}
+						}
+					}
 				})
 				.next((builder, sender, commandLabel, args) -> {
 
 				})
-				.read(CommandBuilder::defaultCompletion);
+				.read((builder, player, commandLabel, args) -> healTab.forArgs(args)
+						.level(1)
+						.completeAt(builder.getData().getLabel())
+						.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+						.collect()
+						.get(1));
 
 		CommandMapper.from(InternalCommandData.INVSEE_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {
@@ -1302,6 +1394,36 @@ public final class Commands {
 							return list;
 						})
 						.collect().get(1));
+
+
+		CommandMapper.from(OptionLoader.TEST_COMMAND.from("pl", "/pl", "View plugin information.", "mess.plugins", "?"))
+				.apply((builder, player, commandLabel, args) -> {
+					if (builder.testPermission(player)) {
+						LinkedList<BaseComponent> list = new LinkedList<>();
+						Message msg = Message.form(player);
+						TextLib.consume(it -> {
+							for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
+								list.add(it.execute(() -> {
+
+									builder.sendMessage(player, "&a" + p.getName() + " &fInformation:");
+									msg.send("Authors: &b" + p.getDescription().getAuthors().toString());
+									msg.send("Website: &b" + (p.getDescription().getWebsite() != null ? p.getDescription().getWebsite() : "None"));
+									msg.send("Description: &3" + p.getDescription().getDescription());
+									msg.send("Dependencies: &b" + p.getDescription().getDepend().toString());
+
+								}, it.textHoverable("", (p.isEnabled() ? "&a" + p.getName() : "&c" + p.getName()), "&bClick to view plugin info for &f" + p.getName())));
+							}
+						});
+						LinkedList<BaseComponent> newList = new LinkedList<>(ListUtils.use(list).append(component -> {
+							component.addExtra(StringUtils.use("&r, ").translate());
+						}));
+
+						newList.addFirst(TextLib.getInstance().textHoverable("Plugins &7(&a" + list.size() + "&7)&f: ", "", ""));
+
+						msg.build(newList.toArray(new BaseComponent[0]));
+
+					}
+				}).read(CommandBuilder::defaultCompletion);
 
 /*
 		CommandMapper.from(InternalCommandData.FLY_COMMAND)

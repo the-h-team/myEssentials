@@ -70,6 +70,12 @@ Messages:
       set-night: '&aIt is now nighttime.'
       set-midnight: '&aIt is now midnight.'
       set-dusk: '&aIt is now dusk.'
+    god:
+      enabled: '&aYou have enabled god mode.'
+      disabled: '&cYou have disabled god mode.'
+      other:
+        enabled: '&aYou enabled god mode for player &e{0}'
+        disabled: '&cYou disabled god mode for player &e{0}'
     ### skipped onlinelist, powertool, reload, reply, socialspy, spawnmob, staff, teleport
     ## /Tempban
     tempban:
@@ -150,6 +156,10 @@ Messages:
       player-healed-you: "&r[&2{0}&r] Player {1} healed your wounds." # 0 = plugin name, 1 = healer name
       console-healed-you: "&r[&2{0}&r] &c&oConsole has healed your wounds." # 0 = plugin name
       general: "&r[&2{0}&r] Your wounds have been healed."
+    PlayerFeedEvent:
+      player-fed-you: "&r[&2{0}&r] Player {1} soothed your hunger." # 0 = plugin name, 1 = healer name
+      console-fed-you: "&r[&2{0}&r] &c&oConsole has soothed your hunger." # 0 = plugin name
+      general: "&r[&2{0}&r] Your hunger was dealt with."
     PlayerLoginEvent:
       temp-banned: "&c&oTemporarily banned."
       reason: "&cReason:&r {0}" # 0 = a player's ban reason

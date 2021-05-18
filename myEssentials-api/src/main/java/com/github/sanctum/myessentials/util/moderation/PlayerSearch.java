@@ -9,8 +9,11 @@ import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CooldownFinder;
 import com.github.sanctum.myessentials.util.OfflinePlayerWrapper;
 import com.github.sanctum.myessentials.util.ProvidedMessage;
+import com.github.sanctum.myessentials.util.events.PlayerPendingFeedEvent;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,25 +36,35 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PlayerSearch implements CooldownFinder {
 
-	private CommandSender sender;
+	private static final Collection<PlayerSearch> CACHE = new HashSet<>();
 
-	private UUID uuid;
+	private CommandSender sender = null;
+
+	private UUID uuid = null;
+
+	private boolean invincible = false;
+
+	private boolean vanished = false;
 
 	protected PlayerSearch(OfflinePlayer target) {
 		this.uuid = target.getUniqueId();
+		CACHE.add(this);
 	}
 
 	protected PlayerSearch(UUID uuid) {
 		this.uuid = uuid;
+		CACHE.add(this);
 	}
 
 	protected PlayerSearch(CommandSender sender) {
 		this.sender = sender;
+		CACHE.add(this);
 	}
 
 	protected PlayerSearch(String name) {
 		OfflinePlayer search = new OfflinePlayerWrapper().get(name).orElse(null);
 		this.uuid = search != null ? search.getUniqueId() : null;
+		CACHE.add(this);
 	}
 
 	/**
@@ -64,7 +77,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(OfflinePlayer target) {
-		return new PlayerSearch(target);
+		return CACHE.stream().filter(p -> p.isValid() && p.getOfflinePlayer().getName().equalsIgnoreCase(target.getName())).findFirst().orElse(new PlayerSearch(target));
 	}
 
 	/**
@@ -77,7 +90,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(Player target) {
-		return new PlayerSearch((OfflinePlayer) target);
+		return CACHE.stream().filter(p -> p.isValid() && p.getOfflinePlayer().getName().equalsIgnoreCase(target.getName())).findFirst().orElse(new PlayerSearch((OfflinePlayer) target));
 	}
 
 	/**
@@ -90,7 +103,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(UUID uuid) {
-		return new PlayerSearch(uuid);
+		return CACHE.stream().filter(p -> p.isValid() && p.getOfflinePlayer().getUniqueId().equals(uuid)).findFirst().orElse(new PlayerSearch(uuid));
 	}
 
 	/**
@@ -103,7 +116,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(String name) {
-		return new PlayerSearch(name);
+		return CACHE.stream().filter(p -> p.isValid() && p.getOfflinePlayer().getName().equalsIgnoreCase(name)).findFirst().orElse(new PlayerSearch(name));
 	}
 
 	/**
@@ -113,7 +126,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A console messaging utility for protected circumstances.
 	 */
 	public static PlayerSearch look(CommandSender sender) {
-		return new PlayerSearch(sender);
+		return CACHE.stream().filter(p -> p.sender != null && p.sender.getName().equals(sender.getName())).findFirst().orElse(new PlayerSearch(sender));
 	}
 
 	/**
@@ -133,11 +146,47 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return true if the desired player is valid.
 	 */
 	public boolean isValid() {
-		return uuid != null && getPlayer().isValid();
+		try {
+			return uuid != null && getPlayer().isValid();
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
+	/**
+	 * Check if this player is vanished.
+	 *
+	 * @return true if no one except other vanished users are allowed to see this player.
+	 */
 	public boolean isVanished() {
-		return false;
+		return vanished;
+	}
+
+	/**
+	 * Set visibility to this player.
+	 *
+	 * @param vanished Set the visibility for this player.
+	 */
+	public void setVanished(boolean vanished) {
+		this.vanished = vanished;
+	}
+
+	/**
+	 * Check if this player is in god mode.
+	 *
+	 * @return true if this player has entered god mode.
+	 */
+	public boolean isInvincible() {
+		return invincible;
+	}
+
+	/**
+	 * Change the state of god mode for this player.
+	 *
+	 * @param invincible The state of damage for to set
+	 */
+	public void setInvincible(boolean invincible) {
+		this.invincible = invincible;
 	}
 
 	/**
@@ -462,7 +511,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 *
 	 * @param amount health points between 0 and 20
 	 * @throws IllegalArgumentException if amount is over 20
-	 * @throws IllegalStateException if {@link #getPlayer()} is null
+	 * @throws IllegalStateException    if {@link #getPlayer()} is null
 	 */
 	public void heal(double amount) throws IllegalArgumentException {
 		heal(null, amount);
@@ -474,12 +523,37 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @param healer a healer; use null for console
 	 * @param amount health points between 0 and 20
 	 * @throws IllegalArgumentException if amount is over 20
-	 * @throws IllegalStateException if {@link #getPlayer()} is null
+	 * @throws IllegalStateException    if {@link #getPlayer()} is null
 	 */
 	public void heal(@Nullable CommandSender healer, double amount) throws IllegalArgumentException {
 		final Player target = getPlayer();
 		if (target == null) throw new IllegalStateException("Target not present!");
 		Bukkit.getPluginManager().callEvent(new PlayerPendingHealEvent(healer, target, amount));
+	}
+
+	/**
+	 * Feed the target.
+	 *
+	 * @param amount food points between 0 and 20
+	 * @throws IllegalArgumentException if amount is over 20
+	 * @throws IllegalStateException    if {@link #getPlayer()} is null
+	 */
+	public void feed(double amount) throws IllegalArgumentException {
+		feed(null, amount);
+	}
+
+	/**
+	 * Feed the target.
+	 *
+	 * @param healer a healer; use null for console
+	 * @param amount food points between 0 and 20
+	 * @throws IllegalArgumentException if amount is over 20
+	 * @throws IllegalStateException    if {@link #getPlayer()} is null
+	 */
+	public void feed(@Nullable CommandSender healer, double amount) throws IllegalArgumentException {
+		final Player target = getPlayer();
+		if (target == null) throw new IllegalStateException("Target not present!");
+		Bukkit.getPluginManager().callEvent(new PlayerPendingFeedEvent(healer, target, amount));
 	}
 
 	/**
@@ -663,5 +737,14 @@ public final class PlayerSearch implements CooldownFinder {
 		new Message(getPlayer(), MyEssentialsAPI.getInstance().getPrefix()).send(text);
 	}
 
-
+	/**
+	 * Get a user linked cooldown.
+	 *
+	 * @param id The key to use.
+	 * @return The desired cooldown in effect or null.
+	 */
+	@Override
+	public @Nullable Cooldown timer(String id) {
+		return Cooldown.getById(id + "-" + getId().toString()) != null ? Cooldown.getById(id + "-" + getId().toString()) : null;
+	}
 }

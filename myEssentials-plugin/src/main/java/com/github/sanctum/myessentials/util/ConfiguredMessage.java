@@ -14,10 +14,13 @@ import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
 import java.io.InputStream;
-import java.lang.annotation.*;
+import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.util.EnumMap;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,12 +130,20 @@ public enum ConfiguredMessage implements ProvidedMessage {
     TPA_TO_REJECT_HOVER(".tpa.to-reject.hover"),
     // /TpaHere
     TPA_HERE_REQUESTED(".tpa-here.requested"), // Takes 1 replacement
+    // /god
+    GOD_ENABLED(".god.enabled"),
+    GOD_DISABLED(".god.disabled"),
+    GOD_ENABLED_OTHER(".god.other.enabled"),
+    GOD_DISABLED_OTHER(".god.other.disabled"),
 
     // === Event messages ===
     // PlayerHealEvent
     @Section("Events") PLAYER_HEALED_YOU(".PlayerHealEvent.player-healed-you"), // Takes 2 replacements
     @Section("Events") CONSOLE_HEALED_YOU(".PlayerHealEvent.console-healed-you"), // Takes 1 replacement
     @Section("Events") HEALED(".PlayerHealEvent.general"),
+    @Section("Events") PLAYER_FED_YOU(".PlayerFeedEvent.player-fed-you"), // Takes 2 replacements
+    @Section("Events") CONSOLE_FED_YOU(".PlayerFeedEvent.console-fed-you"), // Takes 1 replacement
+    @Section("Events") FED(".PlayerFeedEvent.general"),
     // PlayerLoginEvent
     @Section("Events") LOGIN_TEMP_BANNED(".PlayerLoginEvent.temp-banned"),
     @Section("Events") LOGIN_BANNED_REASON(".PlayerLoginEvent.reason"), // Takes 1 replacement
@@ -172,7 +183,7 @@ public enum ConfiguredMessage implements ProvidedMessage {
     @Override
     public @NotNull String toString() {
         final String s = get();
-        return (s != null) ? StringUtils.translate(s) : "null";
+        return (s != null) ? StringUtils.use(s).translate() : "null";
     }
 
     public static void loadProperties(Essentials essentials) {

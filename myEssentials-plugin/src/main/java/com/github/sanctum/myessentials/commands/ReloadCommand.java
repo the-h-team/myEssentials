@@ -10,8 +10,12 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.data.FileManager;
+import com.github.sanctum.myessentials.Essentials;
+import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import java.util.Arrays;
 import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -31,6 +35,16 @@ public final class ReloadCommand extends CommandBuilder {
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+
+		if (testPermission(player)) {
+			for (String con : Arrays.asList("commands", "messages", "config")) {
+				FileManager manager = MyEssentialsAPI.getInstance().getFileList().find(con, "Configuration");
+				manager.reload();
+			}
+			sendMessage(player, "&aAll configuration reloaded for &2" + Essentials.getInstance());
+			return true;
+		}
+
 		return false;
 	}
 
