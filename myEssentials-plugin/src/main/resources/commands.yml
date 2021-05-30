@@ -116,9 +116,10 @@ night:
   permission: 'mess.staff.night'
 online:
   label: online
-  usage: '&6/online&r'
+  usage: '&6/who&r'
   description: 'View the online player list by rank'
   permission: 'mess.staff.online'
+  aliases: [ "who" ]
 powertool:
   label: powertool
   usage: '&6/powertool&r'
