@@ -115,6 +115,9 @@ public enum ConfiguredMessage implements ProvidedMessage {
     TRANSITION_TOO_FAST(".transition.too-fast"),
     // /Tpa
     TPA_SENT(".tpa.request-sent"), // Takes 1 replacement
+    STAND_STILL(".tpa.stand-still"),
+    TP_CANCELLED(".tpa.tp-cancelled"),
+    TP_SUCCESS(".tpa.tp-success"),
     TPA_TO_CANCEL_TEXT(".tpa.to-cancel.text"),
     TPA_TO_CANCEL_BUTTON(".tpa.to-cancel.button"),
     TPA_TO_CANCEL_TEXT2(".tpa.to-cancel.text2"), // Takes 1 replacement

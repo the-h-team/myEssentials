@@ -8,11 +8,10 @@
  */
 package com.github.sanctum.myessentials.util.teleportation;
 
-import org.bukkit.entity.Player;
-
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import org.bukkit.entity.Player;
 
 /**
  * Describes a request to teleport.
@@ -175,6 +174,14 @@ public abstract class TeleportRequest {
          * The request was accepted.
          */
         ACCEPTED,
+        /**
+         * The request has naturally expired.
+         */
+        EXPIRED,
+        /**
+         * The user is teleporting.
+         */
+        TELEPORTING,
         /**
          * The request was withdrawn by the requester.
          */

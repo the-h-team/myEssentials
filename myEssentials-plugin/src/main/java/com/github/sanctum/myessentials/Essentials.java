@@ -159,6 +159,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 			if (KNOWN_COMMANDS_MAP.containsKey(alias) && KNOWN_COMMANDS_MAP.get(alias).getAliases().contains(alias)) {
 				KNOWN_COMMANDS_MAP.remove(alias);
 			}
+
 		}
 		for (Map.Entry<CommandData, List<IExecutorCalculating<? extends CommandSender>>> entry : executor.getExecutorCalculations().entrySet()) {
 			if (entry.getKey().getLabel().equals(command.getLabel())) {

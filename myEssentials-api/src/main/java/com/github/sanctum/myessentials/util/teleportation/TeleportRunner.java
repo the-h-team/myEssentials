@@ -8,10 +8,9 @@
  */
 package com.github.sanctum.myessentials.util.teleportation;
 
+import java.util.Set;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Set;
 
 /**
  * Performs teleport operations and provides information.
@@ -99,4 +98,5 @@ public interface TeleportRunner {
      * @return all expired teleport requests
      */
     @NotNull Set<TeleportRequest> getExpiredRequests();
+
 }

@@ -10,45 +10,54 @@
 package com.github.sanctum.myessentials.util.events;
 
 import com.github.sanctum.myessentials.util.teleportation.Destination;
+import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
+import java.util.Optional;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Encapsulates a requested teleportation.
  */
 public abstract class PendingTeleportEvent extends Event implements Cancellable {
-    private static final HandlerList HANDLER_LIST = new HandlerList();
-    protected final Player player;
-    protected final Destination destination;
-    protected long delay;
-    protected boolean cancelled;
+	private static final HandlerList HANDLER_LIST = new HandlerList();
+	protected final Player player;
+	protected final TeleportRequest request;
+	protected final Destination destination;
+	protected long delay;
+	protected boolean cancelled;
 
-    protected PendingTeleportEvent(@NotNull Player player, @NotNull Location location) {
-        this(player, new Destination(location), 0L);
-    }
+	protected PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, @NotNull Location location) {
+		this(request, player, new Destination(location), 0L);
+	}
 
-    protected PendingTeleportEvent(@NotNull Player player, @NotNull Player targetPlayer) {
-        this(player, new Destination(targetPlayer), 0L);
-    }
+	protected PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, @NotNull Player targetPlayer) {
+		this(request, player, new Destination(targetPlayer), 0L);
+	}
 
-    protected PendingTeleportEvent(@NotNull Player player, Destination destination, long delay) {
-        this.player = player;
-        this.destination = destination;
-        this.delay = delay;
-    }
+	protected PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, Destination destination, long delay) {
+		this.player = player;
+		this.request = request;
+		this.destination = destination;
+		this.delay = delay;
+	}
 
-    /**
-     * Get the Player that may be teleported.
-     *
-     * @return player that may be teleported
-     */
-    public Player getPlayerToTeleport() {
-        return player;
-    }
+	public Optional<TeleportRequest> getRequest() {
+		return Optional.ofNullable(request);
+	}
+
+	/**
+	 * Get the Player that may be teleported.
+	 *
+	 * @return player that may be teleported
+	 */
+	public Player getPlayerToTeleport() {
+		return player;
+	}
 
     /**
      * Set a new delay.

@@ -16,8 +16,10 @@ import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.commands.PowertoolCommand;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +44,7 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -89,6 +92,36 @@ public final class PlayerEventListener implements Listener {
 				e.setCancelled(true);
 			}
 		}
+	}
+
+	@EventHandler
+	public void onMove(PlayerMoveEvent e) {
+
+		if (e.getTo() != null) {
+			if (e.getFrom().getX() != e.getTo().getX() && e.getFrom().getY() != e.getTo().getY() && e.getFrom().getZ() != e.getTo().getZ()) {
+				TeleportRequest r = MyEssentialsAPI.getInstance().getTeleportRunner().getActiveRequests()
+						.stream().filter(pr -> pr.getPlayerTeleporting().getUniqueId().equals(e.getPlayer().getUniqueId()) || pr.getPlayerRequested().map(p -> p.getUniqueId().equals(e.getPlayer().getUniqueId())).orElse(false))
+						.findFirst()
+						.orElse(null);
+
+				if (r != null) {
+					if (r.getStatus() == TeleportRequest.Status.ACCEPTED) {
+						MyEssentialsAPI.getInstance().getTeleportRunner().cancelRequest(r);
+						Message.form(e.getPlayer()).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(ConfiguredMessage.TP_CANCELLED.get());
+					}
+				}
+
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST)
+	public void onTeleport(PendingTeleportToPlayerEvent e) {
+		Player p = e.getPlayerToTeleport();
+
+		Message.form(p).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(ConfiguredMessage.STAND_STILL.get());
+
+		e.setDelay(10 * 20L);
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)

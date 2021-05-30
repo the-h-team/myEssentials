@@ -9,27 +9,29 @@
  */
 package com.github.sanctum.myessentials.util.events;
 
+import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Encapsulates requested teleportation to a fixed location.
  */
 public final class PendingTeleportToLocationEvent extends PendingTeleportEvent {
-    private static final HandlerList HANDLERS = new HandlerList();
+	private static final HandlerList HANDLERS = new HandlerList();
 
-    public PendingTeleportToLocationEvent(@NotNull Player who, @NotNull Location location) {
-        super(who, location);
-    }
+	public PendingTeleportToLocationEvent(@Nullable TeleportRequest request, @NotNull Player who, @NotNull Location location) {
+		super(request, who, location);
+	}
 
-    @Override
-    public @NotNull HandlerList getHandlers() {
-        return HANDLERS;
-    }
+	@Override
+	public @NotNull HandlerList getHandlers() {
+		return HANDLERS;
+	}
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
+	public static HandlerList getHandlerList() {
+		return HANDLERS;
+	}
 }

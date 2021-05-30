@@ -6,10 +6,10 @@ import com.github.sanctum.myessentials.util.events.PendingTeleportToLocationEven
 import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
 import com.github.sanctum.myessentials.util.events.TeleportEvent;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,9 +19,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 public final class TeleportRunnerImpl implements TeleportRunner, Listener {
-    private final Set<TeleportRequest> pending = new HashSet<>();
-    private final Set<TeleportRequest> successful = new HashSet<>();
-    private final Set<TeleportRequest> expired = new HashSet<>();
+    private final Set<TeleportRequest> CACHE = new HashSet<>();
     private final Essentials plugin;
 
     public TeleportRunnerImpl(Essentials essentials) {
@@ -33,30 +31,30 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
     public void teleportPlayer(@NotNull Player player, Destination destination) {
         final Optional<Player> destinationPlayer = destination.getDestinationPlayer();
         if (destinationPlayer.isPresent()) {
-            Bukkit.getPluginManager().callEvent(new PendingTeleportToPlayerEvent(player, destinationPlayer.get()));
+            Bukkit.getPluginManager().callEvent(new PendingTeleportToPlayerEvent(null, player, destinationPlayer.get()));
             return;
         }
-        Bukkit.getPluginManager().callEvent(new PendingTeleportToLocationEvent(player, destination.toLocation()));
+        Bukkit.getPluginManager().callEvent(new PendingTeleportToLocationEvent(null, player, destination.toLocation()));
     }
 
     @Override
     public void requestTeleport(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type) throws ExistingTeleportRequestException{
         // TODO: message code
-        final Optional<TeleportRequest> existingRequest = pending.stream()
+        final Optional<TeleportRequest> existingRequest = getActiveRequests().stream()
                 .filter(tr -> requester == tr.requester && requested == tr.destination.player && type == tr.type)
                 .findAny();
         if (existingRequest.isPresent()) throw new ExistingTeleportRequestException(existingRequest.get());
-        pending.add(new TeleportRequestImpl(requester, requested, type));
+        CACHE.add(new TeleportRequestImpl(requester, requested, type));
     }
 
     @Override
     public void requestTeleportCustom(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type, long expiration) throws ExistingTeleportRequestException {
         // TODO: messaging
-        final Optional<TeleportRequest> existingRequest = pending.stream()
+        final Optional<TeleportRequest> existingRequest = getActiveRequests().stream()
                 .filter(tr -> requester == tr.requester && requested == tr.destination.player && type == tr.type)
                 .findAny();
         if (existingRequest.isPresent()) throw new ExistingTeleportRequestException(existingRequest.get());
-        pending.add(new TeleportRequestImpl(requester, requested, type, expiration));
+        CACHE.add(new TeleportRequestImpl(requester, requested, type, expiration));
     }
 
     @Override
@@ -76,23 +74,25 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
 
     @Override
     public boolean queryTeleportStatus(TeleportRequest request) {
-        return successful.contains(request);
+        return CACHE.contains(request) && !(request.getStatus() == TeleportRequest.Status.CANCELLED || request.getStatus() == TeleportRequest.Status.REJECTED);
     }
 
     @Override
     public @NotNull Set<TeleportRequest> getActiveRequests() {
-        return Collections.unmodifiableSet(pending);
+        return CACHE.stream().filter(pr -> pr.getStatus() == TeleportRequest.Status.PENDING || pr.getStatus() == TeleportRequest.Status.TELEPORTING || pr.getStatus() == TeleportRequest.Status.ACCEPTED).collect(Collectors.toSet());
     }
 
     @Override
     public @NotNull Set<TeleportRequest> getExpiredRequests() {
-        return expired;
+        return CACHE.stream().filter(pr -> pr.isComplete && pr.getStatus() == TeleportRequest.Status.EXPIRED).collect(Collectors.toSet());
     }
 
     // Process successful teleport, move requests to successful map
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onTeleportComplete(TeleportEvent event) {
-        event.getRequest().ifPresent(successful::add);
+        event.getRequest().ifPresent(request -> {
+            request.status = TeleportRequest.Status.TELEPORTING;
+        });
     }
 
     private final class TeleportRequestImpl extends TeleportRequest {
@@ -101,8 +101,7 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
             public void run() {
                 if (expiration.isBefore(LocalDateTime.now())) {
                     if (!isComplete) {
-                        pending.remove(TeleportRequestImpl.this);
-                        expired.add(TeleportRequestImpl.this);
+                        TeleportRequestImpl.this.status = Status.EXPIRED;
                     }
                     cancel();
                 }
@@ -126,9 +125,9 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
             final Optional<Player> destinationPlayer = destination.getDestinationPlayer();
             final PendingTeleportEvent event;
             if (destinationPlayer.isPresent()) {
-                event = new PendingTeleportToPlayerEvent(teleporting, destinationPlayer.get());
+                event = new PendingTeleportToPlayerEvent(this, teleporting, destinationPlayer.get());
             } else {
-                event = new PendingTeleportToLocationEvent(teleporting, destination.toLocation());
+                event = new PendingTeleportToLocationEvent(this, teleporting, destination.toLocation());
             }
             Bukkit.getPluginManager().callEvent(event);
             cleanup();
@@ -136,21 +135,20 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
 
         @Override
         protected void cancelTeleport() {
-            if (isComplete) return;
             status = Status.CANCELLED;
             cleanup();
+            CACHE.removeIf(req -> req.getPlayerTeleporting().equals(getPlayerTeleporting()));
         }
 
         @Override
         protected void rejectTeleport() {
-            if (isComplete) return;
             status = Status.REJECTED;
             cleanup();
+            CACHE.removeIf(req -> req.getPlayerTeleporting().equals(getPlayerTeleporting()));
         }
 
         private void cleanup() {
             if (!expirationTask.isCancelled()) expirationTask.cancel();
-            pending.remove(this);
             isComplete = true;
         }
     }

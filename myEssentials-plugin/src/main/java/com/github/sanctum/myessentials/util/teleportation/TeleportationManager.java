@@ -8,7 +8,11 @@
  */
 package com.github.sanctum.myessentials.util.teleportation;
 
+import com.github.sanctum.labyrinth.library.Message;
+import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.Essentials;
+import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.PendingTeleportToLocationEvent;
 import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
 import com.github.sanctum.myessentials.util.events.TeleportEvent;
@@ -54,7 +58,13 @@ public final class TeleportationManager {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation()));
+                    if (e.getRequest().isPresent()) {
+                        if (e.getRequest().get().getStatus() != TeleportRequest.Status.CANCELLED && e.getRequest().get().getStatus() != TeleportRequest.Status.REJECTED) {
+                            pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), e.getRequest().orElse(null)));
+                        }
+                    } else {
+                        pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), null));
+                    }
                 }
             }.runTaskLater(plugin, e.getDelay());
         }
@@ -65,7 +75,13 @@ public final class TeleportationManager {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation()));
+                    if (e.getRequest().isPresent()) {
+                        if (e.getRequest().get().getStatus() != TeleportRequest.Status.CANCELLED && e.getRequest().get().getStatus() != TeleportRequest.Status.REJECTED) {
+                            pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), e.getRequest().orElse(null)));
+                        }
+                    } else {
+                        pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), null));
+                    }
                 }
             }.runTaskLater(plugin, e.getDelay());
         }
@@ -89,7 +105,15 @@ public final class TeleportationManager {
     private static class TeleportListener implements Listener {
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
         public void onMEssTeleportEvent(TeleportEvent e) {
-            e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+            if (e.getRequest().isPresent()) {
+                if (e.getRequest().get().getStatus() != TeleportRequest.Status.CANCELLED && e.getRequest().get().getStatus() != TeleportRequest.Status.REJECTED) {
+                    e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    Message.form(e.getPlayer()).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(ConfiguredMessage.TP_SUCCESS.replace(e.getRequest().get().getPlayerRequesting().getName()));
+                }
+                Schedule.sync(() -> MyEssentialsAPI.getInstance().getTeleportRunner().cancelRequest(e.getRequest().get())).run();
+            } else {
+                e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
 //                e.player.sendMessage("TP call sent"); // Use a separate EventHandler for messages
         }
     }

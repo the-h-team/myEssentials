@@ -4,13 +4,12 @@ import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 public final class TPRejectCommand extends CommandBuilder {
     public TPRejectCommand() {
@@ -26,7 +25,7 @@ public final class TPRejectCommand extends CommandBuilder {
     public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
         if (!testPermission(player)) return false;
         final Optional<TeleportRequest> any = api.getTeleportRunner().getActiveRequests().stream()
-                .filter(r -> r.getPlayerRequested().map(value -> value.equals(player)).orElse(false))
+                .filter(r -> r.getPlayerRequested().map(value -> value.getUniqueId().equals(player.getUniqueId())).orElse(false))
                 .findAny();
         if (any.isPresent()) {
             api.getTeleportRunner().rejectTeleport(any.get());

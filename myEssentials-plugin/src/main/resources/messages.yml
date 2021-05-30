@@ -128,6 +128,9 @@ Messages:
       already-night: '&cIt is already nighttime.'
       too-fast: "&cToo fast, Marty! This thing can do 88mph, alright--but it can't go THAT fast."
     tpa:
+      stand-still: "&cStand still! Teleporting in 10 seconds."
+      tp-cancelled: "&cYou moved, teleportation cancelled."
+      tp-success: "&aYou teleported to &6{0}"
       request-sent: "&aRequest sent to &e{0}" # 0 = player name
       to-cancel:
         text: "To cancel this request, click &7["
