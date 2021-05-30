@@ -379,7 +379,7 @@ public final class PlayerSearch implements CooldownFinder {
 		}
 		kick(r);
 		if (!silent) {
-			Bukkit.broadcastMessage(StringUtils.translate(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getOfflinePlayer().getName() + " &c&owas banned for &r" + '"' + ChatColor.stripColor(r.getReason()) + "&r" + '"'));
+			Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getOfflinePlayer().getName() + " &c&owas banned for &r" + '"' + ChatColor.stripColor(r.getReason()) + "&r" + '"').translate());
 		}
 		Bukkit.getBanList(BanList.Type.NAME).addBan(Objects.requireNonNull(getOfflinePlayer().getName()), r.getReason(), null, source);
 		return true;
@@ -500,7 +500,7 @@ public final class PlayerSearch implements CooldownFinder {
 		reason.accept(r);
 		kick(r);
 		if (!silent) {
-			Bukkit.broadcastMessage(StringUtils.translate(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getOfflinePlayer().getName() + " &c&owas banned for &r" + '"' + ChatColor.stripColor(r.getReason()) + "&r" + '"'));
+			Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getOfflinePlayer().getName() + " &c&owas banned for &r" + '"' + ChatColor.stripColor(r.getReason()) + "&r" + '"').translate());
 		}
 		Bukkit.getBanList(BanList.Type.NAME).addBan(Objects.requireNonNull(getOfflinePlayer().getName()), r.getReason(), null, source);
 		return true;
@@ -592,7 +592,7 @@ public final class PlayerSearch implements CooldownFinder {
 			Cooldown.remove(getBanTimer());
 		}
 		if (!silent) {
-			Bukkit.broadcastMessage(StringUtils.translate(MyEssentialsAPI.getInstance().getPrefix() + " &6&oPlayer &e" + getOfflinePlayer().getName() + " &6&owas unbanned."));
+			Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &6&oPlayer &e" + getOfflinePlayer().getName() + " &6&owas unbanned.").translate());
 		}
 		Bukkit.getBanList(BanList.Type.NAME).pardon(Objects.requireNonNull(getOfflinePlayer().getName()));
 		return true;
@@ -610,7 +610,7 @@ public final class PlayerSearch implements CooldownFinder {
 		if (!Objects.requireNonNull(getOfflinePlayer()).isOnline()) {
 			return false;
 		}
-		Objects.requireNonNull(getPlayer()).kickPlayer(StringUtils.translate("&c&oNo reason specified."));
+		Objects.requireNonNull(getPlayer()).kickPlayer(StringUtils.use("&c&oNo reason specified.").translate());
 		return true;
 	}
 
@@ -628,9 +628,9 @@ public final class PlayerSearch implements CooldownFinder {
 			return false;
 		}
 		if (!silent) {
-			Bukkit.broadcastMessage(StringUtils.translate(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getPlayer().getName() + " &c&owas kicked."));
+			Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getPlayer().getName() + " &c&owas kicked.").translate());
 		}
-		Objects.requireNonNull(getPlayer()).kickPlayer(StringUtils.translate("&c&oNo reason specified."));
+		Objects.requireNonNull(getPlayer()).kickPlayer(StringUtils.use("&c&oNo reason specified.").translate());
 		return true;
 	}
 
@@ -684,7 +684,7 @@ public final class PlayerSearch implements CooldownFinder {
 			return false;
 		}
 		if (!silent) {
-			Bukkit.broadcastMessage(StringUtils.translate(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getPlayer().getName() + " &c&owas kicked for &r" + '"' + reason.getReason() + "&r" + '"'));
+			Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getPlayer().getName() + " &c&owas kicked for &r" + '"' + reason.getReason() + "&r" + '"').translate());
 		}
 		Objects.requireNonNull(getPlayer()).kickPlayer(reason.toString());
 		return true;
@@ -705,7 +705,7 @@ public final class PlayerSearch implements CooldownFinder {
 			return false;
 		}
 		if (!silent) {
-			Bukkit.broadcastMessage(StringUtils.translate(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getPlayer().getName() + " &c&owas kicked for &r" + '"' + reason + "&r" + '"'));
+			Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getPlayer().getName() + " &c&owas kicked for &r" + '"' + reason + "&r" + '"').translate());
 		}
 		Objects.requireNonNull(getPlayer()).kickPlayer(reason);
 		return true;

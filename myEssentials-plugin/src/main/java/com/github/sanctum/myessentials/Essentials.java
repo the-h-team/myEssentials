@@ -12,6 +12,8 @@ package com.github.sanctum.myessentials;
 
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
+import com.github.sanctum.labyrinth.data.Registry;
+import com.github.sanctum.labyrinth.data.RegistryData;
 import com.github.sanctum.labyrinth.event.EventBuilder;
 import com.github.sanctum.labyrinth.gui.InventoryRows;
 import com.github.sanctum.labyrinth.gui.shared.SharedBuilder;
@@ -27,7 +29,6 @@ import com.github.sanctum.myessentials.model.InjectedExecutorHandler;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.model.Messenger;
 import com.github.sanctum.myessentials.model.action.IExecutorCalculating;
-import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.SignWrapper;
@@ -36,6 +37,7 @@ import com.github.sanctum.myessentials.util.factory.ReloadUtil;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,6 +57,7 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.ServicePriority;
@@ -84,13 +87,13 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		instance = this;
 		Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
 		ReloadUtil.get(this).onEnable(getClassLoader());
-		SharedMenu bin = SharedBuilder.create(this, "My-Bin", StringUtils.translate("&6&nDonation Bin."), InventoryRows.THREE.getSlotCount());
+		SharedMenu bin = SharedBuilder.create(this, "My-Bin", StringUtils.use("&6&nDonation Bin.").translate(), InventoryRows.THREE.getSlotCount());
 		bin.addOption(SharedMenu.Option.CANCEL_HOTBAR);
 		bin.setItem(0, () -> {
 			ItemStack item = new ItemStack(Material.HEART_OF_THE_SEA);
 			ItemMeta meta = item.getItemMeta();
 			assert meta != null;
-			meta.setDisplayName(StringUtils.translate("&4Close."));
+			meta.setDisplayName(StringUtils.use("&4Close.").translate());
 			item.setItemMeta(meta);
 			return item;
 		}, click -> {
@@ -99,12 +102,30 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		});
 		this.teleportRunner = new TeleportRunnerImpl(this);
 		this.messenger = new MessengerImpl(this);
-		EventBuilder.compileFields(this, "com.github.sanctum.myessentials.listeners");
+		try {
+			new Registry<>(Listener.class)
+					.source(this)
+					.pick("com.github.sanctum.myessentials.listeners")
+					.operate(EventBuilder::register);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		InternalCommandData.defaultOrReload(this);
 		ConfiguredMessage.loadProperties(this);
 		OptionLoader.renewRemainingBans();
 		OptionLoader.checkConfig();
-		CommandRegistration.compileFields(this, "com.github.sanctum.myessentials.commands");
+		try {
+			RegistryData<CommandBuilder> data = new Registry<>(CommandBuilder.class)
+					.source(this)
+					.pick("com.github.sanctum.myessentials.commands")
+					.operate(builder -> {
+					});
+
+			getLogger().info("- (" + data.getData().size() + ") Unique commands registered.");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		TeleportationManager.registerListeners(this);
 		Commands.register();
 	}

@@ -553,7 +553,7 @@ public final class Commands {
 								final String replace = ConfiguredMessage.BAN_KICK_REASON.replace(get);
 								kick.input(3, replace);
 								kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
-								kick.reason(StringUtils.translate(get));
+								kick.reason(StringUtils.use(get).translate());
 							}, result, false)) {
 								builder.sendMessage(player, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
 							} else {
@@ -666,7 +666,7 @@ public final class Commands {
 								final String replace = ConfiguredMessage.BAN_KICK_REASON.replace(get);
 								kick.input(3, replace);
 								kick.input(2, ConfiguredMessage.BAN_EXPIRATION.replace(search.getBanTimer().fullTimeLeft()));
-								kick.reason(StringUtils.translate(get));
+								kick.reason(StringUtils.use(get).translate());
 							}, banLength, false)) {
 								builder.sendMessage(sender, ConfiguredMessage.UNBAN_TIME_TO_SENDER.replace(search.getBanTimer().fullTimeLeft()));
 							} else {
@@ -826,29 +826,32 @@ public final class Commands {
 				.apply((builder, player, commandLabel, args) -> {
 					PlayerSearch search = PlayerSearch.look(player);
 					search.getVault().ifPresent(vault -> player.openInventory(vault.getInventory()));
+
 				})
 				.next((builder, sender, commandLabel, args) -> {
 
 				})
 				.read(CommandBuilder::defaultCompletion);
 
-		CommandMapper.from(OptionLoader.TEST_COMMAND.from("sudo", "/sudo", "Make someone perform a command.", "mess.vault.use", "s", "make"))
+		CommandMapper.from(OptionLoader.TEST_COMMAND.from("sudo", "/sudo", "Make someone perform a command.", "mess.staff.sudo", "s", "make"))
 				.apply((builder, player, commandLabel, args) -> {
-					if (args.length > 1) {
-						PlayerSearch search = PlayerSearch.look(args[0]);
+					if (builder.testPermission(player)) {
+						if (args.length > 1) {
+							PlayerSearch search = PlayerSearch.look(args[0]);
 
-						StringBuilder builder1 = new StringBuilder();
-						for (int j = 1; j < args.length; j++) {
-							builder1.append(args[j]).append(" ");
-						}
-
-						if (search.isValid()) {
-							if (search.isOnline()) {
-								search.getPlayer().performCommand(builder1.toString().trim());
-								builder.sendMessage(player, "&aMaking target perform &7: &r" + builder1.toString().trim());
+							StringBuilder builder1 = new StringBuilder();
+							for (int j = 1; j < args.length; j++) {
+								builder1.append(args[j]).append(" ");
 							}
-						}
 
+							if (search.isValid()) {
+								if (search.isOnline()) {
+									search.getPlayer().performCommand(builder1.toString().trim());
+									builder.sendMessage(player, "&aMaking target perform &7: &r" + builder1.toString().trim());
+								}
+							}
+
+						}
 					}
 
 				})
@@ -1404,6 +1407,7 @@ public final class Commands {
 						TextLib.consume(it -> {
 							for (Plugin p : Bukkit.getPluginManager().getPlugins()) {
 								list.add(it.execute(() -> {
+
 
 									builder.sendMessage(player, "&a" + p.getName() + " &fInformation:");
 									msg.send("Authors: &b" + p.getDescription().getAuthors().toString());

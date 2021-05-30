@@ -11,6 +11,7 @@ package com.github.sanctum.myessentials.listeners;
 import com.github.sanctum.labyrinth.data.Region;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.Message;
+import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.commands.PowertoolCommand;
@@ -35,8 +36,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -75,6 +78,17 @@ public final class PlayerEventListener implements Listener {
 			return false; // not transparent (will suffocate)
 		}
 		return feet.getRelative(BlockFace.DOWN).getType().isSolid(); // not solid
+	}
+
+	@EventHandler(priority = EventPriority.NORMAL)
+	public void onGodHit(EntityDamageEvent e) {
+		if (e.getEntity() instanceof Player) {
+			Player p = (Player) e.getEntity();
+			PlayerSearch wrapper = PlayerSearch.look(p);
+			if (wrapper.isInvincible()) {
+				e.setCancelled(true);
+			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
@@ -158,6 +172,14 @@ public final class PlayerEventListener implements Listener {
 	public void onTeleport(PlayerTeleportEvent e) {
 		if (!e.getFrom().equals(e.getTo())) {
 			prevLocations.put(e.getPlayer().getUniqueId(), e.getPlayer().getLocation());
+		}
+	}
+
+	@EventHandler
+	public void onCommand(PlayerCommandPreprocessEvent e) {
+		if (StringUtils.use(e.getMessage()).containsIgnoreCase("/plugins")) {
+			e.getPlayer().performCommand("pl");
+			e.setCancelled(true);
 		}
 	}
 

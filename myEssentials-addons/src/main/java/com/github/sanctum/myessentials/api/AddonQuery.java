@@ -9,9 +9,10 @@
 package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.Labyrinth;
+import com.github.sanctum.labyrinth.data.Registry;
+import com.github.sanctum.labyrinth.data.RegistryData;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.util.CommandRegistration;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -202,7 +203,7 @@ public final class AddonQuery {
 		int count2 = 0;
 		for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
 			try {
-				CommandRegistration.inject(command);
+				command.newInstance();
 				count2++;
 			} catch (Exception ex) {
 				instance.api.logInfo("- (+1) Command failed to register. Already registered and skipping.");
@@ -357,7 +358,7 @@ public final class AddonQuery {
 			}
 			for (Class<? extends CommandBuilder> command : addon.getCommands().values()) {
 				try {
-					CommandRegistration.inject(command);
+					command.newInstance();
 					instance.api.logInfo("- [" + addon.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
 				} catch (Exception ex) {
 					instance.api.logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
@@ -419,7 +420,7 @@ public final class AddonQuery {
 				}
 				for (Class<? extends CommandBuilder> command : addon.getCommands().values()) {
 					try {
-						CommandRegistration.inject(command);
+						command.newInstance();
 						instance.api.logInfo("- [" + addon.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
 					} catch (Exception ex) {
 						instance.api.logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
@@ -461,91 +462,68 @@ public final class AddonQuery {
 	 * @param packageName The package location where the {@link EssentialsAddon} addons are located.
 	 */
 	public static void registerAll(@NotNull final Plugin plugin, @NotNull final String packageName) {
-		Set<Class<?>> classes = Sets.newHashSet();
-		JarFile jarFile = null;
+
 		try {
-			jarFile = new JarFile(URLDecoder.decode(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().getFile(), "UTF-8"));
+			RegistryData<EssentialsAddon> data = new Registry<>(EssentialsAddon.class)
+					.source(plugin)
+					.pick(packageName)
+					.operate(addon -> {
+						addon.apply();
+						addon.register();
+					});
+			instance.api.logInfo("- Found (" + data.getData().size() + ") event cycle(s)");
+			for (EssentialsAddon e : data.getData()) {
+				if (e.persist()) {
+
+					instance.api.logInfo(" ");
+					instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+					instance.api.logInfo("- Addon: " + e.getAddonName());
+					instance.api.logInfo("- Author(s): " + Arrays.toString(e.getAuthors()));
+					instance.api.logInfo("- Description: " + e.getAddonDescription());
+					instance.api.logInfo("- Persistent: (" + e.persist() + ")");
+					instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+					instance.api.logInfo(" ");
+					instance.api.logInfo("- Listeners: (" + e.getListeners().size() + ")");
+					for (Listener addition : e.getListeners()) {
+						boolean registered = HandlerList.getRegisteredListeners(instance.plugin).stream().anyMatch(r -> r.getListener().equals(addition));
+						if (!registered) {
+							instance.api.logInfo("- [" + e.getAddonName() + "] (+1) Listener " + addition.getClass().getSimpleName() + " loaded");
+							Bukkit.getPluginManager().registerEvents(addition, instance.plugin);
+						} else {
+							instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
+						}
+					}
+					for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
+						try {
+							command.newInstance();
+							instance.api.logInfo("- [" + e.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
+						} catch (Exception ex) {
+							instance.api.logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
+							DATA_LOG.add(" - (+1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
+						}
+					}
+				} else {
+					instance.api.logInfo(" ");
+					instance.api.logInfo("- Addon: " + e.getAddonName());
+					instance.api.logInfo("- Author(s): " + Arrays.toString(e.getAuthors()));
+					instance.api.logInfo("- Description: " + e.getAddonDescription());
+					instance.api.logInfo("- Persistent: (" + e.persist() + ")");
+					e.remove();
+					instance.api.logInfo(" ");
+					instance.api.logInfo("- Listeners: (" + e.getListeners().size() + ")");
+					for (Listener addition : e.getListeners()) {
+						instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
+					}
+					for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
+						instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
+					}
+				}
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (instance == null) new AddonQuery();
-		for (JarEntry jarEntry : Collections.list(jarFile.entries())) {
-			String className = jarEntry.getName().replace("/", ".");
-			if (className.startsWith(packageName) && className.endsWith(".class")) {
-				Class<?> clazz;
-				try {
-					clazz = Class.forName(className.substring(0, className.length() - 6));
-				} catch (ClassNotFoundException e) {
-					instance.api.logSevere("- Unable to find class" + className + "! Double check package location. See the error below for more information.");
-					break;
-				}
-				if (EssentialsAddon.class.isAssignableFrom(clazz)) {
-					classes.add(clazz);
-				}
-			}
-		}
-		Collection<EssentialsAddon> additions = new HashSet<>();
-		for (Class<?> aClass : classes) {
-			try {
-				EssentialsAddon addon = (EssentialsAddon) aClass.getDeclaredConstructor().newInstance();
-				addon.apply();
-				addon.register();
-				additions.add(addon);
-			} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-				instance.api.logSevere("- Unable to cast EventCycle to the class " + aClass.getName() + ". This likely means you are not implementing the EventCycle interface for your event class properly.");
-				e.printStackTrace();
-				break;
-			}
-		}
-		instance.api.logInfo("- Found (" + additions.size() + ") event cycle(s)");
-		for (EssentialsAddon e : additions) {
-			if (e.persist()) {
 
-				instance.api.logInfo(" ");
-				instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-				instance.api.logInfo("- Addon: " + e.getAddonName());
-				instance.api.logInfo("- Author(s): " + Arrays.toString(e.getAuthors()));
-				instance.api.logInfo("- Description: " + e.getAddonDescription());
-				instance.api.logInfo("- Persistent: (" + e.persist() + ")");
-				instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-				instance.api.logInfo(" ");
-				instance.api.logInfo("- Listeners: (" + e.getListeners().size() + ")");
-				for (Listener addition : e.getListeners()) {
-					boolean registered = HandlerList.getRegisteredListeners(instance.plugin).stream().anyMatch(r -> r.getListener().equals(addition));
-					if (!registered) {
-						instance.api.logInfo("- [" + e.getAddonName() + "] (+1) Listener " + addition.getClass().getSimpleName() + " loaded");
-						Bukkit.getPluginManager().registerEvents(addition, instance.plugin);
-					} else {
-						instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
-					}
-				}
-				for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
-					try {
-						CommandRegistration.inject(command);
-						instance.api.logInfo("- [" + e.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
-					} catch (Exception ex) {
-						instance.api.logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
-						DATA_LOG.add(" - (+1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
-					}
-				}
-			} else {
-				instance.api.logInfo(" ");
-				instance.api.logInfo("- Addon: " + e.getAddonName());
-				instance.api.logInfo("- Author(s): " + Arrays.toString(e.getAuthors()));
-				instance.api.logInfo("- Description: " + e.getAddonDescription());
-				instance.api.logInfo("- Persistent: (" + e.persist() + ")");
-				e.remove();
-				instance.api.logInfo(" ");
-				instance.api.logInfo("- Listeners: (" + e.getListeners().size() + ")");
-				for (Listener addition : e.getListeners()) {
-					instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
-				}
-				for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
-					instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
-				}
-			}
-
-		}
 	}
 
 	/**

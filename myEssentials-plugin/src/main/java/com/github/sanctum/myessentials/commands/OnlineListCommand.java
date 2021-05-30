@@ -12,12 +12,12 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.library.ListUtils;
 import com.github.sanctum.labyrinth.library.TextLib;
+import com.github.sanctum.labyrinth.library.VaultPlayer;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.PlayerWrapper;
-import com.github.sanctum.myessentials.util.factory.GroupFinder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +52,7 @@ public final class OnlineListCommand extends CommandBuilder {
 		sendMessage(player, "&f&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 		Map<String, List<Player>> map = new HashMap<>();
 		for (Player p : wrapper.sort()) {
-			String group = GroupFinder.group(p, p.getWorld().getName());
+			String group = VaultPlayer.wrap(p).getGroup(p.getWorld().getName()).getName();
 			if (map.get(group) == null) {
 				List<Player> l = new ArrayList<>();
 				l.add(p);

@@ -3,15 +3,14 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import java.util.Collections;
+import java.util.List;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
 
 public final class GMToggleCommand extends CommandBuilder {
     public GMToggleCommand() {
@@ -28,6 +27,10 @@ public final class GMToggleCommand extends CommandBuilder {
 
     @Override
     public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+
+        if (!testPermission(player))
+            return true;
+
         if (args.length < 1) {
             // set for player
             final GameMode original = player.getGameMode();

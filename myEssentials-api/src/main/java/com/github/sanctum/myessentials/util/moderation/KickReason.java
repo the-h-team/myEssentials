@@ -28,7 +28,7 @@ public final class KickReason {
 	 * @return The same kick reasoning object.
 	 */
 	public KickReason input(int line, String text) {
-		messages.put(line, StringUtils.translate(text));
+		messages.put(line, StringUtils.use(text).translate());
 		return this;
 	}
 

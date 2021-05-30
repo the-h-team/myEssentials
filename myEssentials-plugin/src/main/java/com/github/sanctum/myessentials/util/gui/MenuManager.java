@@ -9,21 +9,19 @@
 package com.github.sanctum.myessentials.util.gui;
 
 import com.github.sanctum.labyrinth.gui.InventoryRows;
-import com.github.sanctum.labyrinth.gui.MenuDesignator;
-import com.github.sanctum.labyrinth.gui.builder.PaginatedBuilder;
-import com.github.sanctum.labyrinth.gui.builder.PaginatedClick;
-import com.github.sanctum.labyrinth.gui.builder.PaginatedClose;
-import com.github.sanctum.labyrinth.gui.builder.PaginatedMenu;
 import com.github.sanctum.labyrinth.gui.menuman.Menu;
 import com.github.sanctum.labyrinth.gui.menuman.MenuBuilder;
+import com.github.sanctum.labyrinth.gui.menuman.PaginatedBuilder;
+import com.github.sanctum.labyrinth.gui.menuman.PaginatedClickAction;
+import com.github.sanctum.labyrinth.gui.menuman.PaginatedCloseAction;
 import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -50,7 +48,7 @@ public final class MenuManager {
 	protected static List<String> color(String... text) {
 		ArrayList<String> convert = new ArrayList<>();
 		for (String t : text) {
-			convert.add(StringUtils.translate(t));
+			convert.add(StringUtils.use(t).translate());
 		}
 		return convert;
 	}
@@ -76,16 +74,15 @@ public final class MenuManager {
 	}
 
 	private static String color(String text) {
-		return StringUtils.translate(text);
+		return StringUtils.use(text).translate();
 	}
 
 	/**
 	 * A multi-paged GUI screen.
 	 */
-	public enum Select implements MenuDesignator {
+	public enum Select {
 		REGISTERED_ADDONS, ACTIVATED_ADDONS, DEACTIVATED_ADDONS, ADDON_REGISTRATION, DONATION_BIN;
 
-		@Override
 		public @NotNull Menu get() {
 			MenuBuilder builder = null;
 			if (this == Select.ADDON_REGISTRATION) {
@@ -122,156 +119,145 @@ public final class MenuManager {
 			return builder.create(Essentials.getInstance());
 		}
 
-		@Override
-		public @NotNull PaginatedMenu supply() {
-			PaginatedMenu menu;
-			LinkedList<String> append;
-			PaginatedBuilder builder;
+		public @NotNull Menu.Paginated<EssentialsAddon> supply() {
+			PaginatedBuilder<EssentialsAddon> builder;
 			switch (this) {
 				case ACTIVATED_ADDONS:
-					append = new LinkedList<>(AddonQuery.getEnabledAddons());
-					builder = new PaginatedBuilder(Essentials.getInstance())
+					builder = new PaginatedBuilder<>(AddonQuery.getEnabledAddons().stream().map(AddonQuery::find).collect(Collectors.toList()))
+							.forPlugin(Essentials.getInstance())
 							.setTitle(color("&3&oRegistered Addons &f(&2ACTIVE&f) &8&l»"))
 							.setAlreadyFirst(color("&c&oYou are already on the first page of addons."))
 							.setAlreadyLast(color("&c&oYou are already on the last page of addons."))
-							.setNavigationLeft(getLeft(), 48, PaginatedClick::sync)
-							.setNavigationRight(getRight(), 50, PaginatedClick::sync)
+							.setNavigationLeft(getLeft(), 48, PaginatedClickAction::sync)
+							.setNavigationRight(getRight(), 50, PaginatedClickAction::sync)
 							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
-							.setCloseAction(PaginatedClose::clear)
+							.setCloseAction(PaginatedCloseAction::clear)
 							.setupProcess(e -> {
-								e.buildItem(() -> {
-									EssentialsAddon addon = AddonQuery.find(e.getContext());
+								e.setItem(() -> {
+									EssentialsAddon addon = e.getContext();
 									ItemStack i = new ItemStack(Material.CHEST);
 
 									ItemMeta meta = i.getItemMeta();
 
 									meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription()));
 
-									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
+									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext().getAddonName());
 
-										meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
+									meta.setDisplayName(StringUtils.use("&3&o " + e.getContext() + " &8&l»").translate());
 
-										i.setItemMeta(meta);
+									i.setItemMeta(meta);
 
-										return i;
-									});
-									e.action().setClick(click -> {
-										Player p = click.getPlayer();
-										String addon = click.getClickedItem().getItemMeta().getPersistentDataContainer().get(MenuManager.getAddonKey(), PersistentDataType.STRING);
-										assert addon != null;
-										// disable addon logic
-										EssentialsAddon ad = AddonQuery.find(addon);
-										AddonQuery.unregisterAll(ad);
-										for (String d : AddonQuery.getDataLog()) {
-											p.sendMessage(color("&b" + d.replace("[Essentials]", "[&2Essentials&r]&e")));
-										}
-										Select.ACTIVATED_ADDONS.supply().open(p);
-									});
+									return i;
+								}).setClick(click -> {
+									Player p = click.getPlayer();
+									String addon = click.getClickedItem().getItemMeta().getPersistentDataContainer().get(MenuManager.getAddonKey(), PersistentDataType.STRING);
+									assert addon != null;
+									// disable addon logic
+									EssentialsAddon ad = AddonQuery.find(addon);
+									AddonQuery.unregisterAll(ad);
+									for (String d : AddonQuery.getDataLog()) {
+										p.sendMessage(color("&b" + d.replace("[Essentials]", "[&2Essentials&r]&e")));
+									}
+									Select.ACTIVATED_ADDONS.supply().open(p);
+								});
 							})
-							.addBorder()
+							.setupBorder()
 							.setBorderType(Material.GRAY_STAINED_GLASS_PANE)
 							.setFillType(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
-							.fill()
-							.collect(new LinkedList<>(append))
+							.build()
 							.limit(28);
 					break;
 				case DEACTIVATED_ADDONS:
-					append = new LinkedList<>(AddonQuery.getDisabledAddons());
-					builder = new PaginatedBuilder(Essentials.getInstance())
+					builder = new PaginatedBuilder<>(AddonQuery.getDisabledAddons().stream().map(AddonQuery::find).collect(Collectors.toList()))
+							.forPlugin(Essentials.getInstance())
 							.setTitle(color("&3&oRegistered Addons &f(&eINACTIVE&f) &8&l»"))
 							.setAlreadyFirst(color("&c&oYou are already on the first page of addons."))
 							.setAlreadyLast(color("&c&oYou are already on the last page of addons."))
-							.setNavigationLeft(getLeft(), 48, PaginatedClick::sync)
-							.setNavigationRight(getRight(), 50, PaginatedClick::sync)
+							.setNavigationLeft(getLeft(), 48, PaginatedClickAction::sync)
+							.setNavigationRight(getRight(), 50, PaginatedClickAction::sync)
 							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
-							.setCloseAction(PaginatedClose::clear)
+							.setCloseAction(PaginatedCloseAction::clear)
 							.setupProcess(e -> {
-								e.buildItem(() -> {
-									EssentialsAddon addon = AddonQuery.find(e.getContext());
+								e.setItem(() -> {
+									EssentialsAddon addon = e.getContext();
 									ItemStack i = new ItemStack(Material.CHEST);
 
 									ItemMeta meta = i.getItemMeta();
 
 									meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription()));
 
-									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
+									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext().getAddonName());
 
-										meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
+									meta.setDisplayName(StringUtils.use("&3&o " + e.getContext() + " &8&l»").translate());
 
-										i.setItemMeta(meta);
+									i.setItemMeta(meta);
 
-										return i;
-									});
-									e.action().setClick(click -> {
-										Player p = click.getPlayer();
-										String addon = click.getClickedItem().getItemMeta().getPersistentDataContainer().get(MenuManager.getAddonKey(), PersistentDataType.STRING);
-										assert addon != null;
-										// disable addon logic
-										EssentialsAddon ad = AddonQuery.find(addon);
-										AddonQuery.registerAll(ad);
-										for (String d : AddonQuery.getDataLog()) {
-											p.sendMessage(color("&b" + d.replace("[Essentials]", "[&2Essentials&r]&e")));
-										}
-										Select.DEACTIVATED_ADDONS.supply().open(p);
-									});
+									return i;
+								}).setClick(click -> {
+									Player p = click.getPlayer();
+									String addon = click.getClickedItem().getItemMeta().getPersistentDataContainer().get(MenuManager.getAddonKey(), PersistentDataType.STRING);
+									assert addon != null;
+									// disable addon logic
+									EssentialsAddon ad = AddonQuery.find(addon);
+									AddonQuery.registerAll(ad);
+									for (String d : AddonQuery.getDataLog()) {
+										p.sendMessage(color("&b" + d.replace("[Essentials]", "[&2Essentials&r]&e")));
+									}
+									Select.DEACTIVATED_ADDONS.supply().open(p);
+								});
 							})
-							.addBorder()
+							.setupBorder()
 							.setBorderType(Material.GRAY_STAINED_GLASS_PANE)
 							.setFillType(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
-							.fill()
-							.collect(new LinkedList<>(append))
+							.build()
 							.limit(28);
 					break;
 				case REGISTERED_ADDONS:
-					append = new LinkedList<>(AddonQuery.getRegisteredAddons());
-					builder = new PaginatedBuilder(Essentials.getInstance())
+					builder = new PaginatedBuilder<>(AddonQuery.getRegisteredAddons().stream().map(AddonQuery::find).collect(Collectors.toList()))
+							.forPlugin(Essentials.getInstance())
 							.setTitle(color("&3&oRegistered Addons &f(&6&lCACHE&f) &8&l»"))
 							.setAlreadyFirst(color("&c&oYou are already on the first page of addons."))
 							.setAlreadyLast(color("&c&oYou are already on the last page of addons."))
-							.setNavigationLeft(getLeft(), 48, PaginatedClick::sync)
-							.setNavigationRight(getRight(), 50, PaginatedClick::sync)
+							.setNavigationLeft(getLeft(), 48, PaginatedClickAction::sync)
+							.setNavigationRight(getRight(), 50, PaginatedClickAction::sync)
 							.setNavigationBack(getBack(), 49, click -> Select.ADDON_REGISTRATION.get().open(click.getPlayer()))
 							.setSize(InventoryRows.SIX)
-							.setCloseAction(PaginatedClose::clear)
+							.setCloseAction(PaginatedCloseAction::clear)
 							.setupProcess(e -> {
-								e.buildItem(() -> {
-									EssentialsAddon addon = AddonQuery.find(e.getContext());
+								e.setItem(() -> {
+									EssentialsAddon addon = e.getContext();
 									ItemStack i = new ItemStack(Material.CHEST);
 
 									ItemMeta meta = i.getItemMeta();
 
 									meta.setLore(color("&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oPersistent: &f" + addon.persist(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oDescription: &f" + addon.getAddonDescription(), "&f&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬", "&2&oActive: &6&o" + AddonQuery.getEnabledAddons().contains(addon.getAddonName())));
 
-									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext());
+									meta.getPersistentDataContainer().set(getInstance().addonKey, PersistentDataType.STRING, e.getContext().getAddonName());
 
-									meta.setDisplayName(StringUtils.translate("&3&o " + e.getContext() + " &8&l»"));
+									meta.setDisplayName(StringUtils.use("&3&o " + e.getContext() + " &8&l»").translate());
 
 									i.setItemMeta(meta);
 
 									return i;
-								});
-								e.action().setClick(click -> {
+								}).setClick(click -> {
 									Player p = click.getPlayer();
 								});
 							})
-							.addBorder()
+							.setupBorder()
 							.setBorderType(Material.GRAY_STAINED_GLASS_PANE)
 							.setFillType(Material.LIGHT_GRAY_STAINED_GLASS_PANE)
-							.fill()
-							.collect(new LinkedList<>(append))
+							.build()
 							.limit(28);
 					break;
 
 				default:
 					throw new IllegalStateException("Unexpected menu type: " + this);
 			}
-			menu = builder.build();
-			return menu;
+			return builder.build();
 		}
 
-		@Override
 		public SharedMenu share() {
 
 			if (this == Select.DONATION_BIN) {
