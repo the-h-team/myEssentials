@@ -146,7 +146,7 @@ public final class SpawnMobCommand extends CommandBuilder {
 					}
 					sendMessage(player, "&aSuccessfully spawned " + 1 + " " + args[1]);
 				} catch (NumberFormatException e) {
-
+					// TODO: message player invalid num
 				}
 			}
 			if (args.length == 3) {
@@ -170,7 +170,7 @@ public final class SpawnMobCommand extends CommandBuilder {
 					}
 					sendMessage(player, "&aSuccessfully spawned " + amount + " " + args[1] + " @ location x: " + pos[0] + " y: " + pos[1] + " z: " + pos[2]);
 				} catch (Exception e) {
-
+					// TODO: Potentially message player about outcome (invalid mob, etc)
 				}
 			}
 		}
