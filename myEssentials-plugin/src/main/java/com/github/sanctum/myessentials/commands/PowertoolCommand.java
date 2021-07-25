@@ -11,18 +11,17 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.library.Items;
+import com.github.sanctum.labyrinth.library.NamespacedKey;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.Collections;
 import java.util.List;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +54,7 @@ public final class PowertoolCommand extends CommandBuilder {
 
 			ItemStack wand = Items.getItem(hand.getType(), "&7[Powertool] &f/&6" + result);
 			ItemMeta meta = wand.getItemMeta();
-			meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, result);
+			//meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, result);
 			meta.setLore(Collections.singletonList(StringUtils.use("Left-click to use the designated command.").translate()));
 			wand.setItemMeta(meta);
 			hand.setAmount(0);

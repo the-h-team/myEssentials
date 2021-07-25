@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class CommandBuilder {
     protected final MyEssentialsAPI api = MyEssentialsAPI.getInstance();
-    public final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
+    public final Plugin plugin = JavaPlugin.getProvidingPlugin(MyEssentialsAPI.class);
     protected final Command command;
 
     public final CommandData commandData;

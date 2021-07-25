@@ -26,7 +26,7 @@ public final class ReloadUtil {
 		this.plugin = plugin;
 	}
 
-	public void onEnable(ClassLoader classLoader) {
+	public void onEnable() {
 		if (System.getProperty("OLD") != null && System.getProperty("OLD").equals("TRUE")) {
 			plugin.getLogger().severe("- RELOAD DETECTED! Shutting down...");
 			plugin.getLogger().severe("      ██╗");
@@ -58,7 +58,7 @@ public final class ReloadUtil {
 		for (OfflinePlayer player : Bukkit.getOfflinePlayers()) {
 			SharedBuilder.create(plugin, "MyVault-" + player.getUniqueId().toString(), player.getName() + " Vault", InventoryRows.THREE.getSlotCount());
 		}
-		injectAddons(classLoader);
+		injectAddons();
 	}
 
 	public void onDisable() {
@@ -67,16 +67,23 @@ public final class ReloadUtil {
 		}
 	}
 
-	private void injectAddons(ClassLoader loader) {
+	private void injectAddons() {
 
 		try {
-			new Registry.File<>(EssentialsAddon.class)
-					.use(Essentials.getInstance())
-					.provide(loader)
+			new Registry.Loader<>(EssentialsAddon.class)
+					.source(Essentials.getInstance())
 					.from("Addons")
 					.operate(addon -> {
 						if (!AddonQuery.getRegisteredAddons().contains(addon.getAddonName())) {
-							AddonQuery.register(addon);
+							if (AddonQuery.find("myPermissions") == null) {
+								if (addon.getAddonName().equalsIgnoreCase("myPermissions")) {
+									AddonQuery.register(addon);
+									injectAddons();
+								}
+							} else {
+								AddonQuery.register(addon);
+							}
+
 						}
 					});
 		} catch (Exception e) {

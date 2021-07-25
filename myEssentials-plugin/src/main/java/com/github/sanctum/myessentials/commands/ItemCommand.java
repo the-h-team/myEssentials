@@ -81,7 +81,21 @@ public final class ItemCommand extends CommandBuilder {
 						sendMessage(player, "&cThis item doesnt exist!");
 					}
 				} catch (NumberFormatException e) {
+					try {
+						int amount = Integer.parseInt(args[1]);
+						Material mat = Items.getMaterial(args[0]);
+						if (mat != null) {
+							ItemStack item = new ItemStack(mat);
+							for (int i = 0; i < amount; i++) {
+								player.getWorld().dropItem(player.getLocation(), item);
+							}
+							sendMessage(player, "&aYou received " + amount + " " + args[0]);
+						} else {
+							sendMessage(player, "&cThis item doesnt exist!");
+						}
+					} catch (NumberFormatException ex) {
 
+					}
 				}
 			}
 

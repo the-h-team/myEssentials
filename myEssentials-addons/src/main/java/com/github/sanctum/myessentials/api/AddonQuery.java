@@ -463,65 +463,60 @@ public final class AddonQuery {
 	 */
 	public static void registerAll(@NotNull final Plugin plugin, @NotNull final String packageName) {
 
-		try {
-			RegistryData<EssentialsAddon> data = new Registry<>(EssentialsAddon.class)
-					.source(plugin)
-					.pick(packageName)
-					.operate(addon -> {
-						addon.apply();
-						addon.register();
-					});
-			instance.api.logInfo("- Found (" + data.getData().size() + ") event cycle(s)");
-			for (EssentialsAddon e : data.getData()) {
-				if (e.persist()) {
+		RegistryData<EssentialsAddon> data = new Registry<>(EssentialsAddon.class)
+				.source(plugin)
+				.pick(packageName)
+				.operate(addon -> {
+					addon.apply();
+					addon.register();
+				});
+		instance.api.logInfo("- Found (" + data.getData().size() + ") event cycle(s)");
+		for (EssentialsAddon e : data.getData()) {
+			if (e.persist()) {
 
-					instance.api.logInfo(" ");
-					instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-					instance.api.logInfo("- Addon: " + e.getAddonName());
-					instance.api.logInfo("- Author(s): " + Arrays.toString(e.getAuthors()));
-					instance.api.logInfo("- Description: " + e.getAddonDescription());
-					instance.api.logInfo("- Persistent: (" + e.persist() + ")");
-					instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-					instance.api.logInfo(" ");
-					instance.api.logInfo("- Listeners: (" + e.getListeners().size() + ")");
-					for (Listener addition : e.getListeners()) {
-						boolean registered = HandlerList.getRegisteredListeners(instance.plugin).stream().anyMatch(r -> r.getListener().equals(addition));
-						if (!registered) {
-							instance.api.logInfo("- [" + e.getAddonName() + "] (+1) Listener " + addition.getClass().getSimpleName() + " loaded");
-							Bukkit.getPluginManager().registerEvents(addition, instance.plugin);
-						} else {
-							instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
-						}
-					}
-					for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
-						try {
-							command.newInstance();
-							instance.api.logInfo("- [" + e.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
-						} catch (Exception ex) {
-							instance.api.logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
-							DATA_LOG.add(" - (+1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
-						}
-					}
-				} else {
-					instance.api.logInfo(" ");
-					instance.api.logInfo("- Addon: " + e.getAddonName());
-					instance.api.logInfo("- Author(s): " + Arrays.toString(e.getAuthors()));
-					instance.api.logInfo("- Description: " + e.getAddonDescription());
-					instance.api.logInfo("- Persistent: (" + e.persist() + ")");
-					e.remove();
-					instance.api.logInfo(" ");
-					instance.api.logInfo("- Listeners: (" + e.getListeners().size() + ")");
-					for (Listener addition : e.getListeners()) {
-						instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
-					}
-					for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
-						instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
+				instance.api.logInfo(" ");
+				instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+				instance.api.logInfo("- Addon: " + e.getAddonName());
+				instance.api.logInfo("- Author(s): " + Arrays.toString(e.getAuthors()));
+				instance.api.logInfo("- Description: " + e.getAddonDescription());
+				instance.api.logInfo("- Persistent: (" + e.persist() + ")");
+				instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+				instance.api.logInfo(" ");
+				instance.api.logInfo("- Listeners: (" + e.getListeners().size() + ")");
+				for (Listener addition : e.getListeners()) {
+					boolean registered = HandlerList.getRegisteredListeners(instance.plugin).stream().anyMatch(r -> r.getListener().equals(addition));
+					if (!registered) {
+						instance.api.logInfo("- [" + e.getAddonName() + "] (+1) Listener " + addition.getClass().getSimpleName() + " loaded");
+						Bukkit.getPluginManager().registerEvents(addition, instance.plugin);
+					} else {
+						instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
 					}
 				}
+				for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
+					try {
+						command.newInstance();
+						instance.api.logInfo("- [" + e.getAddonName() + "] (+1) Command " + command.getSimpleName() + " loaded");
+					} catch (Exception ex) {
+						instance.api.logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
+						DATA_LOG.add(" - (+1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
+					}
+				}
+			} else {
+				instance.api.logInfo(" ");
+				instance.api.logInfo("- Addon: " + e.getAddonName());
+				instance.api.logInfo("- Author(s): " + Arrays.toString(e.getAuthors()));
+				instance.api.logInfo("- Description: " + e.getAddonDescription());
+				instance.api.logInfo("- Persistent: (" + e.persist() + ")");
+				e.remove();
+				instance.api.logInfo(" ");
+				instance.api.logInfo("- Listeners: (" + e.getListeners().size() + ")");
+				for (Listener addition : e.getListeners()) {
+					instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
+				}
+				for (Class<? extends CommandBuilder> command : e.getCommands().values()) {
+					instance.api.logInfo("- [" + e.getAddonName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
+				}
 			}
-
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
 	}

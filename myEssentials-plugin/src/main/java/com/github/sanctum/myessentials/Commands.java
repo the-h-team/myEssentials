@@ -2,8 +2,13 @@ package com.github.sanctum.myessentials;
 
 import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.gui.InventoryRows;
+import com.github.sanctum.labyrinth.gui.menuman.PaginatedBuilder;
+import com.github.sanctum.labyrinth.gui.menuman.PaginatedClickAction;
+import com.github.sanctum.labyrinth.gui.menuman.PaginatedCloseAction;
 import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.Cooldown;
+import com.github.sanctum.labyrinth.library.Item;
 import com.github.sanctum.labyrinth.library.ListUtils;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
@@ -21,10 +26,14 @@ import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.gui.MenuManager;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import com.github.sanctum.skulls.CustomHead;
+import com.github.sanctum.skulls.CustomHeadLoader;
+import com.github.sanctum.skulls.SkullType;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -41,6 +50,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -71,6 +81,31 @@ public final class Commands {
 	}
 
 	protected static void register() {
+
+		CommandMapper.from(OptionLoader.TEST_COMMAND.from("heads", "/heads", "Retrieve the entire list of cached skull items", "mess.staff.heads"))
+				.read(CommandBuilder::defaultCompletion)
+				.apply((builder, p, commandLabel, args) -> {
+
+					if (builder.testPermission(p)) {
+						new PaginatedBuilder<>(CustomHead.Manager.getHeads())
+								.forPlugin(Essentials.getInstance())
+								.limit(45)
+								.setCloseAction(PaginatedCloseAction::clear)
+								.setupProcess(e -> e.setItem(() -> new Item.Edit(e.getContext().get()).setTitle("&6" + e.getContext().name()).setLore("&7Category: &3" + e.getContext().category()).build()).setClick(click -> click.getPlayer().getInventory().addItem(e.getContext().get())))
+								.setAlreadyFirst(StringUtils.use("&cYou are already on the first page.").translate())
+								.setAlreadyLast(StringUtils.use("&cYou are already on the last page.").translate())
+								.setNavigationLeft(() -> new Item.Edit(SkullType.ARROW_BLACK_LEFT.get()).setTitle(" ").build(), 45, PaginatedClickAction::sync)
+								.setNavigationRight(() -> new Item.Edit(SkullType.ARROW_BLACK_RIGHT.get()).setTitle(" ").build(), 53, PaginatedClickAction::sync)
+								.setNavigationBack(() -> new Item.Edit(SkullType.ARROW_BLUE_DOWN.get()).setTitle(" ").build(), 49, click -> click.getPlayer().closeInventory())
+								.setSize(InventoryRows.SIX)
+								.sort(Comparator.comparing(CustomHead::name))
+								.setTitle(StringUtils.use("&7[&3Head Database&7] {PAGE}").translate()).build().open(p);
+					}
+
+				})
+				.next((builder, sender, commandLabel, args) -> {
+				});
+
 		CommandMapper.from(InternalCommandData.FLY_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {
 					if (!builder.testPermission(player)) {
@@ -850,6 +885,31 @@ public final class Commands {
 									builder.sendMessage(player, "&aMaking target perform &7: &r" + builder1.toString().trim());
 								}
 							}
+
+						}
+					}
+
+				})
+				.next((builder, sender, commandLabel, args) -> {
+
+				})
+				.read(CommandBuilder::defaultCompletion);
+
+		CommandMapper.from(OptionLoader.TEST_COMMAND.from("head", "/head", "Get ANY ones head.", "mess.staff.head", "playerhead"))
+				.apply((builder, player, commandLabel, args) -> {
+					if (builder.testPermission(player)) {
+						if (args.length == 1) {
+
+							ItemStack item = CustomHead.Manager.get(args[0]);
+
+							if (item != null) {
+								player.getWorld().dropItem(player.getLocation(), item);
+							} else {
+								builder.sendMessage(player, "&cThe head could not be found, searching based off value...");
+								ItemStack test = CustomHeadLoader.provide(args[0]);
+								player.getWorld().dropItem(player.getLocation(), test);
+							}
+							builder.sendMessage(player, "&aHere you go!");
 
 						}
 					}

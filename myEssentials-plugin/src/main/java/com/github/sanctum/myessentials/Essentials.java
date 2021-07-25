@@ -14,14 +14,16 @@ import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.data.Registry;
 import com.github.sanctum.labyrinth.data.RegistryData;
-import com.github.sanctum.labyrinth.event.EventBuilder;
+import com.github.sanctum.labyrinth.event.EasyListener;
 import com.github.sanctum.labyrinth.gui.InventoryRows;
 import com.github.sanctum.labyrinth.gui.shared.SharedBuilder;
 import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
+import com.github.sanctum.labyrinth.library.Items;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.listeners.PlayerEventListener;
+import com.github.sanctum.myessentials.listeners.EntityEventListener;
+import com.github.sanctum.myessentials.listeners.HealingListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.CommandImpl;
@@ -37,8 +39,9 @@ import com.github.sanctum.myessentials.util.factory.ReloadUtil;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
-import java.io.IOException;
+import com.github.sanctum.skulls.CustomHead;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -57,7 +60,6 @@ import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.ServicePriority;
@@ -86,11 +88,12 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	public void onEnable() {
 		instance = this;
 		Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
-		ReloadUtil.get(this).onEnable(getClassLoader());
+		ReloadUtil.get(this).onEnable();
 		SharedMenu bin = SharedBuilder.create(this, "My-Bin", StringUtils.use("&6&nDonation Bin.").translate(), InventoryRows.THREE.getSlotCount());
 		bin.addOption(SharedMenu.Option.CANCEL_HOTBAR);
 		bin.setItem(0, () -> {
-			ItemStack item = new ItemStack(Material.HEART_OF_THE_SEA);
+			boolean isNew = Arrays.stream(Material.values()).anyMatch(m -> m.name().equals("HEART_OF_THE_SEA"));
+			ItemStack item = new ItemStack(isNew ? Items.getMaterial("heartofthesea") : Items.getMaterial("obsidian"));
 			ItemMeta meta = item.getItemMeta();
 			assert meta != null;
 			meta.setDisplayName(StringUtils.use("&4Close.").translate());
@@ -102,32 +105,32 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		});
 		this.teleportRunner = new TeleportRunnerImpl(this);
 		this.messenger = new MessengerImpl(this);
-		try {
-			new Registry<>(Listener.class)
-					.source(this)
-					.pick("com.github.sanctum.myessentials.listeners")
-					.operate(EventBuilder::register);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		new EasyListener(EntityEventListener.class).call(this);
+		new EasyListener(HealingListener.class).call(this);
 		InternalCommandData.defaultOrReload(this);
 		ConfiguredMessage.loadProperties(this);
 		OptionLoader.renewRemainingBans();
 		OptionLoader.checkConfig();
-		try {
-			RegistryData<CommandBuilder> data = new Registry<>(CommandBuilder.class)
-					.source(this)
-					.pick("com.github.sanctum.myessentials.commands")
-					.operate(builder -> {
-					});
+		RegistryData<CommandBuilder> data = new Registry<>(CommandBuilder.class)
+				.source(this)
+				.pick("com.github.sanctum.myessentials.commands")
+				.operate(builder -> {
+				});
 
-			getLogger().info("- (" + data.getData().size() + ") Unique commands registered.");
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		getLogger().info("- (" + data.getData().size() + ") Unique commands registered.");
 		TeleportationManager.registerListeners(this);
 		Commands.register();
+
+		FileManager man = getFileList().find("Heads", "Data");
+
+		if (!man.exists()) {
+			FileManager.copy(getResource("Heads.yml"), man);
+			man.reload();
+		}
+
+		CustomHead.Manager.newLoader(man.getConfig()).look("My_heads").complete();
+
+
 	}
 
 
@@ -147,7 +150,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		final Command command = new CommandImpl(commandBuilder);
 		SERVER_COMMAND_MAP
 				.register(commandBuilder.commandData.getLabel(),
-						JavaPlugin.getProvidingPlugin(commandBuilder.commandData.getClass()).getName(), command);
+						getName(), command);
 		REGISTRATIONS.put(commandBuilder.commandData, command);
 		return command;
 	}
@@ -196,12 +199,12 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
 	@Override
 	public @Nullable Location getPreviousLocation(Player player) {
-		return PlayerEventListener.getInstance().getPrevLocations().get(player.getUniqueId());
+		return EntityEventListener.getPrevLocations().get(player.getUniqueId());
 	}
 
 	@Override
 	public @Nullable Location getPreviousLocationOffline(UUID uuid) {
-		return PlayerEventListener.getInstance().getPrevLocations().get(uuid);
+		return EntityEventListener.getPrevLocations().get(uuid);
 	}
 
 	@Override

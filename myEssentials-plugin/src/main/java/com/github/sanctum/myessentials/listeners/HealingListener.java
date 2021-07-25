@@ -15,8 +15,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class HealingListener implements Listener {
+public class HealingListener implements Listener {
     private final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
+
+    public HealingListener() {
+
+    }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPendingHealEvent(PlayerPendingHealEvent e) {
