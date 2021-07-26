@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.github.the-h-team</groupId>
             <artifactId>Labyrinth</artifactId>
-            <version>1.6.0_R2</version>
+            <version>1.6.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

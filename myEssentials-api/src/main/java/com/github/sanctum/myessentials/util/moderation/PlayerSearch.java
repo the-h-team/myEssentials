@@ -3,7 +3,6 @@ package com.github.sanctum.myessentials.util.moderation;
 import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.Message;
-import com.github.sanctum.labyrinth.library.SkullItem;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CooldownFinder;
@@ -11,6 +10,7 @@ import com.github.sanctum.myessentials.util.OfflinePlayerWrapper;
 import com.github.sanctum.myessentials.util.ProvidedMessage;
 import com.github.sanctum.myessentials.util.events.PlayerPendingFeedEvent;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
+import com.github.sanctum.skulls.CustomHead;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -136,7 +136,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 */
 	public @Nullable
 	synchronized ItemStack getHead() {
-		return SkullItem.Head.find(uuid);
+		return CustomHead.Manager.get(uuid);
 	}
 
 	/**
