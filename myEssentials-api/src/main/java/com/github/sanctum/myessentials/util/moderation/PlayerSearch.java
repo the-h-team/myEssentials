@@ -48,23 +48,23 @@ public final class PlayerSearch implements CooldownFinder {
 
 	protected PlayerSearch(OfflinePlayer target) {
 		this.uuid = target.getUniqueId();
-		CACHE.add(this);
+		Bukkit.getLogger().severe("- new po playersearch result for " + target.getUniqueId());
 	}
 
 	protected PlayerSearch(UUID uuid) {
 		this.uuid = uuid;
-		CACHE.add(this);
+		Bukkit.getLogger().severe("- new id playersearch result for " + uuid);
 	}
 
 	protected PlayerSearch(CommandSender sender) {
 		this.sender = sender;
-		CACHE.add(this);
+		Bukkit.getLogger().severe("- new sender playersearch result for " + sender.getName());
 	}
 
 	protected PlayerSearch(String name) {
 		OfflinePlayer search = new OfflinePlayerWrapper().get(name).orElse(null);
 		this.uuid = search != null ? search.getUniqueId() : null;
-		CACHE.add(this);
+		Bukkit.getLogger().severe("- new named playersearch result for " + this.uuid);
 	}
 
 	/**
@@ -77,7 +77,15 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(OfflinePlayer target) {
-		return CACHE.stream().filter(p -> p.isValid() && p.getOfflinePlayer().getName().equalsIgnoreCase(target.getName())).findFirst().orElse(new PlayerSearch(target));
+		if (target == null) return null;
+		for (PlayerSearch s : CACHE) {
+			if (s.uuid.equals(target.getUniqueId())) {
+				return s;
+			}
+		}
+		PlayerSearch search = new PlayerSearch(target);
+		CACHE.add(search);
+		return search;
 	}
 
 	/**
@@ -90,7 +98,15 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(Player target) {
-		return CACHE.stream().filter(p -> p.isValid() && p.getOfflinePlayer().getName().equalsIgnoreCase(target.getName())).findFirst().orElse(new PlayerSearch((OfflinePlayer) target));
+		if (target == null) return null;
+		for (PlayerSearch s : CACHE) {
+			if (s.uuid.equals(target.getUniqueId())) {
+				return s;
+			}
+		}
+		PlayerSearch search = new PlayerSearch(target.getUniqueId());
+		CACHE.add(search);
+		return search;
 	}
 
 	/**
@@ -103,7 +119,15 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(UUID uuid) {
-		return CACHE.stream().filter(p -> p.isValid() && p.getOfflinePlayer().getUniqueId().equals(uuid)).findFirst().orElse(new PlayerSearch(uuid));
+		if (uuid == null) return null;
+		for (PlayerSearch s : CACHE) {
+			if (s.uuid.equals(uuid)) {
+				return s;
+			}
+		}
+		PlayerSearch search = new PlayerSearch(uuid);
+		CACHE.add(search);
+		return search;
 	}
 
 	/**
@@ -116,7 +140,15 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A bukkit player search.
 	 */
 	public static PlayerSearch look(String name) {
-		return CACHE.stream().filter(p -> p.isValid() && p.getOfflinePlayer().getName().equalsIgnoreCase(name)).findFirst().orElse(new PlayerSearch(name));
+		if (name == null) return null;
+		for (PlayerSearch s : CACHE) {
+			if (s.isValid() && s.getOfflinePlayer().getName().equals(name)) {
+				return s;
+			}
+		}
+		PlayerSearch search = new PlayerSearch(name);
+		CACHE.add(search);
+		return search;
 	}
 
 	/**
@@ -126,7 +158,15 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return A console messaging utility for protected circumstances.
 	 */
 	public static PlayerSearch look(CommandSender sender) {
-		return CACHE.stream().filter(p -> p.sender != null && p.sender.getName().equals(sender.getName())).findFirst().orElse(new PlayerSearch(sender));
+		if (sender == null) return null;
+		for (PlayerSearch s : CACHE) {
+			if (s.sender != null && s.sender.getName().equals(sender.getName())) {
+				return s;
+			}
+		}
+		PlayerSearch search = new PlayerSearch(sender);
+		CACHE.add(search);
+		return search;
 	}
 
 	/**
@@ -146,11 +186,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return true if the desired player is valid.
 	 */
 	public boolean isValid() {
-		try {
-			return uuid != null && getPlayer().isValid();
-		} catch (Exception e) {
-			return false;
-		}
+		return uuid != null;
 	}
 
 	/**
@@ -221,10 +257,7 @@ public final class PlayerSearch implements CooldownFinder {
 	 *
 	 * @return The offline player otherwise null if not valid.
 	 */
-	public @Nullable OfflinePlayer getOfflinePlayer() {
-		if (uuid == null) {
-			return null;
-		}
+	public @NotNull OfflinePlayer getOfflinePlayer() {
 		return Bukkit.getOfflinePlayer(uuid);
 	}
 
@@ -234,9 +267,6 @@ public final class PlayerSearch implements CooldownFinder {
 	 * @return The player's ban entry if one is present otherwise empty.
 	 */
 	public @NotNull Optional<BanEntry> getBanEntry() {
-		if (uuid == null) {
-			return Optional.empty();
-		}
 		if (!Bukkit.getBanList(BanList.Type.NAME).getBanEntries().stream().map(BanEntry::getTarget).collect(Collectors.toList()).contains(getOfflinePlayer().getName())) {
 			return Optional.empty();
 		}
