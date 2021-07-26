@@ -48,23 +48,19 @@ public final class PlayerSearch implements CooldownFinder {
 
 	protected PlayerSearch(OfflinePlayer target) {
 		this.uuid = target.getUniqueId();
-		Bukkit.getLogger().severe("- new po playersearch result for " + target.getUniqueId());
 	}
 
 	protected PlayerSearch(UUID uuid) {
 		this.uuid = uuid;
-		Bukkit.getLogger().severe("- new id playersearch result for " + uuid);
 	}
 
 	protected PlayerSearch(CommandSender sender) {
 		this.sender = sender;
-		Bukkit.getLogger().severe("- new sender playersearch result for " + sender.getName());
 	}
 
 	protected PlayerSearch(String name) {
 		OfflinePlayer search = new OfflinePlayerWrapper().get(name).orElse(null);
 		this.uuid = search != null ? search.getUniqueId() : null;
-		Bukkit.getLogger().severe("- new named playersearch result for " + this.uuid);
 	}
 
 	/**
