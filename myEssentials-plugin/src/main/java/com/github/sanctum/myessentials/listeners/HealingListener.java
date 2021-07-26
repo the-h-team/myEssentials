@@ -55,8 +55,17 @@ public class HealingListener implements Listener {
     public void onFinalHealEvent(PlayerFeedEvent e) {
         final Player target = e.getTarget();
         final CommandSender healer = e.getHealer();
-        int s = target.getFoodLevel() + e.getAmountReal();
-        e.getTarget().setFoodLevel(Math.min(s, 20));
+
+        int food_level = target.getFoodLevel() + e.getAmountReal();
+
+        food_level = Math.min(food_level, 20);
+        e.getTarget().setFoodLevel(food_level);
+
+        // Only set saturation if food is full
+        if (food_level == 20){
+            e.getTarget().setSaturation(20);
+        }
+
         if (healer != null) {
             if (healer instanceof Player) {
                 Player heal = (Player) healer;
