@@ -82,6 +82,22 @@ public final class TeleportCommand extends CommandBuilder {
 				}
 			}
 			return true;
+		} else if (args.length == 3) {
+			// teleport [x] [y] [z]
+			// We are teleporting the player
+			final Optional<Location> resolution = resolveLocation(args, 0);
+			if (resolution.isPresent()) {
+				final Location posLocation = resolution.get();
+				final Location playerLocation = player.getLocation();
+				posLocation.setWorld(playerLocation.getWorld());
+				posLocation.setYaw(playerLocation.getYaw());
+				posLocation.setPitch(playerLocation.getPitch());
+				sendMessage(player, "Teleporting to " + posLocation);
+				api.getTeleportRunner().teleportPlayer(player, new Destination(posLocation));
+				return true;
+			} else {
+				sendMessage(player, "&cInvalid coordinates.");
+			}
 		}
 		return consoleView(player, commandLabel, args);
 	}
@@ -99,6 +115,8 @@ public final class TeleportCommand extends CommandBuilder {
 		}
 		final Player teleportingPlayer = teleporting.get();
 		if (args.length == 2) {
+			// %teleport [teleporting] [target]
+			// Teleports the first player to the second (target) player
 			final Optional<Player> target = playerWrapper.get(args[1]);
 			if (!target.isPresent()) {
 				sendMessage(sender, args[1] + " is not a valid player name.");
@@ -111,24 +129,48 @@ public final class TeleportCommand extends CommandBuilder {
 			api.getTeleportRunner().teleportPlayer(teleportingPlayer, new Destination(target.get()));
 			return true;
 		} else if (args.length == 4) {
-			try {
-				final double x = Double.parseDouble(args[1]);
-				final double y = Double.parseDouble(args[2]);
-				final double z = Double.parseDouble(args[3]);
-				final Location location = new Location(teleportingPlayer.getWorld(), x, y, z,
-						teleportingPlayer.getLocation().getYaw(),
-						teleportingPlayer.getLocation().getPitch());
+			// %teleport [teleporting] [x] [y] [z]
+			// Teleport the player to coordinates
+			final Optional<Location> resolution = resolveLocation(args, 1);
+			if (resolution.isPresent()) {
+				final Location posLocation = resolution.get();
+				final Location playerLocation = teleportingPlayer.getLocation();
+				posLocation.setWorld(playerLocation.getWorld());
+				posLocation.setYaw(playerLocation.getYaw());
+				posLocation.setPitch(playerLocation.getPitch());
 				sendMessage(sender, "Teleporting " +
 						teleportingPlayer.getName() +
 						" to " +
-						location);
-				api.getTeleportRunner().teleportPlayer(teleportingPlayer, new Destination(location));
+						posLocation);
+				api.getTeleportRunner().teleportPlayer(teleportingPlayer, new Destination(posLocation));
 				return true;
-			} catch (NumberFormatException ignored) {
+			} else {
 				sendMessage(sender, "&cInvalid coordinates.");
 			}
 		}
 		sendUsage(sender);
 		return false;
+	}
+
+	/**
+	 * Resolve arguments into a simple (worldless) location.
+	 * <p>
+	 * If there any errors parsing strings into doubles
+	 * this function returns an empty Optional.
+	 *
+	 * @return an Optional describing a Location without world
+	 */
+	private Optional<Location> resolveLocation(String[] args, int firstIndex) {
+		final double x;
+		final double y;
+		final double z;
+		try {
+			x = Double.parseDouble(args[firstIndex]);
+			y = Double.parseDouble(args[firstIndex + 1]);
+			z = Double.parseDouble(args[firstIndex + 2]);
+		} catch (NumberFormatException ignored) {
+			return Optional.empty();
+		}
+		return Optional.of(new Location(null, x, y, z));
 	}
 }

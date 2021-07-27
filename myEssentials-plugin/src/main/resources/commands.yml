@@ -155,7 +155,7 @@ transition:
 teleport:
   label: teleport
   usage: '&6/teleport&r <&eplayerName&r> <&etargetName&r> &7| <x> <y> <z>&f;&6/teleport &r <&etargetName&r> &7| <x> <y> <z>'
-  description: 'Teleport to a specified player or teleport a specified player to another player or location'
+  description: 'Teleport to a specified player or location, or teleport the specified player to another player or location'
   permission: 'mess.staff.teleport'
   aliases: ["tp"]
 tpa:
