@@ -8,8 +8,9 @@
  */
 package com.github.sanctum.myessentials.listeners;
 
-import com.github.sanctum.afk.AFK;
+import com.github.sanctum.labyrinth.afk.AFK;
 import com.github.sanctum.labyrinth.data.Region;
+import com.github.sanctum.labyrinth.event.custom.Vent;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
@@ -44,14 +45,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -134,74 +133,27 @@ public class EntityEventListener implements Listener {
 			return Optional.ofNullable(AFK.from(player));
 		} else {
 			return Optional.of(AFK.Initializer.next(player)
-					.handle(Essentials.getInstance(), () -> new AFK.Handler() {
-						@Override
-						@EventHandler
-						public void execute(AFK.StatusChange e) {
-							Player p = e.getAfk().getPlayer();
-							switch (e.getStatus()) {
-								case AWAY:
-									Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is now AFK").translate());
-									p.setDisplayName(StringUtils.use("&7*AFK&r " + p.getDisplayName()).translate());
-									break;
-								case RETURNING:
-									p.setDisplayName(p.getName());
-									Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is no longer AFK").translate());
-									e.getAfk().saturate();
-									break;
-								case REMOVABLE:
-									Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &b" + p.getName() + " &c&owas kicked for being AFK too long.").translate());
-									p.kickPlayer(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + "\n" + "&c&oAFK too long.\n&c&oKicking to ensure safety :)").translate());
-									e.getAfk().cancel();
-									break;
-							}
+					.handle(Vent.Subscription.Builder.target(AFK.StatusChange.class).assign(Vent.Priority.HIGH).from(Essentials.getInstance()).assign((e, subscription) -> {
+
+						Player p = e.getAfk().getPlayer();
+						switch (e.getStatus()) {
+							case AWAY:
+								Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is now AFK").translate());
+								p.setDisplayName(StringUtils.use("&7*AFK&r " + p.getDisplayName()).translate());
+								break;
+							case RETURNING:
+								p.setDisplayName(p.getName());
+								Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is no longer AFK").translate());
+								e.getAfk().saturate();
+								break;
+							case REMOVABLE:
+								Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &b" + p.getName() + " &c&owas kicked for being AFK too long.").translate());
+								p.kickPlayer(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + "\n" + "&c&oAFK too long.\n&c&oKicking to ensure safety :)").translate());
+								e.getAfk().cancel();
+								break;
 						}
 
-						@EventHandler
-						public void onLeave(PlayerQuitEvent e) {
-							Player p = e.getPlayer();
-
-							AFK afk = AFK.from(p);
-
-							if (afk != null) {
-
-								if (afk.getStatus() == AFK.Status.AWAY) {
-									afk.saturate();
-									p.setDisplayName(p.getName());
-									Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is no longer AFK").translate());
-								}
-							}
-
-						}
-
-						@EventHandler
-						public void onCustomChannel(AsyncPlayerChatEvent e) {
-							Player p = e.getPlayer();
-							AFK afk = AFK.from(p);
-							if (afk != null) {
-								if (afk.getStatus() == AFK.Status.AWAY) {
-									afk.saturate();
-									p.setDisplayName(p.getName());
-									Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is no longer AFK").translate());
-								}
-							}
-						}
-
-						@EventHandler
-						public void onCommand(PlayerCommandPreprocessEvent e) {
-							Player p = e.getPlayer();
-							AFK afk = AFK.from(p);
-
-							if (afk != null) {
-								if (afk.getStatus() == AFK.Status.AWAY) {
-									afk.saturate();
-									p.setDisplayName(p.getName());
-									Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is no longer AFK").translate());
-								}
-							}
-						}
-
-					})
+					}))
 					.stage(a -> TimeUnit.SECONDS.toMinutes(a.getWatch().interval(Instant.now()).getSeconds()) >= away, b -> TimeUnit.SECONDS.toMinutes(b.getWatch().interval(Instant.now()).getSeconds()) >= kick));
 		}
 	}

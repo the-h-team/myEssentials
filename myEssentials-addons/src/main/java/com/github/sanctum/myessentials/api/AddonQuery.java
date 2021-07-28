@@ -8,7 +8,7 @@
  */
 package com.github.sanctum.myessentials.api;
 
-import com.github.sanctum.labyrinth.Labyrinth;
+import com.github.sanctum.labyrinth.LabyrinthProvider;
 import com.github.sanctum.labyrinth.data.Registry;
 import com.github.sanctum.labyrinth.data.RegistryData;
 import com.github.sanctum.myessentials.model.CommandBuilder;
@@ -238,8 +238,8 @@ public final class AddonQuery {
 				addon.apply();
 				addon.register();
 			} catch (NoClassDefFoundError e) {
-				Labyrinth.getInstance().getLogger().warning(() -> "- You have outdated libraries. Additions for addon " + addon.getAddonName() + " will not work.");
-				Labyrinth.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
+				LabyrinthProvider.getInstance().getLogger().warning(() -> "- You have outdated libraries. Additions for addon " + addon.getAddonName() + " will not work.");
+				LabyrinthProvider.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
 			}
 		} catch (InstantiationException | IllegalAccessException e) {
 			if (instance == null) new AddonQuery();
@@ -264,8 +264,8 @@ public final class AddonQuery {
 			addon.apply();
 			addon.register();
 		} catch (NoClassDefFoundError e) {
-			Labyrinth.getInstance().getLogger().warning(() -> "- You have outdated libraries. Additions for addon " + addon.getAddonName() + " will not work.");
-			Labyrinth.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
+			LabyrinthProvider.getInstance().getLogger().warning(() -> "- You have outdated libraries. Additions for addon " + addon.getAddonName() + " will not work.");
+			LabyrinthProvider.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
 		}
 	}
 
@@ -312,8 +312,8 @@ public final class AddonQuery {
 					cycle.apply();
 					cycle.register();
 				} catch (NoClassDefFoundError e) {
-					Labyrinth.getInstance().getLogger().warning("- You have outdated libraries. Additions for addon " + cycle.getAddonName() + " will not work.");
-					Labyrinth.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
+					LabyrinthProvider.getInstance().getLogger().warning("- You have outdated libraries. Additions for addon " + cycle.getAddonName() + " will not work.");
+					LabyrinthProvider.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
 				}
 			} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 				instance.api.logSevere("- Unable to cast EssentialsAddon to the class " + aClass.getName() + ". This likely means you are not implementing the EssentialsAddon interface for your event class properly.");
