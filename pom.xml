@@ -27,6 +27,7 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <labyrinth.version>1.7.0-SNAPSHOT</labyrinth.version>
     </properties>
 
     <licenses>
@@ -98,9 +99,6 @@
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
-            <releases>
-                <updatePolicy>interval:30</updatePolicy>
-            </releases>
         </repository>
     </repositories>
 
@@ -113,28 +111,21 @@
         </dependency>
         <dependency>
             <groupId>com.github.the-h-team</groupId>
-            <artifactId>labyrinth-gui</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <artifactId>labyrinth-common</artifactId>
+            <version>${labyrinth.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.the-h-team</groupId>
-            <artifactId>labyrinth-common</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <artifactId>labyrinth-gui</artifactId>
+            <version>${labyrinth.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-skulls</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.the-h-team</groupId>
-            <artifactId>labyrinth-plugin</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.the-h-team</groupId>
-            <artifactId>labyrinth</artifactId>
-            <version>1.7.0-SNAPSHOT</version>
+            <version>${labyrinth.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.the-h-team</groupId>
