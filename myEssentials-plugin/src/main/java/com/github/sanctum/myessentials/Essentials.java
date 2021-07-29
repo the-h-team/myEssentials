@@ -22,6 +22,7 @@ import com.github.sanctum.labyrinth.library.Items;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.listeners.AFKEventListener;
 import com.github.sanctum.myessentials.listeners.EntityEventListener;
 import com.github.sanctum.myessentials.listeners.HealingListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
@@ -107,6 +108,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		this.messenger = new MessengerImpl(this);
 		new EasyListener(EntityEventListener.class).call(this);
 		new EasyListener(HealingListener.class).call(this);
+		new EasyListener(AFKEventListener.class).call(this);
 		InternalCommandData.defaultOrReload(this);
 		ConfiguredMessage.loadProperties(this);
 		OptionLoader.renewRemainingBans();

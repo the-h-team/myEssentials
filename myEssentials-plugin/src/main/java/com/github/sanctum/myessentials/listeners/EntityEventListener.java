@@ -8,31 +8,24 @@
  */
 package com.github.sanctum.myessentials.listeners;
 
-import com.github.sanctum.labyrinth.afk.AFK;
 import com.github.sanctum.labyrinth.data.Region;
-import com.github.sanctum.labyrinth.event.custom.Vent;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.task.Schedule;
-import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.bukkit.BanEntry;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -48,7 +41,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -126,47 +118,6 @@ public class EntityEventListener implements Listener {
 		Message.form(p).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(ConfiguredMessage.STAND_STILL.get());
 
 		e.setDelay(10 * 20L);
-	}
-
-	public Optional<AFK> supply(Player player, int away, int kick) {
-		if (AFK.found(player)) {
-			return Optional.ofNullable(AFK.from(player));
-		} else {
-			return Optional.of(AFK.Initializer.next(player)
-					.handle(Vent.Subscription.Builder.target(AFK.StatusChange.class).assign(Vent.Priority.HIGH).from(Essentials.getInstance()).assign((e, subscription) -> {
-
-						Player p = e.getAfk().getPlayer();
-						switch (e.getStatus()) {
-							case AWAY:
-								Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is now AFK").translate());
-								p.setDisplayName(StringUtils.use("&7*AFK&r " + p.getDisplayName()).translate());
-								break;
-							case RETURNING:
-								p.setDisplayName(p.getName());
-								Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is no longer AFK").translate());
-								e.getAfk().saturate();
-								break;
-							case REMOVABLE:
-								Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &b" + p.getName() + " &c&owas kicked for being AFK too long.").translate());
-								p.kickPlayer(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + "\n" + "&c&oAFK too long.\n&c&oKicking to ensure safety :)").translate());
-								e.getAfk().cancel();
-								break;
-						}
-
-					}))
-					.stage(a -> TimeUnit.SECONDS.toMinutes(a.getWatch().interval(Instant.now()).getSeconds()) >= away, b -> TimeUnit.SECONDS.toMinutes(b.getWatch().interval(Instant.now()).getSeconds()) >= kick));
-		}
-	}
-
-
-	@EventHandler
-	public void afkInit(PlayerJoinEvent e) {
-		Player p = e.getPlayer();
-
-		supply(p, 5, 15).ifPresent(afk -> {
-
-		});
-
 	}
 
 	@EventHandler(priority = EventPriority.NORMAL)
