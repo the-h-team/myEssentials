@@ -15,15 +15,17 @@ import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.PlayerWrapper;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import com.github.sanctum.myessentials.util.teleportation.Destination;
-import java.util.Collections;
+
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import com.google.common.collect.ImmutableList;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 public final class TeleportCommand extends CommandBuilder {
@@ -35,36 +37,88 @@ public final class TeleportCommand extends CommandBuilder {
 
 	@Override
 	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		if (!command.testPermissionSilent(player)) return Collections.emptyList();
-		if (args.length <= 1) {
-			return playerWrapper.collect()
-					.stream()
-					.map(HumanEntity::getName)
-					.collect(Collectors.toList());
-		}
+		if (!command.testPermissionSilent(player)) return ImmutableList.of();
 		final Location location = player.getLocation();
-		if (args.length == 2) {
-			final LinkedList<String> linkedList = new LinkedList<>();
-			playerWrapper.collect()
-					.stream()
-					.map(HumanEntity::getName)
-					.forEach(linkedList::add);
-			linkedList.add(String.valueOf(location.getBlockX()));
-			return linkedList;
-		} else {
-			try {
-				final int i = Integer.parseInt(args[1]);
-				if (i == location.getBlockX()) {
-					if (args.length == 3) {
-						return Collections.singletonList(String.valueOf(location.getBlockY()));
-					} else if (args.length == 4) {
-						return Collections.singletonList(String.valueOf(location.getBlockZ()));
-					}
+		final Collection<Player> players = playerWrapper.collect();
+		final ImmutableList.Builder<String> builder = new ImmutableList.Builder<>();
+		// first arg - show all players and player's x
+		if (args.length <= 1) {
+			players.stream().map(Player::getName).forEach(builder::add);
+			builder.add(String.valueOf(location.getBlockX()));
+		} else if (args.length == 2) {
+			// second arg - if first is a player, show filtered players + first player's x (fallback to current player if invalid);
+			// otherwise player's own y (if first arg parses)
+			final Optional<Player> namedPlayer = playerWrapper.get(args[0]);
+			if (namedPlayer.isPresent()) {
+				final String named = namedPlayer.get().getName();
+				players.stream()
+						.map(Player::getName)
+						.filter(name -> !name.equals(named))
+						.forEach(builder::add);
+				final int blockX = namedPlayer
+						.filter(Player::isValid)
+						.map(Player::getLocation)
+						.map(Location::getBlockX)
+						.orElseGet(() -> player.getLocation().getBlockX());
+				builder.add(String.valueOf(blockX));
+			} else {
+				try {
+					Double.parseDouble(args[0]);
+				} catch (NumberFormatException ignored) {
+					return ImmutableList.of();
 				}
-			} catch (NumberFormatException ignored) {
+				builder.add(String.valueOf(player.getLocation().getBlockY()));
 			}
+		} else if (args.length == 3) {
+			// third arg - if first+second arg is a player, nothing;
+			// first arg player + second arg double, send arg player's y (fallback to current player)
+			// first+second arg double, send player's own z (if first+second args parse)
+			final Optional<Player> firstNamedPlayer = playerWrapper.get(args[0]);
+			final Optional<Player> secondNamedPlayer = playerWrapper.get(args[1]);
+			if (firstNamedPlayer.isPresent() && secondNamedPlayer.isPresent()) {
+				return ImmutableList.of();
+			}
+			if (firstNamedPlayer.isPresent()) {
+				try {
+					Double.parseDouble(args[1]);
+				} catch (NumberFormatException ignored) {
+					return ImmutableList.of();
+				}
+				final int blockY = firstNamedPlayer
+						.filter(Player::isValid)
+						.map(Player::getLocation)
+						.map(Location::getBlockY)
+						.orElseGet(() -> player.getLocation().getBlockY());
+				builder.add(String.valueOf(blockY));
+			} else {
+				try {
+					Double.parseDouble(args[0]);
+					Double.parseDouble(args[1]);
+				} catch (NumberFormatException ignored) {
+					return ImmutableList.of();
+				}
+				builder.add(String.valueOf(player.getLocation().getBlockZ()));
+			}
+		} else if (args.length == 4) {
+			// fourth arg - format MUST be player x y z; if not nothing.
+			// return arg player's z (fallback to current player);
+			final Optional<Player> namedPlayer = playerWrapper.get(args[0]);
+			try {
+				Double.parseDouble(args[1]);
+				Double.parseDouble(args[2]);
+			} catch (NumberFormatException ignored) {
+				return ImmutableList.of();
+			}
+			final int blockZ = namedPlayer
+					.filter(Player::isValid)
+					.map(Player::getLocation)
+					.map(Location::getBlockZ)
+					.orElseGet(() -> player.getLocation().getBlockZ());
+			builder.add(String.valueOf(blockZ));
 		}
-		return Collections.emptyList();
+		if (args.length == 0) return builder.build();
+		// filter completions
+		return StringUtil.copyPartialMatches(args[args.length - 1], builder.build(), new LinkedList<>());
 	}
 
 	@Override
