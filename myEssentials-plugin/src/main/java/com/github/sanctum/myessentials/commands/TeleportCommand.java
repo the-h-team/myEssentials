@@ -38,13 +38,13 @@ public final class TeleportCommand extends CommandBuilder {
 	@Override
 	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		if (!command.testPermissionSilent(player)) return ImmutableList.of();
-		final Location location = player.getLocation();
 		final Collection<Player> players = playerWrapper.collect();
 		final ImmutableList.Builder<String> builder = new ImmutableList.Builder<>();
 		// first arg - show all players and player's x
 		if (args.length <= 1) {
 			players.stream().map(Player::getName).forEach(builder::add);
-			builder.add(String.valueOf(location.getBlockX()));
+			builder.add(String.valueOf(player.getLocation().getBlockX()));
+			builder.add("~1");
 		} else if (args.length == 2) {
 			// second arg - if first is a player, show filtered players + first player's x (fallback to current player if invalid);
 			// otherwise player's own y (if first arg parses)
@@ -68,6 +68,7 @@ public final class TeleportCommand extends CommandBuilder {
 					return ImmutableList.of();
 				}
 				builder.add(String.valueOf(player.getLocation().getBlockY()));
+				builder.add("~1");
 			}
 		} else if (args.length == 3) {
 			// third arg - if first+second arg is a player, nothing;
@@ -98,6 +99,7 @@ public final class TeleportCommand extends CommandBuilder {
 					return ImmutableList.of();
 				}
 				builder.add(String.valueOf(player.getLocation().getBlockZ()));
+				builder.add("~1");
 			}
 		} else if (args.length == 4) {
 			// fourth arg - format MUST be player x y z; if not nothing.
@@ -139,7 +141,7 @@ public final class TeleportCommand extends CommandBuilder {
 		} else if (args.length == 3) {
 			// teleport [x] [y] [z]
 			// We are teleporting the player
-			final Optional<Location> resolution = resolveLocation(args, 0);
+			final Optional<Location> resolution = resolveRelativeLocation(player, args, 0);
 			if (resolution.isPresent()) {
 				final Location posLocation = resolution.get();
 				final Location playerLocation = player.getLocation();
@@ -212,6 +214,8 @@ public final class TeleportCommand extends CommandBuilder {
 	 * If there any errors parsing strings into doubles
 	 * this function returns an empty Optional.
 	 *
+	 * @param args command input arguments
+	 * @param firstIndex the index at which to begin parsing
 	 * @return an Optional describing a Location without world
 	 */
 	private Optional<Location> resolveLocation(String[] args, int firstIndex) {
@@ -226,5 +230,54 @@ public final class TeleportCommand extends CommandBuilder {
 			return Optional.empty();
 		}
 		return Optional.of(new Location(null, x, y, z));
+	}
+
+	/**
+	 * Resolve arguments into a relative location.
+	 * <p>
+	 * If relative location syntax is present, captures player's location
+	 * and calculates accordingly.
+	 * <p>
+	 * Delegates to {@link #resolveLocation}.
+	 *
+	 * @param context the player whose location to capture
+	 * @param args command input arguments
+	 * @param firstIndex the index at which to begin parsing
+	 * @return an Optional describing a potentially relative Location
+	 */
+	@SuppressWarnings("SameParameterValue")
+	private Optional<Location> resolveRelativeLocation(Player context, String[] args, int firstIndex) {
+		boolean hasRelative = false;
+		for (int i = 0; i < 3; ++i) {
+			if (args[i].startsWith("~")) {
+				hasRelative = true;
+				break;
+			}
+		}
+		if (!hasRelative) return resolveLocation(args, firstIndex);
+		final Location playerLoc = context.getLocation();
+		final String xArg = args[firstIndex];
+		final String yArg = args[firstIndex + 1];
+		final String zArg = args[firstIndex + 2];
+		try {
+			if (xArg.startsWith("~")) {
+				playerLoc.add(Double.parseDouble(xArg.replaceAll("~", "")), 0d, 0d);
+			} else {
+				playerLoc.setX(Double.parseDouble(xArg));
+			}
+			if (yArg.startsWith("~")) {
+				playerLoc.add(0d, Double.parseDouble(yArg.replaceAll("~", "")), 0d);
+			} else {
+				playerLoc.setY(Double.parseDouble(yArg));
+			}
+			if (zArg.startsWith("~")) {
+				playerLoc.add(0d, 0d, Double.parseDouble(zArg.replaceAll("~", "")));
+			} else {
+				playerLoc.setZ(Double.parseDouble(zArg));
+			}
+		} catch (NumberFormatException ignored) {
+			return Optional.empty();
+		}
+		return Optional.of(playerLoc);
 	}
 }
