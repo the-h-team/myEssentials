@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import com.github.sanctum.myessentials.util.teleportation.MaxWorldCoordinatesException;
 import com.google.common.collect.ImmutableList;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -133,7 +134,8 @@ public final class TeleportCommand extends CommandBuilder {
 				PlayerSearch search = PlayerSearch.look(args[0]);
 				if (search.isValid()) {
 					if (search.isOnline()) {
-						player.teleport(search.getPlayer());
+						// TODO: Refactor PlayerSearch with inner class to override nullity
+						api.getTeleportRunner().teleportPlayer(player, new Destination(search.getPlayer()));
 					}
 				}
 			}
@@ -148,8 +150,10 @@ public final class TeleportCommand extends CommandBuilder {
 				posLocation.setWorld(playerLocation.getWorld());
 				posLocation.setYaw(playerLocation.getYaw());
 				posLocation.setPitch(playerLocation.getPitch());
+				final Optional<Destination> checked = sanityCheckedDestination(player, posLocation);
+				if (!checked.isPresent()) return true;
 				sendMessage(player, "Teleporting to " + posLocation);
-				api.getTeleportRunner().teleportPlayer(player, new Destination(posLocation));
+				api.getTeleportRunner().teleportPlayer(player, checked.get());
 				return true;
 			} else {
 				sendMessage(player, "&cInvalid coordinates.");
@@ -194,11 +198,13 @@ public final class TeleportCommand extends CommandBuilder {
 				posLocation.setWorld(playerLocation.getWorld());
 				posLocation.setYaw(playerLocation.getYaw());
 				posLocation.setPitch(playerLocation.getPitch());
+				final Optional<Destination> checked = sanityCheckedDestination(sender, posLocation);
+				if (!checked.isPresent()) return true;
 				sendMessage(sender, "Teleporting " +
 						teleportingPlayer.getName() +
 						" to " +
 						posLocation);
-				api.getTeleportRunner().teleportPlayer(teleportingPlayer, new Destination(posLocation));
+				api.getTeleportRunner().teleportPlayer(teleportingPlayer, checked.get());
 				return true;
 			} else {
 				sendMessage(sender, "&cInvalid coordinates.");
@@ -279,5 +285,38 @@ public final class TeleportCommand extends CommandBuilder {
 			return Optional.empty();
 		}
 		return Optional.of(playerLoc);
+	}
+
+	/**
+	 * Sanity-check the provided Location, ensuring that it is safely
+	 * converted into a Location-based Destination; report back to
+	 * a sender if this was not possible.
+	 *
+	 * @param sender sender to reply to
+	 * @param posLocation location to be checked
+	 * @return an Optional describing a valid location, if possible
+	 */
+	private Optional<Destination> sanityCheckedDestination(CommandSender sender, Location posLocation) {
+		try {
+			return Optional.of(new Destination(posLocation));
+		} catch (MaxWorldCoordinatesException e) {
+			switch (e.getType()) {
+				case GAME:
+				case WORLD_BORDER:
+					final StringBuilder sb;
+					if (e.getErrantX().isPresent() && e.getErrantZ().isPresent()) {
+						sb = new StringBuilder("&cInvalid coordinates!");
+					} else {
+						sb = new StringBuilder("&cInvalid coordinate!");
+					}
+					e.getErrantX().ifPresent(x -> sb.append(" X:").append(x));
+					e.getErrantZ().ifPresent(z -> sb.append(" Z:").append(z));
+					sendMessage(sender, sb.toString());
+					if (e.getType() == MaxWorldCoordinatesException.Type.WORLD_BORDER) {
+						sendMessage(sender, "&8&oThe specified location does not exist within the world border.");
+					}
+			}
+			return Optional.empty();
+		}
 	}
 }
