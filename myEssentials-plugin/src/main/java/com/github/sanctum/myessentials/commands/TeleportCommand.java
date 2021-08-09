@@ -267,17 +267,20 @@ public final class TeleportCommand extends CommandBuilder {
 		final String zArg = args[firstIndex + 2];
 		try {
 			if (xArg.startsWith("~")) {
-				playerLoc.add(Double.parseDouble(xArg.replaceAll("~", "")), 0d, 0d);
+				final String num = xArg.substring(1);
+				if (!num.isEmpty()) playerLoc.add(Double.parseDouble(num), 0d, 0d);
 			} else {
 				playerLoc.setX(Double.parseDouble(xArg));
 			}
 			if (yArg.startsWith("~")) {
-				playerLoc.add(0d, Double.parseDouble(yArg.replaceAll("~", "")), 0d);
+				final String num = xArg.substring(1);
+				if (!num.isEmpty()) playerLoc.add(0d, Double.parseDouble(num), 0d);
 			} else {
 				playerLoc.setY(Double.parseDouble(yArg));
 			}
 			if (zArg.startsWith("~")) {
-				playerLoc.add(0d, 0d, Double.parseDouble(zArg.replaceAll("~", "")));
+				final String num = xArg.substring(1);
+				if (!num.isEmpty()) playerLoc.add(0d, 0d, Double.parseDouble(num));
 			} else {
 				playerLoc.setZ(Double.parseDouble(zArg));
 			}
