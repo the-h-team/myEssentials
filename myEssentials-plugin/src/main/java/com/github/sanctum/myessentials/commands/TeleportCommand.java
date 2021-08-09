@@ -44,8 +44,8 @@ public final class TeleportCommand extends CommandBuilder {
 		// first arg - show all players and player's x
 		if (args.length <= 1) {
 			players.stream().map(Player::getName).forEach(builder::add);
+			builder.add("~");
 			builder.add(String.valueOf(player.getLocation().getBlockX()));
-			builder.add("~1");
 		} else if (args.length == 2) {
 			// second arg - if first is a player, show filtered players + first player's x (fallback to current player if invalid);
 			// otherwise player's own y (if first arg parses)
@@ -64,12 +64,14 @@ public final class TeleportCommand extends CommandBuilder {
 				builder.add(String.valueOf(blockX));
 			} else {
 				try {
-					Double.parseDouble(args[0]);
+					if (!args[0].startsWith("~")) {
+						Double.parseDouble(args[0]);
+					}
 				} catch (NumberFormatException ignored) {
 					return ImmutableList.of();
 				}
+				builder.add("~");
 				builder.add(String.valueOf(player.getLocation().getBlockY()));
-				builder.add("~1");
 			}
 		} else if (args.length == 3) {
 			// third arg - if first+second arg is a player, nothing;
@@ -82,7 +84,9 @@ public final class TeleportCommand extends CommandBuilder {
 			}
 			if (firstNamedPlayer.isPresent()) {
 				try {
-					Double.parseDouble(args[1]);
+					if (!args[1].startsWith("~")) {
+						Double.parseDouble(args[1]);
+					}
 				} catch (NumberFormatException ignored) {
 					return ImmutableList.of();
 				}
@@ -94,21 +98,30 @@ public final class TeleportCommand extends CommandBuilder {
 				builder.add(String.valueOf(blockY));
 			} else {
 				try {
-					Double.parseDouble(args[0]);
-					Double.parseDouble(args[1]);
+					if (!args[0].startsWith("~")) {
+						Double.parseDouble(args[0]);
+					}
+					if (!args[1].startsWith("~")) {
+						Double.parseDouble(args[1]);
+					}
 				} catch (NumberFormatException ignored) {
 					return ImmutableList.of();
 				}
+				builder.add("~");
 				builder.add(String.valueOf(player.getLocation().getBlockZ()));
-				builder.add("~1");
 			}
 		} else if (args.length == 4) {
 			// fourth arg - format MUST be player x y z; if not nothing.
 			// return arg player's z (fallback to current player);
 			final Optional<Player> namedPlayer = playerWrapper.get(args[0]);
+			if (!namedPlayer.isPresent()) return ImmutableList.of();
 			try {
-				Double.parseDouble(args[1]);
-				Double.parseDouble(args[2]);
+				if (!args[1].startsWith("~")) {
+					Double.parseDouble(args[1]);
+				}
+				if (!args[2].startsWith("~")) {
+					Double.parseDouble(args[2]);
+				}
 			} catch (NumberFormatException ignored) {
 				return ImmutableList.of();
 			}
@@ -152,7 +165,7 @@ public final class TeleportCommand extends CommandBuilder {
 				posLocation.setPitch(playerLocation.getPitch());
 				final Optional<Destination> checked = sanityCheckedDestination(player, posLocation);
 				if (!checked.isPresent()) return true;
-				sendMessage(player, "Teleporting to " + posLocation);
+				sendMessage(player, "Teleporting to " + formatPosition(args, 0, posLocation));
 				api.getTeleportRunner().teleportPlayer(player, checked.get());
 				return true;
 			} else {
@@ -203,7 +216,7 @@ public final class TeleportCommand extends CommandBuilder {
 				sendMessage(sender, "Teleporting " +
 						teleportingPlayer.getName() +
 						" to " +
-						posLocation);
+						formatPosition(args, 1, posLocation));
 				api.getTeleportRunner().teleportPlayer(teleportingPlayer, checked.get());
 				return true;
 			} else {
@@ -211,7 +224,7 @@ public final class TeleportCommand extends CommandBuilder {
 			}
 		}
 		sendUsage(sender);
-		return false;
+		return true;
 	}
 
 	/**
@@ -229,13 +242,35 @@ public final class TeleportCommand extends CommandBuilder {
 		final double y;
 		final double z;
 		try {
-			x = Double.parseDouble(args[firstIndex]);
+			x = wholeToHalf(Double.parseDouble(args[firstIndex]));
 			y = Double.parseDouble(args[firstIndex + 1]);
-			z = Double.parseDouble(args[firstIndex + 2]);
+			z = wholeToHalf(Double.parseDouble(args[firstIndex + 2]));
 		} catch (NumberFormatException ignored) {
 			return Optional.empty();
 		}
 		return Optional.of(new Location(null, x, y, z));
+	}
+
+	/**
+	 * Nudge integer coordinates to block centers.
+	 *
+	 * @param rawValue original double
+	 * @return double with whole values nudged +0.5
+	 */
+	private double wholeToHalf(double rawValue) {
+		if (rawValue % 1.0d == 0d) {
+			return rawValue + 0.5d;
+		}
+		return rawValue;
+	}
+
+	private String formatPosition(String[] args, int argOffset, Location posLocation) {
+		final int y = argOffset + 1;
+		final int z = argOffset + 2;
+		return (!(args[argOffset].contains(".") || args[y].contains(".") || args[z].contains(".")) ?
+				"block &7" + args[argOffset] + "," + args[y] + "," + args[z] :
+				"&e" + prettyPrintCoordinates(posLocation)
+		);
 	}
 
 	/**
@@ -254,7 +289,7 @@ public final class TeleportCommand extends CommandBuilder {
 	@SuppressWarnings("SameParameterValue")
 	private Optional<Location> resolveRelativeLocation(Player context, String[] args, int firstIndex) {
 		boolean hasRelative = false;
-		for (int i = 0; i < 3; ++i) {
+		for (int i = firstIndex; i < firstIndex + 3; ++i) {
 			if (args[i].startsWith("~")) {
 				hasRelative = true;
 				break;
@@ -270,19 +305,19 @@ public final class TeleportCommand extends CommandBuilder {
 				final String num = xArg.substring(1);
 				if (!num.isEmpty()) playerLoc.add(Double.parseDouble(num), 0d, 0d);
 			} else {
-				playerLoc.setX(Double.parseDouble(xArg));
+				playerLoc.setX(wholeToHalf(Double.parseDouble(xArg)));
 			}
 			if (yArg.startsWith("~")) {
-				final String num = xArg.substring(1);
+				final String num = yArg.substring(1);
 				if (!num.isEmpty()) playerLoc.add(0d, Double.parseDouble(num), 0d);
 			} else {
 				playerLoc.setY(Double.parseDouble(yArg));
 			}
 			if (zArg.startsWith("~")) {
-				final String num = xArg.substring(1);
+				final String num = zArg.substring(1);
 				if (!num.isEmpty()) playerLoc.add(0d, 0d, Double.parseDouble(num));
 			} else {
-				playerLoc.setZ(Double.parseDouble(zArg));
+				playerLoc.setZ(wholeToHalf(Double.parseDouble(zArg)));
 			}
 		} catch (NumberFormatException ignored) {
 			return Optional.empty();
@@ -322,5 +357,10 @@ public final class TeleportCommand extends CommandBuilder {
 			}
 			return Optional.empty();
 		}
+	}
+
+	private String prettyPrintCoordinates(Location location) {
+		if (location == null) return "null";
+		return String.format("%.3f, %.5f, %.3f", location.getX(), location.getY(), location.getZ());
 	}
 }
