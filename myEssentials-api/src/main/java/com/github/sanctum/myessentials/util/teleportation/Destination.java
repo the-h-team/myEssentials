@@ -23,6 +23,8 @@ import java.util.function.Supplier;
 public final class Destination {
     private static final double WORLD_MAX_XZ = 30_000_001d;
     private static final double WORLD_MAX_XZ_NEGATIVE = -WORLD_MAX_XZ;
+    private static final double WORLD_MAX_Y = 30_000_000d;
+    private static final double WORLD_MAX_Y_NEGATIVE = -WORLD_MAX_Y;
     protected final Supplier<Location> toLoc;
     protected final Player player;
 
@@ -35,14 +37,17 @@ public final class Destination {
     public Destination(Location to) throws MaxWorldCoordinatesException {
         final double x = to.getX();
         final double z = to.getZ();
+        final double y = to.getY();
         boolean xOut = (x > WORLD_MAX_XZ || x < WORLD_MAX_XZ_NEGATIVE);
         boolean zOut = (z > WORLD_MAX_XZ || z < WORLD_MAX_XZ_NEGATIVE);
+        boolean yOut = (y > WORLD_MAX_Y || y < WORLD_MAX_Y_NEGATIVE);
         // test game limits
-        if (xOut || zOut) {
+        if (xOut || zOut || yOut) {
             throw new MaxWorldCoordinatesException(to,
                     MaxWorldCoordinatesException.Type.GAME,
                     xOut ? x : null,
-                    zOut ? z : null
+                    zOut ? z : null,
+                    yOut ? y : null
             );
         }
         // test world border
@@ -61,7 +66,8 @@ public final class Destination {
                         to,
                         MaxWorldCoordinatesException.Type.WORLD_BORDER,
                         (x > max_X || x < min_X) ? x : null,
-                        (z > max_Z || z < min_Z) ? z : null
+                        (z > max_Z || z < min_Z) ? z : null,
+                        null
                 );
             }
         }

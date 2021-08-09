@@ -37,12 +37,14 @@ public final class MaxWorldCoordinatesException extends Exception {
     private final Type type;
     private final Double x;
     private final Double z;
+    private final Double y;
 
-    MaxWorldCoordinatesException(@NotNull Location location, Type type, @Nullable Double x, @Nullable Double z) {
+    MaxWorldCoordinatesException(@NotNull Location location, Type type, @Nullable Double x, @Nullable Double z, @Nullable Double y) {
         this.location = location.clone();
         this.type = type;
         this.x = x;
         this.z = z;
+        this.y = y;
     }
 
     /**
@@ -79,5 +81,14 @@ public final class MaxWorldCoordinatesException extends Exception {
      */
     public Optional<Double> getErrantZ() {
         return Optional.ofNullable(z);
+    }
+
+    /**
+     * Get the Y coordinate, if it was invalid.
+     *
+     * @return an Optional describing an invalid Y coordinate if present
+     */
+    public Optional<Double> getErrantY() {
+        return Optional.ofNullable(y);
     }
 }

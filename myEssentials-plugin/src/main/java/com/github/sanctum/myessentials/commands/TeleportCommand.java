@@ -304,12 +304,13 @@ public final class TeleportCommand extends CommandBuilder {
 				case GAME:
 				case WORLD_BORDER:
 					final StringBuilder sb;
-					if (e.getErrantX().isPresent() && e.getErrantZ().isPresent()) {
+					if ((e.getErrantX().isPresent() && e.getErrantZ().isPresent()) || (e.getErrantY().isPresent() && (e.getErrantX().isPresent() || e.getErrantZ().isPresent()))) {
 						sb = new StringBuilder("&cInvalid coordinates!");
 					} else {
 						sb = new StringBuilder("&cInvalid coordinate!");
 					}
 					e.getErrantX().ifPresent(x -> sb.append(" X:").append(x));
+					e.getErrantY().ifPresent(y -> sb.append(" Y:").append(y));
 					e.getErrantZ().ifPresent(z -> sb.append(" Z:").append(z));
 					sendMessage(sender, sb.toString());
 					if (e.getType() == MaxWorldCoordinatesException.Type.WORLD_BORDER) {
