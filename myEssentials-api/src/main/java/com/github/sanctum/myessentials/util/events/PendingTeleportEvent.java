@@ -10,10 +10,8 @@
 package com.github.sanctum.myessentials.util.events;
 
 import com.github.sanctum.myessentials.util.teleportation.Destination;
-import com.github.sanctum.myessentials.util.teleportation.MaxWorldCoordinatesException;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
 import java.util.Optional;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -24,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Encapsulates a requested teleportation.
  */
-public abstract class PendingTeleportEvent extends Event implements Cancellable {
+public class PendingTeleportEvent extends Event implements Cancellable {
 	private static final HandlerList HANDLER_LIST = new HandlerList();
 	protected final Player player;
 	protected final TeleportRequest request;
@@ -32,21 +30,21 @@ public abstract class PendingTeleportEvent extends Event implements Cancellable 
 	protected long delay;
 	protected boolean cancelled;
 
-	protected PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, @NotNull Location location) throws MaxWorldCoordinatesException {
-		this(request, player, new Destination(location), 0L);
+	public PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, Destination destination) {
+		this(request, player, destination, 0L);
 	}
-
-	protected PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, @NotNull Player targetPlayer) {
-		this(request, player, new Destination(targetPlayer), 0L);
-	}
-
-	protected PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, Destination destination, long delay) {
+	public PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, Destination destination, long delay) {
 		this.player = player;
 		this.request = request;
 		this.destination = destination;
 		this.delay = delay;
 	}
 
+	/**
+	 * Get the teleport request associated with this event, if applicable.
+	 *
+	 * @return the associated teleport request if present
+	 */
 	public Optional<TeleportRequest> getRequest() {
 		return Optional.ofNullable(request);
 	}
