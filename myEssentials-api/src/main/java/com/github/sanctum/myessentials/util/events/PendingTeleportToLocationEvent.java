@@ -9,6 +9,7 @@
  */
 package com.github.sanctum.myessentials.util.events;
 
+import com.github.sanctum.myessentials.util.teleportation.MaxWorldCoordinatesException;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 public final class PendingTeleportToLocationEvent extends PendingTeleportEvent {
 	private static final HandlerList HANDLERS = new HandlerList();
 
-	public PendingTeleportToLocationEvent(@Nullable TeleportRequest request, @NotNull Player who, @NotNull Location location) {
+	public PendingTeleportToLocationEvent(@Nullable TeleportRequest request, @NotNull Player who, @NotNull Location location) throws MaxWorldCoordinatesException {
 		super(request, who, location);
 	}
 

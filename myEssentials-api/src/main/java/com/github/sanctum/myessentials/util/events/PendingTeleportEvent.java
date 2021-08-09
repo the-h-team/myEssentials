@@ -10,6 +10,7 @@
 package com.github.sanctum.myessentials.util.events;
 
 import com.github.sanctum.myessentials.util.teleportation.Destination;
+import com.github.sanctum.myessentials.util.teleportation.MaxWorldCoordinatesException;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
 import java.util.Optional;
 import org.bukkit.Location;
@@ -31,7 +32,7 @@ public abstract class PendingTeleportEvent extends Event implements Cancellable 
 	protected long delay;
 	protected boolean cancelled;
 
-	protected PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, @NotNull Location location) {
+	protected PendingTeleportEvent(@Nullable TeleportRequest request, @NotNull Player player, @NotNull Location location) throws MaxWorldCoordinatesException {
 		this(request, player, new Destination(location), 0L);
 	}
 

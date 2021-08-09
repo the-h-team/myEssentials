@@ -34,7 +34,11 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
             Bukkit.getPluginManager().callEvent(new PendingTeleportToPlayerEvent(null, player, destinationPlayer.get()));
             return;
         }
-        Bukkit.getPluginManager().callEvent(new PendingTeleportToLocationEvent(null, player, destination.toLocation()));
+        try {
+            Bukkit.getPluginManager().callEvent(new PendingTeleportToLocationEvent(null, player, destination.toLocation()));
+        } catch (MaxWorldCoordinatesException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
@@ -127,7 +131,11 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
             if (destinationPlayer.isPresent()) {
                 event = new PendingTeleportToPlayerEvent(this, teleporting, destinationPlayer.get());
             } else {
-                event = new PendingTeleportToLocationEvent(this, teleporting, destination.toLocation());
+                try {
+                    event = new PendingTeleportToLocationEvent(this, teleporting, destination.toLocation());
+                } catch (MaxWorldCoordinatesException e) {
+                    throw new IllegalStateException(e);
+                }
             }
             Bukkit.getPluginManager().callEvent(event);
             cleanup();
