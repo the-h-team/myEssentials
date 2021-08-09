@@ -1,9 +1,10 @@
 package com.github.sanctum.myessentials.util.teleportation;
 
+import com.github.sanctum.labyrinth.library.TextLib;
 import com.github.sanctum.myessentials.Essentials;
+import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.PendingTeleportEvent;
-import com.github.sanctum.myessentials.util.events.PendingTeleportToLocationEvent;
-import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
 import com.github.sanctum.myessentials.util.events.TeleportEvent;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -19,7 +20,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 public final class TeleportRunnerImpl implements TeleportRunner, Listener {
-    private final Set<TeleportRequest> CACHE = new HashSet<>();
+    private final TextLib textLib = TextLib.getInstance();
+    private final Set<TeleportRequest> requests = new HashSet<>();
     private final Essentials plugin;
 
     public TeleportRunnerImpl(Essentials essentials) {
@@ -29,36 +31,50 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
 
     @Override
     public void teleportPlayer(@NotNull Player player, Destination destination) {
-        final Optional<Player> destinationPlayer = destination.getDestinationPlayer();
-        if (destinationPlayer.isPresent()) {
-            Bukkit.getPluginManager().callEvent(new PendingTeleportToPlayerEvent(null, player, destinationPlayer.get()));
-            return;
-        }
-        try {
-            Bukkit.getPluginManager().callEvent(new PendingTeleportToLocationEvent(null, player, destination.toLocation()));
-        } catch (MaxWorldCoordinatesException e) {
-            throw new IllegalStateException(e);
-        }
+        Bukkit.getPluginManager().callEvent(new PendingTeleportEvent(null, player, destination));
     }
 
     @Override
     public void requestTeleport(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type) throws ExistingTeleportRequestException{
-        // TODO: message code
-        final Optional<TeleportRequest> existingRequest = getActiveRequests().stream()
-                .filter(tr -> requester == tr.requester && requested == tr.destination.player && type == tr.type)
-                .findAny();
-        if (existingRequest.isPresent()) throw new ExistingTeleportRequestException(existingRequest.get());
-        CACHE.add(new TeleportRequestImpl(requester, requested, type));
+        processRequest(requester, requested, type);
+        requests.add(new TeleportRequestImpl(requester, requested, type));
     }
 
     @Override
     public void requestTeleportCustom(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type, long expiration) throws ExistingTeleportRequestException {
-        // TODO: messaging
+        processRequest(requester, requested, type);
+        requests.add(new TeleportRequestImpl(requester, requested, type, expiration));
+    }
+
+    private void processRequest(@NotNull Player requester, @NotNull Player requested, TeleportRequest.Type type) throws ExistingTeleportRequestException {
         final Optional<TeleportRequest> existingRequest = getActiveRequests().stream()
                 .filter(tr -> requester == tr.requester && requested == tr.destination.player && type == tr.type)
                 .findAny();
         if (existingRequest.isPresent()) throw new ExistingTeleportRequestException(existingRequest.get());
-        CACHE.add(new TeleportRequestImpl(requester, requested, type, expiration));
+        // Message requester and requested
+        requester.sendMessage(ConfiguredMessage.TPA_SENT.replace(requested.getDisplayName()));
+        requester.spigot().sendMessage(textLib.textRunnable(
+                ConfiguredMessage.TPA_TO_CANCEL_TEXT.toString(),
+                ConfiguredMessage.TPA_TO_CANCEL_BUTTON.toString(),
+                ConfiguredMessage.TPA_TO_CANCEL_TEXT2.replace(InternalCommandData.TPA_CANCEL_COMMAND.getLabel()),
+                ConfiguredMessage.TPA_TO_CANCEL_HOVER.toString(),
+                InternalCommandData.TPA_CANCEL_COMMAND.getLabel()));
+        if (type == TeleportRequest.Type.NORMAL_TELEPORT)
+            requested.sendMessage(ConfiguredMessage.TPA_REQUEST_TO_YOU.replace(requester.getDisplayName()));
+        else if (type == TeleportRequest.Type.TELEPORT_HERE)
+            requested.sendMessage(ConfiguredMessage.TPA_HERE_REQUESTED.replace(requester.getDisplayName()));
+        requested.spigot().sendMessage(textLib.textRunnable(
+                ConfiguredMessage.TPA_TO_ACCEPT_TEXT.toString(),
+                ConfiguredMessage.TPA_TO_ACCEPT_BUTTON.toString(),
+                ConfiguredMessage.TPA_TO_ACCEPT_TEXT2.replace(InternalCommandData.TP_ACCEPT_COMMAND.getLabel()),
+                ConfiguredMessage.TPA_TO_ACCEPT_HOVER.toString(),
+                InternalCommandData.TP_ACCEPT_COMMAND.getLabel()));
+        requested.spigot().sendMessage(textLib.textRunnable(
+                ConfiguredMessage.TPA_TO_REJECT_TEXT.toString(),
+                ConfiguredMessage.TPA_TO_REJECT_BUTTON.toString(),
+                ConfiguredMessage.TPA_TO_REJECT_TEXT2.replace(InternalCommandData.TP_REJECT_COMMAND.getLabel()),
+                ConfiguredMessage.TPA_TO_REJECT_HOVER.toString(),
+                InternalCommandData.TP_REJECT_COMMAND.getLabel()));
     }
 
     @Override
@@ -78,25 +94,23 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
 
     @Override
     public boolean queryTeleportStatus(TeleportRequest request) {
-        return CACHE.contains(request) && !(request.getStatus() == TeleportRequest.Status.CANCELLED || request.getStatus() == TeleportRequest.Status.REJECTED);
+        return requests.contains(request) && !(request.getStatus() == TeleportRequest.Status.CANCELLED || request.getStatus() == TeleportRequest.Status.REJECTED);
     }
 
     @Override
     public @NotNull Set<TeleportRequest> getActiveRequests() {
-        return CACHE.stream().filter(pr -> pr.getStatus() == TeleportRequest.Status.PENDING || pr.getStatus() == TeleportRequest.Status.TELEPORTING || pr.getStatus() == TeleportRequest.Status.ACCEPTED).collect(Collectors.toSet());
+        return requests.stream().filter(pr -> pr.getStatus() == TeleportRequest.Status.PENDING || pr.getStatus() == TeleportRequest.Status.TELEPORTING || pr.getStatus() == TeleportRequest.Status.ACCEPTED).collect(Collectors.toSet());
     }
 
     @Override
     public @NotNull Set<TeleportRequest> getExpiredRequests() {
-        return CACHE.stream().filter(pr -> pr.isComplete && pr.getStatus() == TeleportRequest.Status.EXPIRED).collect(Collectors.toSet());
+        return requests.stream().filter(pr -> pr.isComplete && pr.getStatus() == TeleportRequest.Status.EXPIRED).collect(Collectors.toSet());
     }
 
     // Process successful teleport, move requests to successful map
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onTeleportComplete(TeleportEvent event) {
-        event.getRequest().ifPresent(request -> {
-            request.status = TeleportRequest.Status.TELEPORTING;
-        });
+        event.getRequest().ifPresent(request -> request.status = TeleportRequest.Status.TELEPORTING);
     }
 
     private final class TeleportRequestImpl extends TeleportRequest {
@@ -126,18 +140,7 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
         protected void acceptTeleport() {
             if (isComplete) return;
             status = Status.ACCEPTED;
-            final Optional<Player> destinationPlayer = destination.getDestinationPlayer();
-            final PendingTeleportEvent event;
-            if (destinationPlayer.isPresent()) {
-                event = new PendingTeleportToPlayerEvent(this, teleporting, destinationPlayer.get());
-            } else {
-                try {
-                    event = new PendingTeleportToLocationEvent(this, teleporting, destination.toLocation());
-                } catch (MaxWorldCoordinatesException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-            Bukkit.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(new PendingTeleportEvent(this, teleporting, destination));
             cleanup();
         }
 
@@ -145,14 +148,14 @@ public final class TeleportRunnerImpl implements TeleportRunner, Listener {
         protected void cancelTeleport() {
             status = Status.CANCELLED;
             cleanup();
-            CACHE.removeIf(req -> req.getPlayerTeleporting().equals(getPlayerTeleporting()));
+            requests.removeIf(req -> req.getPlayerTeleporting().equals(getPlayerTeleporting()));
         }
 
         @Override
         protected void rejectTeleport() {
             status = Status.REJECTED;
             cleanup();
-            CACHE.removeIf(req -> req.getPlayerTeleporting().equals(getPlayerTeleporting()));
+            requests.removeIf(req -> req.getPlayerTeleporting().equals(getPlayerTeleporting()));
         }
 
         private void cleanup() {
