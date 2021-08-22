@@ -15,7 +15,7 @@ import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
-import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
+import com.github.sanctum.myessentials.util.events.PendingTeleportEvent;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
@@ -112,7 +112,8 @@ public class EntityEventListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
-	public void onTeleport(PendingTeleportToPlayerEvent e) {
+	public void onTeleport(PendingTeleportEvent e) {
+		if (!e.getDestination().getDestinationPlayer().isPresent()) return;
 		Player p = e.getPlayerToTeleport();
 
 		Message.form(p).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(ConfiguredMessage.STAND_STILL.get());

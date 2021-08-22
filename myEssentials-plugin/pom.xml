@@ -26,6 +26,13 @@
                         <configuration>
                             <filters>
                                 <filter>
+                                    <artifact>*:LocationAPI</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                        <exclude>plugin.yml</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
                                     <artifact>*:my-essentials-addons</artifact>
                                     <excludes>
                                         <exclude>META-INF/MANIFEST.MF</exclude>

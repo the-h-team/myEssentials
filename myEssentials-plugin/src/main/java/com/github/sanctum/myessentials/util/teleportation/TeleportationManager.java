@@ -13,8 +13,7 @@ import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
-import com.github.sanctum.myessentials.util.events.PendingTeleportToLocationEvent;
-import com.github.sanctum.myessentials.util.events.PendingTeleportToPlayerEvent;
+import com.github.sanctum.myessentials.util.events.PendingTeleportEvent;
 import com.github.sanctum.myessentials.util.events.TeleportEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,26 +51,9 @@ public final class TeleportationManager {
     }
 
     private class PendingTeleportListener implements Listener {
-        // Prepare teleport to a Location
         @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-        public void onPendingPlayerTeleportToLocation(PendingTeleportToLocationEvent e) {
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (e.getRequest().isPresent()) {
-                        if (e.getRequest().get().getStatus() != TeleportRequest.Status.CANCELLED && e.getRequest().get().getStatus() != TeleportRequest.Status.REJECTED) {
-                            pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), e.getRequest().orElse(null)));
-                        }
-                    } else {
-                        pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), null));
-                    }
-                }
-            }.runTaskLater(plugin, e.getDelay());
-        }
-
-        // Prepare teleport to a target Player
-        @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-        public void onPendingPlayerTeleportToPlayer(PendingTeleportToPlayerEvent e) {
+        public void onPendingPlayerTeleport(PendingTeleportEvent e) {
+            // Same impl for teleport toLocation + toPlayer
             new BukkitRunnable() {
                 @Override
                 public void run() {

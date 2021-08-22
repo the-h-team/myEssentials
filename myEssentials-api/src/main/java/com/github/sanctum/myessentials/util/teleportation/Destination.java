@@ -9,6 +9,8 @@
 package com.github.sanctum.myessentials.util.teleportation;
 
 import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,21 +21,62 @@ import java.util.function.Supplier;
  * Encapsulates a raw location or the dynamic location of a Player.
  */
 public final class Destination {
+    private static final double WORLD_MAX_XZ = 30_000_001d;
+    private static final double WORLD_MAX_XZ_NEGATIVE = -WORLD_MAX_XZ;
+    private static final double WORLD_MAX_Y = 30_000_000d;
+    private static final double WORLD_MAX_Y_NEGATIVE = -WORLD_MAX_Y;
     protected final Supplier<Location> toLoc;
     protected final Player player;
 
     /**
-     * Construct a destination based on a fixed location.
+     * Construct a Destination based on a fixed location.
      *
      * @param to target destination
+     * @throws MaxWorldCoordinatesException if x/z values are invalid
      */
-    public Destination(Location to) {
+    public Destination(Location to) throws MaxWorldCoordinatesException {
+        final double x = to.getX();
+        final double z = to.getZ();
+        final double y = to.getY();
+        boolean xOut = (x > WORLD_MAX_XZ || x < WORLD_MAX_XZ_NEGATIVE);
+        boolean zOut = (z > WORLD_MAX_XZ || z < WORLD_MAX_XZ_NEGATIVE);
+        boolean yOut = (y > WORLD_MAX_Y || y < WORLD_MAX_Y_NEGATIVE);
+        // test game limits
+        if (xOut || zOut || yOut) {
+            throw new MaxWorldCoordinatesException(to,
+                    MaxWorldCoordinatesException.Type.GAME,
+                    xOut ? x : null,
+                    zOut ? z : null,
+                    yOut ? y : null
+            );
+        }
+        // test world border
+        final World world = to.getWorld();
+        if (world != null) {
+            if (!world.getWorldBorder().isInside(to)) {
+                // calculate details
+                final WorldBorder worldBorder = world.getWorldBorder();
+                final Location center = worldBorder.getCenter();
+                final double halfSize = worldBorder.getSize() / 2d;
+                final double max_X = center.getX() + halfSize;
+                final double min_X = center.getX() - halfSize;
+                final double max_Z = center.getZ() + halfSize;
+                final double min_Z = center.getZ() - halfSize;
+                throw new MaxWorldCoordinatesException(
+                        to,
+                        MaxWorldCoordinatesException.Type.WORLD_BORDER,
+                        (x > max_X || x < min_X) ? x : null,
+                        (z > max_Z || z < min_Z) ? z : null,
+                        null
+                );
+            }
+        }
         this.toLoc = () -> to;
         this.player = null;
     }
 
     /**
-     * Construct a destination based on a Player.
+     * Construct a Destination based on a Player.
      *
      * @param player player to target
      */
