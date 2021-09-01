@@ -52,15 +52,16 @@ public final class PowertoolCommand extends CommandBuilder {
 			String result = builder.toString().trim();
 			ItemStack hand = player.getInventory().getItemInMainHand();
 
-			ItemStack wand = Items.getItem(hand.getType(), "&7[Powertool] &f/&6" + result);
+			ItemStack wand = new ItemStack(hand.getType());
 			ItemMeta meta = wand.getItemMeta();
-			//meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, result);
-			meta.setLore(Collections.singletonList(StringUtils.use("Left-click to use the designated command.").translate()));
-			wand.setItemMeta(meta);
-			hand.setAmount(0);
-			player.getInventory().addItem(wand);
-
-
+			if (meta != null) {
+				//meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, result);
+				meta.setDisplayName(StringUtils.use("&7[Powertool] &f/&6" + result).translate());
+				meta.setLore(Collections.singletonList(StringUtils.use("Left-click to use the designated command.").translate()));
+				wand.setItemMeta(meta);
+				hand.setAmount(0);
+				player.getInventory().addItem(wand);
+			}
 		}
 
 		return true;
