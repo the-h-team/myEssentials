@@ -51,7 +51,7 @@ public final class GamemodeCommand extends CommandBuilder {
 			return false;
 		}
 		// testPermission
-		if (testPermission(player)) return true;
+		if (!testPermission(player)) return true;
 		return setGamemode(player, args[1], args[0]);
 	}
 
