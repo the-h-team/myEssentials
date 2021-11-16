@@ -2,13 +2,14 @@ package com.github.sanctum.myessentials;
 
 import com.github.sanctum.labyrinth.formatting.TabCompletion;
 import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
-import com.github.sanctum.labyrinth.gui.InventoryRows;
-import com.github.sanctum.labyrinth.gui.menuman.PaginatedBuilder;
-import com.github.sanctum.labyrinth.gui.menuman.PaginatedClickAction;
-import com.github.sanctum.labyrinth.gui.menuman.PaginatedCloseAction;
-import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
+import com.github.sanctum.labyrinth.gui.unity.construct.Menu;
+import com.github.sanctum.labyrinth.gui.unity.construct.PaginatedMenu;
+import com.github.sanctum.labyrinth.gui.unity.construct.PrintableMenu;
+import com.github.sanctum.labyrinth.gui.unity.construct.SingularMenu;
+import com.github.sanctum.labyrinth.gui.unity.impl.ItemElement;
+import com.github.sanctum.labyrinth.gui.unity.impl.ListElement;
+import com.github.sanctum.labyrinth.gui.unity.impl.MenuType;
 import com.github.sanctum.labyrinth.library.Cooldown;
-import com.github.sanctum.labyrinth.library.Item;
 import com.github.sanctum.labyrinth.library.ListUtils;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
@@ -23,7 +24,6 @@ import com.github.sanctum.myessentials.util.DateTimeCalculator;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.events.PlayerPendingFeedEvent;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
-import com.github.sanctum.myessentials.util.gui.MenuManager;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import com.github.sanctum.skulls.CustomHead;
@@ -33,7 +33,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -43,6 +42,7 @@ import org.bukkit.BanEntry;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
@@ -80,6 +80,58 @@ public final class Commands {
 		return time <= start || time >= stop;
 	}
 
+	private static PaginatedMenu menu(Player p) {
+		return MenuType.PAGINATED.build()
+				.setTitle("&0&l[&2Head Database&0&l] {0}/{1}")
+				.setSize(Menu.Rows.ONE)
+				.setHost(Essentials.getInstance()).setKey("HEAD-" + p.getUniqueId())
+				.setProperty(Menu.Property.CACHEABLE, Menu.Property.RECURSIVE)
+				.setStock(i -> {
+
+					Material mat = Material.LIGHT_BLUE_STAINED_GLASS_PANE;
+					i.addItem(it -> it.setElement(el -> el.setType(mat).setTitle(" ").build()).setClick(c -> c.setCancelled(true)).setSlot(1));
+					i.addItem(it -> it.setElement(el -> el.setType(mat).setTitle(" ").build()).setClick(c -> c.setCancelled(true)).setSlot(6));
+					i.addItem(it -> it.setElement(el -> el.setItem(SkullType.COMMAND_BLOCK.get()).setTitle("&2Select page.").build()).setClick(c -> {
+						c.setCancelled(true);
+						Player pl = c.getElement();
+						PrintableMenu m = MenuType.PRINTABLE.build()
+								.setTitle(StringUtils.use("&5Enter a page #").translate())
+								.setSize(Menu.Rows.ONE)
+								.setHost(Essentials.getInstance()).setKey("HEAD-SEARCH-" + pl.getUniqueId())
+								.setStock(inv -> inv.addItem(b -> b.setElement(item -> item.setItem(SkullType.ARROW_BLUE_RIGHT.get()).setTitle(i.getViewer(p).getPage().toNumber() + "").build()).setSlot(0).setClick(click -> {
+									click.setCancelled(true);
+									click.setHotbarAllowed(false);
+								}))).join()
+								.addAction(click -> {
+									click.setCancelled(true);
+									click.setHotbarAllowed(false);
+									if (click.getSlot() == 2) {
+										try {
+											PaginatedMenu menu = menu(p);
+											menu.getInventory().getViewer(p).setPage(Integer.parseInt(click.getParent().getName()));
+											menu.open(p);
+										} catch (NumberFormatException ignored) {
+										}
+									}
+								});
+
+						m.open(p);
+					}).setSlot(7));
+
+					i.addItem(new ListElement<>(CustomHead.Manager.getHeads()).setLimit(4).setPopulate((value, element) -> {
+								element.setElement(value.get());
+								element.setElement(edit -> edit.setTitle(value.name()).build());
+								element.setClick(c -> {
+									c.setCancelled(true);
+									c.setHotbarAllowed(false);
+								});
+							})).addItem(b -> b.setElement(it -> it.setItem(SkullType.ARROW_BLUE_RIGHT.get()).setTitle("&5Next").build()).setType(ItemElement.ControlType.BUTTON_NEXT).setSlot(8))
+							.addItem(b -> b.setElement(it -> it.setItem(SkullType.ARROW_BLUE_LEFT.get()).setTitle("&5Previous").build()).setType(ItemElement.ControlType.BUTTON_BACK).setSlot(0));
+
+				})
+				.orGet(me -> me instanceof PaginatedMenu && me.getKey().isPresent() && me.getKey().get().equals("HEAD-" + p.getUniqueId()));
+	}
+
 	protected static void register() {
 
 		CommandMapper.from(OptionLoader.TEST_COMMAND.from("heads", "/heads", "Retrieve the entire list of cached skull items", "mess.staff.heads"))
@@ -87,19 +139,7 @@ public final class Commands {
 				.apply((builder, p, commandLabel, args) -> {
 
 					if (builder.testPermission(p)) {
-						new PaginatedBuilder<>(CustomHead.Manager.getHeads())
-								.forPlugin(Essentials.getInstance())
-								.limit(45)
-								.setCloseAction(PaginatedCloseAction::clear)
-								.setupProcess(e -> e.setItem(() -> new Item.Edit(e.getContext().get()).setTitle("&6" + e.getContext().name()).setLore("&7Category: &3" + e.getContext().category()).build()).setClick(click -> click.getPlayer().getInventory().addItem(e.getContext().get())))
-								.setAlreadyFirst(StringUtils.use("&cYou are already on the first page.").translate())
-								.setAlreadyLast(StringUtils.use("&cYou are already on the last page.").translate())
-								.setNavigationLeft(() -> new Item.Edit(SkullType.ARROW_BLACK_LEFT.get()).setTitle(" ").build(), 45, PaginatedClickAction::sync)
-								.setNavigationRight(() -> new Item.Edit(SkullType.ARROW_BLACK_RIGHT.get()).setTitle(" ").build(), 53, PaginatedClickAction::sync)
-								.setNavigationBack(() -> new Item.Edit(SkullType.ARROW_BLUE_DOWN.get()).setTitle(" ").build(), 49, click -> click.getPlayer().closeInventory())
-								.setSize(InventoryRows.SIX)
-								.sort(Comparator.comparing(CustomHead::name))
-								.setTitle(StringUtils.use("&7[&3Head Database&7] {PAGE}").translate()).build().open(p);
+						menu(p).open(p);
 					}
 
 				})
@@ -857,17 +897,6 @@ public final class Commands {
 						.collect()
 						.get(1));
 
-		CommandMapper.from(OptionLoader.TEST_COMMAND.from("vault", "/vault", "The player personal vault", "mess.vault.use"))
-				.apply((builder, player, commandLabel, args) -> {
-					PlayerSearch search = PlayerSearch.look(player);
-					search.getVault().ifPresent(vault -> player.openInventory(vault.getInventory()));
-
-				})
-				.next((builder, sender, commandLabel, args) -> {
-
-				})
-				.read(CommandBuilder::defaultCompletion);
-
 		CommandMapper.from(OptionLoader.TEST_COMMAND.from("sudo", "/sudo", "Make someone perform a command.", "mess.staff.sudo", "s", "make"))
 				.apply((builder, player, commandLabel, args) -> {
 					if (builder.testPermission(player)) {
@@ -1003,15 +1032,6 @@ public final class Commands {
 				})
 				.read(CommandBuilder::defaultCompletion);
 
-		CommandMapper.from(InternalCommandData.BIN_COMMAND)
-				.apply((builder, player, commandLabel, args) -> {
-					player.openInventory(MenuManager.Select.DONATION_BIN.share().getInventory());
-				})
-				.next((builder, sender, commandLabel, args) -> {
-					builder.sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
-				})
-				.read(CommandBuilder::defaultCompletion);
-
 		CommandMapper.from(InternalCommandData.FEED_COMMAND, builder -> feedTab = TabCompletion.build(builder.getData().getLabel()))
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
@@ -1072,7 +1092,17 @@ public final class Commands {
 							}
 
 							assert target != null;
-							player.openInventory(SharedMenu.open(target));
+
+							Menu m = MenuType.SINGULAR.build()
+									.setHost(Essentials.getInstance())
+									.setKey("MyInv-" + target.getName())
+									.setStock(i -> i.setElement(target.getInventory()))
+									.setProperty(Menu.Property.SHAREABLE, Menu.Property.CACHEABLE)
+									.setTitle(target.getName() + "'s inventory.")
+									.setSize(Menu.Rows.FIVE)
+									.orGet(me -> me instanceof SingularMenu && me.getKey().map(("MyInv-" + target.getName())::equals).orElse(false));
+
+							m.open(player);
 
 						} else {
 							builder.sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND);
@@ -1470,10 +1500,10 @@ public final class Commands {
 
 
 									builder.sendMessage(player, "&a" + p.getName() + " &fInformation:");
-									msg.send("Authors: &b" + p.getDescription().getAuthors().toString());
+									msg.send("Authors: &b" + p.getDescription().getAuthors());
 									msg.send("Website: &b" + (p.getDescription().getWebsite() != null ? p.getDescription().getWebsite() : "None"));
 									msg.send("Description: &3" + p.getDescription().getDescription());
-									msg.send("Dependencies: &b" + p.getDescription().getDepend().toString());
+									msg.send("Dependencies: &b" + p.getDescription().getDepend());
 
 								}, it.textHoverable("", (p.isEnabled() ? "&a" + p.getName() : "&c" + p.getName()), "&bClick to view plugin info for &f" + p.getName())));
 							}

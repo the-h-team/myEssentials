@@ -38,8 +38,8 @@ public final class ReloadCommand extends CommandBuilder {
 
 		if (testPermission(player)) {
 			for (String con : Arrays.asList("commands", "messages", "config")) {
-				FileManager manager = MyEssentialsAPI.getInstance().getFileList().find(con, "Configuration");
-				manager.reload();
+				FileManager manager = MyEssentialsAPI.getInstance().getFileList().get(con, "Configuration");
+				manager.getRoot().reload();
 			}
 			sendMessage(player, "&aAll configuration reloaded for &2" + Essentials.getInstance());
 			return true;

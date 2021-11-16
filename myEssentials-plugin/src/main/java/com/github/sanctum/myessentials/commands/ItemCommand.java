@@ -57,7 +57,7 @@ public final class ItemCommand extends CommandBuilder {
 			}
 
 			if (args.length == 1) {
-				Material mat = Items.getMaterial(args[0]);
+				Material mat = Items.findMaterial(args[0]);
 				if (mat != null) {
 					ItemStack i = new ItemStack(mat);
 					player.getWorld().dropItem(player.getLocation(), i);
@@ -70,7 +70,7 @@ public final class ItemCommand extends CommandBuilder {
 			if (args.length == 2) {
 				try {
 					int amount = Integer.parseInt(args[0]);
-					Material mat = Items.getMaterial(args[1]);
+					Material mat = Items.findMaterial(args[1]);
 					if (mat != null) {
 						ItemStack item = new ItemStack(mat);
 						for (int i = 0; i < amount; i++) {
@@ -83,7 +83,7 @@ public final class ItemCommand extends CommandBuilder {
 				} catch (NumberFormatException e) {
 					try {
 						int amount = Integer.parseInt(args[1]);
-						Material mat = Items.getMaterial(args[0]);
+						Material mat = Items.findMaterial(args[0]);
 						if (mat != null) {
 							ItemStack item = new ItemStack(mat);
 							for (int i = 0; i < amount; i++) {

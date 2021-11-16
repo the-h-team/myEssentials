@@ -1,12 +1,12 @@
 package com.github.sanctum.myessentials.util.moderation;
 
-import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CooldownFinder;
 import com.github.sanctum.myessentials.util.OfflinePlayerWrapper;
+import com.github.sanctum.myessentials.util.PlayerWrapper;
 import com.github.sanctum.myessentials.util.ProvidedMessage;
 import com.github.sanctum.myessentials.util.events.PlayerPendingFeedEvent;
 import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
@@ -36,6 +36,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class PlayerSearch implements CooldownFinder {
 
+	private static final PlayerWrapper ONLINE_WRAPPER = new PlayerWrapper();
+	private static final OfflinePlayerWrapper OFFLINE_WRAPPER = new OfflinePlayerWrapper();
 	private static final Collection<PlayerSearch> CACHE = new HashSet<>();
 
 	private CommandSender sender = null;
@@ -59,8 +61,16 @@ public final class PlayerSearch implements CooldownFinder {
 	}
 
 	protected PlayerSearch(String name) {
-		OfflinePlayer search = new OfflinePlayerWrapper().get(name).orElse(null);
+		OfflinePlayer search = OFFLINE_WRAPPER.get(name).orElse(null);
 		this.uuid = search != null ? search.getUniqueId() : null;
+	}
+
+	public static PlayerWrapper getOnlinePlayers() {
+		return ONLINE_WRAPPER;
+	}
+
+	public static OfflinePlayerWrapper getOfflinePlayers() {
+		return OFFLINE_WRAPPER;
 	}
 
 	/**
@@ -278,7 +288,7 @@ public final class PlayerSearch implements CooldownFinder {
 		if (uuid == null) {
 			return null;
 		}
-		if (timer("MyBan-id-" + uuid.toString()) == null) {
+		if (timer("MyBan-id-" + uuid) == null) {
 			return null;
 		}
 		return factory(Objects.requireNonNull(timer("MyBan-id-" + uuid.toString())));
@@ -296,22 +306,10 @@ public final class PlayerSearch implements CooldownFinder {
 		if (uuid == null) {
 			return Optional.empty();
 		}
-		if (timer("MyBan-id-" + uuid.toString()) == null) {
+		if (timer("MyBan-id-" + uuid) == null) {
 			return Optional.empty();
 		}
 		return Optional.ofNullable(timer("MyBan-id-" + uuid.toString()).format(format));
-	}
-
-	/**
-	 * Get the desired player's personal vault.
-	 *
-	 * @return A shared menu instance.
-	 */
-	public @NotNull Optional<SharedMenu> getVault() {
-		if (uuid == null) {
-			return Optional.empty();
-		}
-		return Optional.of(SharedMenu.get("MyVault-" + uuid.toString()));
 	}
 
 	/**

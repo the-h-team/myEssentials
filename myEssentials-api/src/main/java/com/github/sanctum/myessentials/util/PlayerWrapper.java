@@ -14,9 +14,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public class PlayerWrapper extends UniformedComponents<Player> {
+
+	private final List<Player> list;
+
+	public PlayerWrapper() {
+		list = new ArrayList<>(Bukkit.getOnlinePlayers());
+	}
+
 	@Override
 	public List<Player> list() {
-		return new ArrayList<>(Bukkit.getOnlinePlayers());
+		return list;
 	}
 
 	public Optional<Player> get(String name) {
@@ -35,6 +42,7 @@ public class PlayerWrapper extends UniformedComponents<Player> {
 	public List<Player> sort(Comparator<? super Player> comparable) {
 		List<Player> list = new ArrayList<>(list());
 		list.sort(comparable);
+		list.removeIf(p -> PlayerSearch.look(p).isVanished());
 		return list;
 	}
 
@@ -72,4 +80,9 @@ public class PlayerWrapper extends UniformedComponents<Player> {
 	public Player get(int index) {
 		return list().get(index);
 	}
+
+	public OfflinePlayerWrapper toOffline() {
+		return PlayerSearch.getOfflinePlayers();
+	}
+
 }

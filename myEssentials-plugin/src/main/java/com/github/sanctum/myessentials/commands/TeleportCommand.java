@@ -12,17 +12,14 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.util.PlayerWrapper;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import com.github.sanctum.myessentials.util.teleportation.Destination;
-
+import com.github.sanctum.myessentials.util.teleportation.MaxWorldCoordinatesException;
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-
-import com.github.sanctum.myessentials.util.teleportation.MaxWorldCoordinatesException;
-import com.google.common.collect.ImmutableList;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -30,7 +27,6 @@ import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 public final class TeleportCommand extends CommandBuilder {
-	private final PlayerWrapper playerWrapper = new PlayerWrapper();
 
 	public TeleportCommand() {
 		super(InternalCommandData.TELEPORT_COMMAND);
@@ -39,7 +35,7 @@ public final class TeleportCommand extends CommandBuilder {
 	@Override
 	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		if (!command.testPermissionSilent(player)) return ImmutableList.of();
-		final Collection<Player> players = playerWrapper.collect();
+		final Collection<Player> players = PlayerSearch.getOnlinePlayers().collect();
 		final ImmutableList.Builder<String> builder = new ImmutableList.Builder<>();
 		// first arg - show all players and player's x
 		if (args.length <= 1) {
@@ -49,7 +45,7 @@ public final class TeleportCommand extends CommandBuilder {
 		} else if (args.length == 2) {
 			// second arg - if first is a player, show filtered players + first player's x (fallback to current player if invalid);
 			// otherwise player's own y (if first arg parses)
-			final Optional<Player> namedPlayer = playerWrapper.get(args[0]);
+			final Optional<Player> namedPlayer = PlayerSearch.getOnlinePlayers().get(args[0]);
 			if (namedPlayer.isPresent()) {
 				final String named = namedPlayer.get().getName();
 				players.stream()
@@ -77,8 +73,8 @@ public final class TeleportCommand extends CommandBuilder {
 			// third arg - if first+second arg is a player, nothing;
 			// first arg player + second arg double, send arg player's y (fallback to current player)
 			// first+second arg double, send player's own z (if first+second args parse)
-			final Optional<Player> firstNamedPlayer = playerWrapper.get(args[0]);
-			final Optional<Player> secondNamedPlayer = playerWrapper.get(args[1]);
+			final Optional<Player> firstNamedPlayer = PlayerSearch.getOnlinePlayers().get(args[0]);
+			final Optional<Player> secondNamedPlayer = PlayerSearch.getOnlinePlayers().get(args[1]);
 			if (firstNamedPlayer.isPresent() && secondNamedPlayer.isPresent()) {
 				return ImmutableList.of();
 			}
@@ -113,7 +109,7 @@ public final class TeleportCommand extends CommandBuilder {
 		} else if (args.length == 4) {
 			// fourth arg - format MUST be player x y z; if not nothing.
 			// return arg player's z (fallback to current player);
-			final Optional<Player> namedPlayer = playerWrapper.get(args[0]);
+			final Optional<Player> namedPlayer = PlayerSearch.getOnlinePlayers().get(args[0]);
 			if (!namedPlayer.isPresent()) return ImmutableList.of();
 			try {
 				if (!args[1].startsWith("~")) {
@@ -181,7 +177,7 @@ public final class TeleportCommand extends CommandBuilder {
 			sendUsage(sender);
 			return false;
 		}
-		final Optional<Player> teleporting = playerWrapper.get(args[0]);
+		final Optional<Player> teleporting = PlayerSearch.getOnlinePlayers().get(args[0]);
 		if (!teleporting.isPresent()) {
 			sendMessage(sender, args[0] + " is not a valid player.");
 			return false;
@@ -190,7 +186,7 @@ public final class TeleportCommand extends CommandBuilder {
 		if (args.length == 2) {
 			// %teleport [teleporting] [target]
 			// Teleports the first player to the second (target) player
-			final Optional<Player> target = playerWrapper.get(args[1]);
+			final Optional<Player> target = PlayerSearch.getOnlinePlayers().get(args[1]);
 			if (!target.isPresent()) {
 				sendMessage(sender, args[1] + " is not a valid player name.");
 				return false;

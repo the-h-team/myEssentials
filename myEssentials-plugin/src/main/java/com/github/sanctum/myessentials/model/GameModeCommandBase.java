@@ -13,17 +13,17 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Base class for gamemode switch commands.
  */
-public abstract class ModeCommandBase extends CommandBuilder {
-    protected final GameMode gameMode;
-    protected final String gamemodeName;
+public abstract class GameModeCommandBase extends CommandBuilder {
+	protected final GameMode gameMode;
+	protected final String gamemodeName;
 
-    public ModeCommandBase(CommandData commandData, GameMode gameMode, String gamemodeName) {
-        super(commandData);
-        this.gameMode = gameMode;
-        this.gamemodeName = gamemodeName;
-    }
+	public GameModeCommandBase(CommandData commandData, GameMode gameMode, String gamemodeName) {
+		super(commandData);
+		this.gameMode = gameMode;
+		this.gamemodeName = gamemodeName;
+	}
 
-    @Override
+	@Override
     public @Nullable
     List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
         // if more than one arg is provided, or player does not have perms return no completions

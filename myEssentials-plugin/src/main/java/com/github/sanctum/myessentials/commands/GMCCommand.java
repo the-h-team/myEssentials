@@ -10,14 +10,14 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.myessentials.model.GameModeCommandBase;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.model.ModeCommandBase;
 import org.bukkit.GameMode;
 
 /**
  * Set yourself or other players to Creative Mode.
  */
-public final class GMCCommand extends ModeCommandBase {
+public final class GMCCommand extends GameModeCommandBase {
 	public GMCCommand() {
 		super(InternalCommandData.GMC_COMMAND, GameMode.CREATIVE, "Creative Mode");
 	}

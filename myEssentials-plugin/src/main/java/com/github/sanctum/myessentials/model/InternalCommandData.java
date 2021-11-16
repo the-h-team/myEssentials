@@ -8,12 +8,13 @@
  */
 package com.github.sanctum.myessentials.model;
 
+import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
+import com.github.sanctum.labyrinth.data.Node;
 import com.github.sanctum.myessentials.Essentials;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;
-import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,44 +69,44 @@ public enum InternalCommandData implements CommandData {
 
 	@Override
     public @NotNull String getLabel() {
-        return Objects.requireNonNull(fileManager.getConfig().getString(configNode + ".label"));
+		return Objects.requireNonNull(fileManager.getRoot().getString(configNode + ".label"));
     }
 
     @Override
     public @NotNull List<String> getAliases() {
-        final ConfigurationSection configurationSection = fileManager.getConfig().getConfigurationSection(configNode);
-        if (configurationSection != null && configurationSection.contains("aliases")) {
-            return configurationSection.getStringList("aliases");
-        }
-        return CommandData.super.getAliases();
+	    final Node node = fileManager.getRoot().getNode(configNode);
+	    if (node.getNode("aliases").toPrimitive().isStringList()) {
+		    return node.getNode("aliases").toPrimitive().getStringList();
+	    }
+	    return CommandData.super.getAliases();
     }
 
     @Override
     public @NotNull String getUsage() {
-        return Objects.requireNonNull(fileManager.getConfig().getString(configNode + ".usage"));
+	    return Objects.requireNonNull(fileManager.getRoot().getString(configNode + ".usage"));
     }
 
     @Override
     public @NotNull String getDescription() {
-        return Objects.requireNonNull(fileManager.getConfig().getString(configNode + ".description"));
+	    return Objects.requireNonNull(fileManager.getRoot().getString(configNode + ".description"));
     }
 
     @Override
     public @Nullable String getPermissionNode() {
-        return fileManager.getConfig().getString(configNode + ".permission");
+	    return fileManager.getRoot().getString(configNode + ".permission");
     }
 
     public static void defaultOrReload(Essentials plugin) {
-        if (fileManager == null) fileManager = plugin.getFileList().find("commands", "Configuration");
-	    if (!fileManager.exists()) {
+	    if (fileManager == null) fileManager = plugin.getFileList().get("commands", "Configuration");
+	    if (!fileManager.getRoot().exists()) {
 		    final InputStream resource = plugin.getResource("commands.yml");
 		    if (resource == null) {
 			    throw new IllegalStateException("Unable to load internal command data from the jar! something is very wrong");
 		    }
-		    FileManager.copy(resource, fileManager.getFile());
+		    FileList.copy(resource, fileManager.getRoot().getParent());
 	    }
-        if (fileManager.exists() && !fileManager.getConfig().getKeys(false).isEmpty()) {
-            fileManager.reload();
-        }
+	    if (fileManager.getRoot().exists() && !fileManager.getRoot().getKeys(false).isEmpty()) {
+		    fileManager.getRoot().reload();
+	    }
     }
 }

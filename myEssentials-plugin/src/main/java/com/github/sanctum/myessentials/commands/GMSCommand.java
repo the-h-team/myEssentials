@@ -10,14 +10,14 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.myessentials.model.GameModeCommandBase;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.model.ModeCommandBase;
 import org.bukkit.GameMode;
 
 /**
  * Set yourself or other players to Survival Mode.
  */
-public final class GMSCommand extends ModeCommandBase {
+public final class GMSCommand extends GameModeCommandBase {
 	public GMSCommand() {
 		super(InternalCommandData.GMS_COMMAND, GameMode.SURVIVAL, "Survival Mode");
 	}

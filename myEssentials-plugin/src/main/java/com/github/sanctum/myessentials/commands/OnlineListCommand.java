@@ -17,7 +17,7 @@ import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
-import com.github.sanctum.myessentials.util.PlayerWrapper;
+import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,8 +36,6 @@ public final class OnlineListCommand extends CommandBuilder {
 		super(InternalCommandData.ONLINELIST_COMMAND);
 	}
 
-	private final PlayerWrapper wrapper = new PlayerWrapper();
-
 	@Override
 	public @Nullable
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
@@ -48,10 +46,10 @@ public final class OnlineListCommand extends CommandBuilder {
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		List<BaseComponent> list = new ArrayList<>();
 		TextLib lib = TextLib.getInstance();
-		sendMessage(player, "&fThere are currently &b" + wrapper.list().size() + " &7/ &3" + Bukkit.getMaxPlayers() + "&f players online.");
+		sendMessage(player, "&fThere are currently &b" + PlayerSearch.getOnlinePlayers().list().size() + " &7/ &3" + Bukkit.getMaxPlayers() + "&f players online.");
 		sendMessage(player, "&f&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 		Map<String, List<Player>> map = new HashMap<>();
-		for (Player p : wrapper.sort()) {
+		for (Player p : PlayerSearch.getOnlinePlayers().sort()) {
 			String group = VaultPlayer.wrap(p).getGroup(p.getWorld().getName()).getName();
 			if (map.get(group) == null) {
 				List<Player> l = new ArrayList<>();

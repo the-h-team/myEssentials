@@ -16,8 +16,8 @@ import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.TextLib;
 import com.github.sanctum.myessentials.Essentials;
-import com.github.sanctum.myessentials.api.AddonQuery;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
+import com.github.sanctum.myessentials.api.EssentialsAddonQuery;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.ArrayList;
@@ -63,9 +63,9 @@ public final class HelpCommand extends CommandBuilder {
 
 	private PaginatedList<EssentialsAddon> addons(Player p) {
 		Message msg = Message.form(p);
-		return new PaginatedList<>(new ArrayList<>(AddonQuery.getKnownAddons()))
+		return new PaginatedList<>(new ArrayList<>(EssentialsAddonQuery.getKnownAddons()))
 				.limit(10)
-				.compare(Comparator.comparing(EssentialsAddon::getAddonName))
+				.compare(Comparator.comparing(EssentialsAddon::getName))
 				.start((pagination, page, max) -> msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &fmEssentials (" + page + "/" + max + ") &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"))
 				.finish((pagination, page, max) -> {
 					msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
@@ -105,12 +105,12 @@ public final class HelpCommand extends CommandBuilder {
 						LinkedList<BaseComponent> toSend = new LinkedList<>();
 						toSend.add(t.execute(() -> {
 							sendMessage(p, "&f&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-							sendMessage(p, "&aTotal Commands: &e" + addon.getCommands().size());
-							sendMessage(p, "&aTotal Listeners: &e" + addon.getListeners().size());
-							sendMessage(p, "&aStandalone: &3" + addon.isStandalone());
+							sendMessage(p, "&aTotal Commands: &e" + addon.getContext().getCommands().size());
+							sendMessage(p, "&aTotal Listeners: &e" + addon.getContext().getListeners().size());
+							sendMessage(p, "&Active: &3" + addon.isActive());
 							sendMessage(p, "&f&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-						}, t.textHoverable("&r| [&7" + Arrays.toString(addon.getAuthors()) + "&r] ", "&2" + addon.getAddonName(), "&6Click &rfor &6info.")));
-						toSend.add(t.textHoverable("", " &7[&8Description&7]", (!addon.getAddonDescription().isEmpty() ? addon.getAddonDescription() : "Nothing sorry :/")));
+						}, t.textHoverable("&r| [&7" + Arrays.toString(addon.getAuthors()) + "&r] ", "&2" + addon.getName(), "&6Click &rfor &6info.")));
+						toSend.add(t.textHoverable("", " &7[&8Description&7]", (!addon.getDescription().isEmpty() ? addon.getDescription() : "Nothing sorry :/")));
 						msg.build(toSend.toArray(new BaseComponent[0]));
 
 					});

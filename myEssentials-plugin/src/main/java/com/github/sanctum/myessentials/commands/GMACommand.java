@@ -10,14 +10,14 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.myessentials.model.GameModeCommandBase;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.model.ModeCommandBase;
 import org.bukkit.GameMode;
 
 /**
  * Set yourself or other players to Adventure Mode.
  */
-public final class GMACommand extends ModeCommandBase {
+public final class GMACommand extends GameModeCommandBase {
 	public GMACommand() {
 		super(InternalCommandData.GMA_COMMAND, GameMode.ADVENTURE, "Adventure Mode");
 	}

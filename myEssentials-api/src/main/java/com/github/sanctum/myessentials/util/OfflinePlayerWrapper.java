@@ -1,6 +1,7 @@
 package com.github.sanctum.myessentials.util;
 
 import com.github.sanctum.labyrinth.formatting.UniformedComponents;
+import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -14,9 +15,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 public class OfflinePlayerWrapper extends UniformedComponents<OfflinePlayer> {
+	private final List<OfflinePlayer> list;
+
+	public OfflinePlayerWrapper() {
+		this.list = new ArrayList<>(Arrays.asList(Bukkit.getOfflinePlayers()));
+	}
+
 	@Override
 	public List<OfflinePlayer> list() {
-		return new ArrayList<>(Arrays.asList(Bukkit.getOfflinePlayers()));
+		return list;
 	}
 
 	public Optional<OfflinePlayer> get(String name) {
@@ -71,4 +78,9 @@ public class OfflinePlayerWrapper extends UniformedComponents<OfflinePlayer> {
 	public OfflinePlayer get(int index) {
 		return list().get(index);
 	}
+
+	public PlayerWrapper toOnline() {
+		return PlayerSearch.getOnlinePlayers();
+	}
+
 }

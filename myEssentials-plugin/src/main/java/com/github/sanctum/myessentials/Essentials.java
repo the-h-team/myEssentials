@@ -10,21 +10,15 @@
  */
 package com.github.sanctum.myessentials;
 
+import com.github.sanctum.labyrinth.LabyrinthProvider;
+import com.github.sanctum.labyrinth.api.Service;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.data.Registry;
 import com.github.sanctum.labyrinth.data.RegistryData;
-import com.github.sanctum.labyrinth.event.EasyListener;
-import com.github.sanctum.labyrinth.gui.InventoryRows;
-import com.github.sanctum.labyrinth.gui.shared.SharedBuilder;
-import com.github.sanctum.labyrinth.gui.shared.SharedMenu;
-import com.github.sanctum.labyrinth.library.Items;
-import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.listeners.AFKEventListener;
-import com.github.sanctum.myessentials.listeners.EntityEventListener;
-import com.github.sanctum.myessentials.listeners.HealingListener;
+import com.github.sanctum.myessentials.listeners.PlayerEventListener;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.CommandImpl;
@@ -35,14 +29,13 @@ import com.github.sanctum.myessentials.model.action.IExecutorCalculating;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.SignWrapper;
+import com.github.sanctum.myessentials.util.factory.LoadingLogic;
 import com.github.sanctum.myessentials.util.factory.MessengerImpl;
-import com.github.sanctum.myessentials.util.factory.ReloadUtil;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
 import com.github.sanctum.skulls.CustomHead;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -54,15 +47,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Nullable;
@@ -72,7 +63,6 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	private static final Map<CommandData, Command> REGISTRATIONS = new HashMap<>();
 	public static final CommandMap SERVER_COMMAND_MAP;
 	public static final Map<String, Command> KNOWN_COMMANDS_MAP;
-	private static Essentials instance;
 
 	public final Set<CommandData> registeredCommands = new HashSet<>();
 
@@ -87,28 +77,11 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
 	@Override
 	public void onEnable() {
-		instance = this;
 		Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
-		ReloadUtil.get(this).onEnable();
-		SharedMenu bin = SharedBuilder.create(this, "My-Bin", StringUtils.use("&6&nDonation Bin.").translate(), InventoryRows.THREE.getSlotCount());
-		bin.addOption(SharedMenu.Option.CANCEL_HOTBAR);
-		bin.setItem(0, () -> {
-			boolean isNew = Arrays.stream(Material.values()).anyMatch(m -> m.name().equals("HEART_OF_THE_SEA"));
-			ItemStack item = new ItemStack(isNew ? Items.getMaterial("heartofthesea") : Items.getMaterial("obsidian"));
-			ItemMeta meta = item.getItemMeta();
-			assert meta != null;
-			meta.setDisplayName(StringUtils.use("&4Close.").translate());
-			item.setItemMeta(meta);
-			return item;
-		}, click -> {
-			click.getWhoClicked().closeInventory();
-			click.cancel();
-		});
+		LoadingLogic.get(this).onEnable();
 		this.teleportRunner = new TeleportRunnerImpl(this);
 		this.messenger = new MessengerImpl(this);
-		new EasyListener(EntityEventListener.class).call(this);
-		new EasyListener(HealingListener.class).call(this);
-		new EasyListener(AFKEventListener.class).call(this);
+		new Registry<>(Listener.class).source(this).pick("com.github.sanctum.myessentials.listeners").operate(l -> LabyrinthProvider.getService(Service.VENT).subscribe(this, l));
 		InternalCommandData.defaultOrReload(this);
 		ConfiguredMessage.loadProperties(this);
 		OptionLoader.renewRemainingBans();
@@ -123,15 +96,14 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		TeleportationManager.registerListeners(this);
 		Commands.register();
 
-		FileManager man = getFileList().find("Heads", "Data");
+		FileManager man = getFileList().get("Heads", "Data");
 
-		if (!man.exists()) {
-			FileManager.copy(getResource("Heads.yml"), man);
-			man.reload();
+		if (!man.getRoot().exists()) {
+			FileList.copy(getResource("Heads.yml"), man.getRoot().getParent());
+			man.getRoot().reload();
 		}
 
-		CustomHead.Manager.newLoader(man.getConfig()).look("My_heads").complete();
-
+		CustomHead.Manager.newLoader(man.getRoot()).look("My_heads").complete();
 
 	}
 
@@ -139,7 +111,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	@Override
 	public void onDisable() {
 		try {
-			ReloadUtil.get(this).onDisable();
+			LoadingLogic.get(this).onDisable();
 			TeleportationManager.unregisterListeners();
 			OptionLoader.recordRemainingBans();
 		} catch (Exception e) {
@@ -201,17 +173,17 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
 	@Override
 	public @Nullable Location getPreviousLocation(Player player) {
-		return EntityEventListener.getPrevLocations().get(player.getUniqueId());
+		return PlayerEventListener.getPrevLocations().get(player.getUniqueId());
 	}
 
 	@Override
 	public @Nullable Location getPreviousLocationOffline(UUID uuid) {
-		return EntityEventListener.getPrevLocations().get(uuid);
+		return PlayerEventListener.getPrevLocations().get(uuid);
 	}
 
 	@Override
 	public FileManager getAddonFile(String name, String directory) {
-		return getFileList().find(name, "/Addons/" + directory + "/");
+		return getFileList().get(name, "/Addons/" + directory + "/");
 	}
 
 	@Override
@@ -261,7 +233,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	}
 
 	public static JavaPlugin getInstance() {
-		return instance;
+		return JavaPlugin.getPlugin(Essentials.class);
 	}
 
 	// Prepare the command management utilities.

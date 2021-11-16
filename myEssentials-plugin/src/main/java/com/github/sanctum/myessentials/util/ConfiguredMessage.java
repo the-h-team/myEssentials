@@ -10,6 +10,7 @@
  */
 package com.github.sanctum.myessentials.util;
 
+import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
@@ -180,7 +181,7 @@ public enum ConfiguredMessage implements ProvidedMessage {
                 throw new IllegalStateException("This is not good.", e);
             }
         });
-        return fileManager.getConfig().getString("Messages.".concat(section).concat(key));
+        return fileManager.getRoot().getString("Messages.".concat(section).concat(key));
     }
 
     @Override
@@ -190,11 +191,11 @@ public enum ConfiguredMessage implements ProvidedMessage {
     }
 
     public static void loadProperties(Essentials essentials) {
-        if (fileManager == null) fileManager = essentials.getFileList().find("messages", "Configuration");
+        if (fileManager == null) fileManager = essentials.getFileList().get("messages", "Configuration");
         final InputStream resource = essentials.getResource("messages.yml");
-        if (!fileManager.exists()) {
+        if (!fileManager.getRoot().exists()) {
             assert resource != null;
-            FileManager.copy(resource, fileManager.getFile());
+            FileList.copy(resource, fileManager.getRoot().getParent());
         }
     }
 

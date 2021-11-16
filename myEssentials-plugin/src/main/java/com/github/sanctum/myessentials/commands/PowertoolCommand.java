@@ -52,7 +52,7 @@ public final class PowertoolCommand extends CommandBuilder {
 			String result = builder.toString().trim();
 			ItemStack hand = player.getInventory().getItemInMainHand();
 
-			ItemStack wand = Items.getItem(hand.getType(), "&7[Powertool] &f/&6" + result);
+			ItemStack wand = Items.edit().setType(hand.getType()).setTitle("&7[Powertool] &f/&6" + result).build();
 			ItemMeta meta = wand.getItemMeta();
 			//meta.getPersistentDataContainer().set(KEY, PersistentDataType.STRING, result);
 			meta.setLore(Collections.singletonList(StringUtils.use("Left-click to use the designated command.").translate()));

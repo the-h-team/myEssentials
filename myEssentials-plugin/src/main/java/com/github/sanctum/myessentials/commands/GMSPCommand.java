@@ -10,14 +10,14 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.myessentials.model.GameModeCommandBase;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import com.github.sanctum.myessentials.model.ModeCommandBase;
 import org.bukkit.GameMode;
 
 /**
  * Set yourself or other players to Spectator.
  */
-public final class GMSPCommand extends ModeCommandBase {
+public final class GMSPCommand extends GameModeCommandBase {
 	public GMSPCommand() {
 		super(InternalCommandData.GMSP_COMMAND, GameMode.SPECTATOR, "Spectator");
 	}
