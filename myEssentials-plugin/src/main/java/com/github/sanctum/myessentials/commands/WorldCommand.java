@@ -10,12 +10,13 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.labyrinth.formatting.TabCompletion;
-import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
+import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-
-import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -39,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class WorldCommand extends CommandBuilder {
 	private final Map<UUID, Boolean> taskScheduled = new HashMap<>();
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 	private final AtomicReference<Location> teleportLocation = new AtomicReference<>();
 
 	public WorldCommand() {
@@ -50,15 +49,12 @@ public final class WorldCommand extends CommandBuilder {
 	public @NotNull
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return builder
-				.forArgs(args)
-				.level(1)
-				.completeAt(getData().getLabel())
-				.filter(() -> Bukkit.getWorlds()
+				.fillArgs(args)
+				.then(TabCompletionIndex.ONE, Bukkit.getWorlds()
 						.stream()
 						.map(World::getName)
 						.collect(Collectors.toList()))
-				.collect()
-				.get(1);
+				.get();
 	}
 
 	public int random(int bounds) {

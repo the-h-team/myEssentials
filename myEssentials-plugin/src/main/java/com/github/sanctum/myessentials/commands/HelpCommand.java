@@ -11,8 +11,8 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.PaginatedList;
-import com.github.sanctum.labyrinth.formatting.TabCompletion;
-import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
+import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.TextLib;
 import com.github.sanctum.myessentials.Essentials;
@@ -39,14 +39,12 @@ public final class HelpCommand extends CommandBuilder {
 		super(InternalCommandData.HELP_COMMAND);
 	}
 
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 
 	@Override
 	public @NotNull List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return builder.forArgs(args)
-				.level(1)
-				.completeAt(getData().getLabel())
-				.filter(() -> getCommands(player).stream().filter(command -> {
+		return builder.fillArgs(args)
+				.then(TabCompletionIndex.ONE, getCommands(player).stream().filter(command -> {
 					try {
 						Plugin p = JavaPlugin.getProvidingPlugin(command.getClass());
 						return true;
@@ -57,8 +55,7 @@ public final class HelpCommand extends CommandBuilder {
 					Plugin p = JavaPlugin.getProvidingPlugin(command.getClass());
 					return p.getName();
 				}).collect(Collectors.toList()))
-				.collect()
-				.get(1);
+				.get();
 	}
 
 	private PaginatedList<EssentialsAddon> addons(Player p) {
@@ -206,13 +203,13 @@ public final class HelpCommand extends CommandBuilder {
 				}
 
 				help(player).filter(cmd -> {
-					try {
-						Plugin p = JavaPlugin.getProvidingPlugin(cmd.getClass());
-						return p.getName().equalsIgnoreCase(args[0]);
-					} catch (Exception ignored) {
-						return false;
-					}
-				}).start((pagination, page, max) -> msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &f" + args[0] + " (" + page + "/" + max + ") &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"))
+							try {
+								Plugin p = JavaPlugin.getProvidingPlugin(cmd.getClass());
+								return p.getName().equalsIgnoreCase(args[0]);
+							} catch (Exception ignored) {
+								return false;
+							}
+						}).start((pagination, page, max) -> msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &f" + args[0] + " (" + page + "/" + max + ") &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"))
 						.decorate((pagination, command, page, max, placement) ->
 								TextLib.consume(t -> msg.build(t.textSuggestable("&r/", "&6" + command.getLabel() + " &r- " + command.getDescription(), "&6Click &rto &6auto-suggest.", command.getLabel() + " ")))).get(1);
 				return true;

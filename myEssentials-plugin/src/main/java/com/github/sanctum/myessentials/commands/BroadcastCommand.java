@@ -10,13 +10,11 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.labyrinth.formatting.TabCompletion;
-import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
+import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import java.util.Collections;
 import java.util.List;
-import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -26,28 +24,16 @@ public final class BroadcastCommand extends CommandBuilder {
 		super(InternalCommandData.BROADCAST_COMMAND);
 	}
 
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 
 	@Override
 	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return builder
-				.forArgs(args)
-				.level(1)
-				.completeAt(getData().getLabel())
-				.filter(() -> Collections.singletonList("message"))
-				.map("message", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
-				.collect()
-				.level(2)
-				.completeAt(getData().getLabel())
-				.filter(() -> Collections.singletonList("goes"))
-				.map("goes", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
-				.collect()
-				.level(3)
-				.completeAt(getData().getLabel())
-				.filter(() -> Collections.singletonList("here"))
-				.map("here", () -> player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 1, 3))
-				.collect()
-				.get(args.length);
+				.fillArgs(args)
+				.then(TabCompletionIndex.ONE, "message")
+				.then(TabCompletionIndex.TWO, "message", TabCompletionIndex.ONE, "goes")
+				.then(TabCompletionIndex.THREE, "goes", TabCompletionIndex.TWO, "here")
+				.get();
 	}
 
 	@Override

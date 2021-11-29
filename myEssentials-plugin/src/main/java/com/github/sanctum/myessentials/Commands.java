@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials;
 
-import com.github.sanctum.labyrinth.formatting.TabCompletion;
-import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
+import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.gui.unity.construct.Menu;
 import com.github.sanctum.labyrinth.gui.unity.construct.PaginatedMenu;
 import com.github.sanctum.labyrinth.gui.unity.construct.PrintableMenu;
@@ -34,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.BanEntry;
@@ -57,17 +55,17 @@ import org.bukkit.util.Vector;
 
 public final class Commands {
 
-	private static TabCompletionBuilder kickTab;
-	private static TabCompletionBuilder transitionTab;
-	private static TabCompletionBuilder kickTabAll;
-	private static TabCompletionBuilder banTab;
-	private static TabCompletionBuilder healTab;
-	private static TabCompletionBuilder feedTab;
-	private static TabCompletionBuilder dayTab;
-	private static TabCompletionBuilder nightTab;
-	private static TabCompletionBuilder staffTab;
-	private static TabCompletionBuilder tempBanTab;
-	private static TabCompletionBuilder unbanTab;
+	private static SimpleTabCompletion kickTab;
+	private static SimpleTabCompletion transitionTab;
+	private static SimpleTabCompletion kickTabAll;
+	private static SimpleTabCompletion banTab;
+	private static SimpleTabCompletion healTab;
+	private static SimpleTabCompletion feedTab;
+	private static SimpleTabCompletion dayTab;
+	private static SimpleTabCompletion nightTab;
+	private static SimpleTabCompletion staffTab;
+	private static SimpleTabCompletion tempBanTab;
+	private static SimpleTabCompletion unbanTab;
 	private static int i;
 	private static boolean sent;
 
@@ -268,11 +266,11 @@ public final class Commands {
 					}
 
 				}).next((builder, sender, commandLabel, args) -> {
-			PlayerSearch search = PlayerSearch.look(sender);
-			search.sendMessage(ConfiguredMessage.MUST_BE_PLAYER);
-		}).read((builder, sender, commandLabel, args) -> new ArrayList<>());
+					PlayerSearch search = PlayerSearch.look(sender);
+					search.sendMessage(ConfiguredMessage.MUST_BE_PLAYER);
+				}).read((builder, sender, commandLabel, args) -> new ArrayList<>());
 
-		CommandMapper.from(InternalCommandData.BAN_COMMAND, builder -> banTab = TabCompletion.build(builder.getData().getLabel()))
+		CommandMapper.from(InternalCommandData.BAN_COMMAND, builder -> banTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						builder.sendUsage(player);
@@ -375,14 +373,11 @@ public final class Commands {
 						}
 					}
 				})
-				.read((builder, p, commandLabel, args) -> banTab.forArgs(args)
-						.level(1)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
-						.collect()
-						.get(1));
+				.read((builder, p, commandLabel, args) -> banTab.fillArgs(args)
+						.then(TabCompletionIndex.ONE, Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
+						.get());
 
-		CommandMapper.from(InternalCommandData.UNBAN_COMMAND, builder -> unbanTab = TabCompletion.build(builder.getData().getLabel()))
+		CommandMapper.from(InternalCommandData.UNBAN_COMMAND, builder -> unbanTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 					if (builder.testPermission(player)) {
 						if (args.length == 1) {
@@ -419,13 +414,11 @@ public final class Commands {
 						}
 					}
 				})
-				.read((builder, sender, commandLabel, args) -> unbanTab.forArgs(args)
-						.level(1)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> Bukkit.getBanList(BanList.Type.NAME).getBanEntries().stream().map(BanEntry::getTarget).collect(Collectors.toList()))
-						.collect().get(1));
+				.read((builder, sender, commandLabel, args) -> unbanTab.fillArgs(args)
+						.then(TabCompletionIndex.ONE, Bukkit.getBanList(BanList.Type.NAME).getBanEntries().stream().map(BanEntry::getTarget).collect(Collectors.toList()))
+						.get());
 
-		CommandMapper.from(InternalCommandData.KICK_COMMAND, builder -> kickTab = TabCompletion.build(builder.getData().getLabel()))
+		CommandMapper.from(InternalCommandData.KICK_COMMAND, builder -> kickTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						builder.sendUsage(player);
@@ -483,68 +476,65 @@ public final class Commands {
 					}
 
 				}).next((builder, sender, commandLabel, args) -> {
-			if (args.length == 0) {
-				builder.sendUsage(sender);
-				return;
-			}
-
-			if (args.length == 1) {
-				PlayerSearch search = PlayerSearch.look(args[0]);
-				if (builder.testPermission(sender)) {
-					if (search.isValid()) {
-
-						OfflinePlayer target = search.getOfflinePlayer();
-
-						if (search.kick(KickReason.next()
-								.input(1, MyEssentialsAPI.getInstance().getPrefix())
-								.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
-								.input(3, ConfiguredMessage.DEFAULT_KICK_REASON.toString()), true)) {
-							builder.sendMessage(sender, ConfiguredMessage.TARGET_KICKED);
-						} else {
-							builder.sendMessage(sender, ConfiguredMessage.TARGET_OFFLINE);
-						}
-
-					} else {
-						builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+					if (args.length == 0) {
+						builder.sendUsage(sender);
 						return;
 					}
-					return;
-				}
-				return;
-			}
 
-			StringBuilder stringBuilder = new StringBuilder();
-			for (int i = 1; i < args.length; i++) {
-				stringBuilder.append(args[i]).append(" ");
-			}
-			if (builder.testPermission(sender)) {
-				String get = stringBuilder.toString().trim();
+					if (args.length == 1) {
+						PlayerSearch search = PlayerSearch.look(args[0]);
+						if (builder.testPermission(sender)) {
+							if (search.isValid()) {
 
-				PlayerSearch search = PlayerSearch.look(args[0]);
-				if (search.isValid()) {
+								OfflinePlayer target = search.getOfflinePlayer();
 
-					if (search.kick((KickReason.next()
-							.input(1, MyEssentialsAPI.getInstance().getPrefix())
-							.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
-							.input(3, ConfiguredMessage.CUSTOM_KICK_REASON.replace(get))
-							.reason(get)), true)) {
-						builder.sendMessage(sender, ConfiguredMessage.TARGET_KICKED_WITH_REASON.replace(get));
-					} else {
-						builder.sendMessage(sender, ConfiguredMessage.TARGET_OFFLINE);
+								if (search.kick(KickReason.next()
+										.input(1, MyEssentialsAPI.getInstance().getPrefix())
+										.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
+										.input(3, ConfiguredMessage.DEFAULT_KICK_REASON.toString()), true)) {
+									builder.sendMessage(sender, ConfiguredMessage.TARGET_KICKED);
+								} else {
+									builder.sendMessage(sender, ConfiguredMessage.TARGET_OFFLINE);
+								}
+
+							} else {
+								builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+								return;
+							}
+							return;
+						}
+						return;
 					}
 
-				} else {
-					builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
-				}
-			}
-		}).read((builder, sender, commandLabel, args) -> kickTab.forArgs(args)
-				.level(1)
-				.completeAt(builder.getData().getLabel())
-				.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
-				.collect()
-				.get(1));
+					StringBuilder stringBuilder = new StringBuilder();
+					for (int i = 1; i < args.length; i++) {
+						stringBuilder.append(args[i]).append(" ");
+					}
+					if (builder.testPermission(sender)) {
+						String get = stringBuilder.toString().trim();
 
-		CommandMapper.from(InternalCommandData.TEMPBAN_COMMAND, builder -> tempBanTab = TabCompletion.build(builder.getData().getLabel()))
+						PlayerSearch search = PlayerSearch.look(args[0]);
+						if (search.isValid()) {
+
+							if (search.kick((KickReason.next()
+									.input(1, MyEssentialsAPI.getInstance().getPrefix())
+									.input(2, ConfiguredMessage.YOU_WERE_KICKED.toString())
+									.input(3, ConfiguredMessage.CUSTOM_KICK_REASON.replace(get))
+									.reason(get)), true)) {
+								builder.sendMessage(sender, ConfiguredMessage.TARGET_KICKED_WITH_REASON.replace(get));
+							} else {
+								builder.sendMessage(sender, ConfiguredMessage.TARGET_OFFLINE);
+							}
+
+						} else {
+							builder.sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+						}
+					}
+				}).read((builder, sender, commandLabel, args) -> kickTab.fillArgs(args)
+						.then(TabCompletionIndex.ONE, Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+						.get());
+
+		CommandMapper.from(InternalCommandData.TEMPBAN_COMMAND, builder -> tempBanTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						builder.sendUsage(player);
@@ -764,26 +754,13 @@ public final class Commands {
 						}
 					}
 				})
-				.read((builder, player, commandLabel, args) -> tempBanTab.forArgs(args)
-						.level(1)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
-						.collect()
-						.level(2)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> {
-							List<String> result = new ArrayList<>(Arrays.asList("1s", "1m", "1h", "1d", "2s", "2m", "3h", "3d"));
-							Collections.sort(result);
-							return result;
-						})
-						.collect()
-						.level(3)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> Collections.singletonList(ConfiguredMessage.REASON.toString()))
-						.collect()
-						.get(args.length));
+				.read((builder, player, commandLabel, args) -> tempBanTab.fillArgs(args)
+						.then(TabCompletionIndex.ONE, Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()))
+						.then(TabCompletionIndex.TWO, "1s", "1m", "1h", "1d", "2s", "2m", "3h", "3d")
+						.then(TabCompletionIndex.THREE, Collections.singletonList(ConfiguredMessage.REASON.toString()))
+						.get());
 
-		CommandMapper.from(InternalCommandData.DAY_COMMAND, builder -> dayTab = TabCompletion.build(builder.getData().getLabel()))
+		CommandMapper.from(InternalCommandData.DAY_COMMAND, builder -> dayTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						if (builder.testPermission(player)) {
@@ -825,22 +802,11 @@ public final class Commands {
 
 				})
 				.read((builder, player, commandLabel, args) -> dayTab
-						.forArgs(args)
-						.level(1)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> Arrays.asList("morning", "noon", "afternoon"))
-						.map("morning", () -> {
-							Random r = new Random();
-							if (r.nextBoolean()) {
-								if (r.nextInt(28) < 6) {
-									builder.sendMessage(player, ConfiguredMessage.DAY_VALUES_DESC);
-								}
-							}
-						})
-						.collect()
-						.get(1));
+						.fillArgs(args)
+						.then(TabCompletionIndex.ONE, "morning", "noon", "afternoon")
+						.get());
 
-		CommandMapper.from(InternalCommandData.NIGHT_COMMAND, builder -> nightTab = TabCompletion.build(builder.getData().getLabel()))
+		CommandMapper.from(InternalCommandData.NIGHT_COMMAND, builder -> nightTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						if (builder.testPermission(player)) {
@@ -882,20 +848,9 @@ public final class Commands {
 
 				})
 				.read((builder, player, commandLabel, args) -> nightTab
-						.forArgs(args)
-						.level(1)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> Arrays.asList("night", "midnight", "dusk"))
-						.map("night", () -> {
-							Random r = new Random();
-							if (r.nextBoolean()) {
-								if (r.nextInt(28) < 6) {
-									builder.sendMessage(player, ConfiguredMessage.NIGHT_VALUES_DESC);
-								}
-							}
-						})
-						.collect()
-						.get(1));
+						.fillArgs(args)
+						.then(TabCompletionIndex.ONE, "night", "midnight", "dusk")
+						.get());
 
 		CommandMapper.from(OptionLoader.TEST_COMMAND.from("sudo", "/sudo", "Make someone perform a command.", "mess.staff.sudo", "s", "make"))
 				.apply((builder, player, commandLabel, args) -> {
@@ -1032,7 +987,7 @@ public final class Commands {
 				})
 				.read(CommandBuilder::defaultCompletion);
 
-		CommandMapper.from(InternalCommandData.FEED_COMMAND, builder -> feedTab = TabCompletion.build(builder.getData().getLabel()))
+		CommandMapper.from(InternalCommandData.FEED_COMMAND, builder -> feedTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						if (builder.testPermission(player)) {
@@ -1067,12 +1022,9 @@ public final class Commands {
 				.next((builder, sender, commandLabel, args) -> {
 
 				})
-				.read((builder, player, commandLabel, args) -> healTab.forArgs(args)
-						.level(1)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
-						.collect()
-						.get(1));
+				.read((builder, player, commandLabel, args) -> healTab.fillArgs(args)
+						.then(TabCompletionIndex.ONE, Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+						.get());
 
 		CommandMapper.from(InternalCommandData.INVSEE_COMMAND)
 				.apply((builder, player, commandLabel, args) -> {
@@ -1112,7 +1064,7 @@ public final class Commands {
 				.next((builder, sender, commandLabel, args) -> builder.sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER))
 				.read(CommandBuilder::defaultCompletion);
 
-		CommandMapper.from(InternalCommandData.HEAL_COMMAND, builder -> healTab = TabCompletion.build(builder.getData().getLabel()))
+		CommandMapper.from(InternalCommandData.HEAL_COMMAND, builder -> healTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 					if (args.length == 0) {
 						if (builder.testPermission(player)) {
@@ -1147,15 +1099,12 @@ public final class Commands {
 				.next((builder, sender, commandLabel, args) -> {
 
 				})
-				.read((builder, player, commandLabel, args) -> healTab.forArgs(args)
-						.level(1)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
-						.collect()
-						.get(1));
+				.read((builder, player, commandLabel, args) -> healTab.fillArgs(args)
+						.then(TabCompletionIndex.ONE, Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+						.get());
 
 
-		CommandMapper.from(InternalCommandData.TRANSITION_COMMAND, builder -> transitionTab = TabCompletion.build(builder.getData().getLabel()))
+		CommandMapper.from(InternalCommandData.TRANSITION_COMMAND, builder -> transitionTab = SimpleTabCompletion.empty())
 				.apply((builder, player, commandLabel, args) -> {
 
 					if (builder.testPermission(player)) {
@@ -1475,18 +1424,13 @@ public final class Commands {
 						}
 					}
 				})
-				.read((builder, sender, commandLabel, args) -> transitionTab.forArgs(args)
-						.level(1)
-						.completeAt(builder.getData().getLabel())
-						.filter(() -> {
-							List<String> list = new ArrayList<>();
-							if (builder.testPermission(sender)) {
-								list.add("day");
-								list.add("night");
-							}
-							return list;
-						})
-						.collect().get(1));
+				.read((builder, sender, commandLabel, args) -> {
+					transitionTab.fillArgs(args);
+					if (builder.testPermission(sender)) {
+						transitionTab.then(TabCompletionIndex.ONE, "day", "night");
+					}
+					return transitionTab.get();
+				});
 
 
 		CommandMapper.from(OptionLoader.TEST_COMMAND.from("pl", "/pl", "View plugin information.", "mess.plugins", "?"))
@@ -1518,51 +1462,6 @@ public final class Commands {
 
 					}
 				}).read(CommandBuilder::defaultCompletion);
-
-/*
-		CommandMapper.from(InternalCommandData.FLY_COMMAND)
-				.apply((builder, player, commandLabel, args) -> {
-
-				}).read((builder, sender, commandLabel, args) -> {
-
-		});
-
-		CommandMapper.from(InternalCommandData.FLY_COMMAND)
-				.apply((builder, player, commandLabel, args) -> {
-
-				}).read((builder, sender, commandLabel, args) -> {
-
-		});
-
-		CommandMapper.from(InternalCommandData.FLY_COMMAND)
-				.apply((builder, player, commandLabel, args) -> {
-
-				}).read((builder, sender, commandLabel, args) -> {
-
-		});
-
-		CommandMapper.from(InternalCommandData.FLY_COMMAND)
-				.apply((builder, player, commandLabel, args) -> {
-
-				}).read((builder, sender, commandLabel, args) -> {
-
-		});
-
-		CommandMapper.from(InternalCommandData.FLY_COMMAND)
-				.apply((builder, player, commandLabel, args) -> {
-
-				}).read((builder, sender, commandLabel, args) -> {
-
-		});
-
-		CommandMapper.from(InternalCommandData.FLY_COMMAND)
-				.apply((builder, player, commandLabel, args) -> {
-
-				}).read((builder, sender, commandLabel, args) -> {
-
-		});
-
- */
 
 	}
 

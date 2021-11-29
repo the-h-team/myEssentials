@@ -10,13 +10,12 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.labyrinth.formatting.TabCompletion;
-import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
+import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.library.Entities;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -30,7 +29,7 @@ public final class SpawnMobCommand extends CommandBuilder {
 		super(InternalCommandData.SPAWNMOB_COMMAND);
 	}
 
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 	private final List<String> arguments = new ArrayList<>();
 
 	@Override
@@ -96,12 +95,9 @@ public final class SpawnMobCommand extends CommandBuilder {
 			return result;
 		}
 
-		return builder.forArgs(args)
-				.level(3)
-				.completeAt(getData().getLabel())
-				.filter(() -> Collections.singletonList("{POS X,Y,Z}"))
-				.collect()
-				.get(args.length);
+		return builder.fillArgs(args)
+				.then(TabCompletionIndex.THREE, "{POS X,Y,Z}")
+				.get();
 	}
 
 	@Override

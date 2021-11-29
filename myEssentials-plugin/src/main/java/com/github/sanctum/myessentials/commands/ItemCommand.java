@@ -10,8 +10,8 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.labyrinth.formatting.TabCompletion;
-import com.github.sanctum.labyrinth.formatting.TabCompletionBuilder;
+import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
+import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.library.Items;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
@@ -29,21 +29,15 @@ public final class ItemCommand extends CommandBuilder {
 		super(InternalCommandData.ITEM_COMMAND);
 	}
 
-	private final TabCompletionBuilder builder = TabCompletion.build(getData().getLabel());
+	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 
 	@Override
 	public @NotNull
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return builder.forArgs(args)
-				.level(1)
-				.completeAt(getData().getLabel())
-				.filter(() -> Arrays.stream(Material.values()).map(Enum::name).map(s -> s.toLowerCase().replace("_", "")).collect(Collectors.toList()))
-				.collect()
-				.level(2)
-				.completeAt(getData().getLabel())
-				.filter(() -> Arrays.stream(Material.values()).map(Enum::name).map(s -> s.toLowerCase().replace("_", "")).collect(Collectors.toList()))
-				.collect()
-				.get(args.length);
+		return builder.fillArgs(args)
+				.then(TabCompletionIndex.ONE, Arrays.stream(Material.values()).map(Enum::name).map(s -> s.toLowerCase().replace("_", "")).collect(Collectors.toList()))
+				.then(TabCompletionIndex.TWO, Arrays.stream(Material.values()).map(Enum::name).map(s -> s.toLowerCase().replace("_", "")).collect(Collectors.toList()))
+				.get();
 
 	}
 
