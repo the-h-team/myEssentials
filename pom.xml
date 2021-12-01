@@ -113,21 +113,25 @@
             <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-common</artifactId>
             <version>${labyrinth.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-gui</artifactId>
             <version>${labyrinth.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-regions</artifactId>
             <version>${labyrinth.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-skulls</artifactId>
             <version>${labyrinth.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.the-h-team</groupId>
