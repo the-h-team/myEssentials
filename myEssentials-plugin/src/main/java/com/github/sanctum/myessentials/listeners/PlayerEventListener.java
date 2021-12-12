@@ -9,7 +9,6 @@
 package com.github.sanctum.myessentials.listeners;
 
 import com.github.sanctum.labyrinth.LabyrinthProvider;
-import com.github.sanctum.labyrinth.data.Region;
 import com.github.sanctum.labyrinth.event.custom.DefaultEvent;
 import com.github.sanctum.labyrinth.event.custom.Subscribe;
 import com.github.sanctum.labyrinth.library.AFK;
@@ -17,8 +16,8 @@ import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.library.TimeWatch;
-import com.github.sanctum.labyrinth.task.Schedule;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.myessentials.commands.PowertoolCommand;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.events.PendingTeleportEvent;
 import com.github.sanctum.myessentials.util.events.PlayerFeedEvent;
@@ -32,14 +31,12 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import org.bukkit.BanEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
@@ -56,6 +53,7 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -145,6 +143,7 @@ public class PlayerEventListener implements Listener {
 		}
 
 		if (e.getResult() == PlayerLoginEvent.Result.ALLOWED) {
+			/*
 			Schedule.sync(() -> {
 				if (Region.spawn().isPresent()) {
 					if (Region.spawn().get().contains(e.getPlayer())) {
@@ -194,6 +193,9 @@ public class PlayerEventListener implements Listener {
 					}
 				}
 			}).repeatReal(0, 2 * 20);
+
+			 */
+
 		}
 
 	}
@@ -219,15 +221,13 @@ public class PlayerEventListener implements Listener {
 			if (e.getItem() != null) {
 				ItemStack i = e.getItem();
 				if (i.hasItemMeta()) {
-					/*
-					if (i.getItemMeta().getPersistentDataContainer().has(PowertoolCommand.KEY, PersistentDataType.STRING)) {
+					NamespacedKey match = new NamespacedKey(PowertoolCommand.KEY.getNamespace(), PowertoolCommand.KEY.getKey());
+					if (i.getItemMeta().getPersistentDataContainer().has(match, PersistentDataType.STRING)) {
 						e.setCancelled(true);
-						String command = i.getItemMeta().getPersistentDataContainer().get(PowertoolCommand.KEY, PersistentDataType.STRING);
+						String command = i.getItemMeta().getPersistentDataContainer().get(match, PersistentDataType.STRING);
 						Bukkit.dispatchCommand(e.getPlayer(), command);
 
 					}
-
-					 */
 				}
 			}
 		}
@@ -362,9 +362,9 @@ public class PlayerEventListener implements Listener {
 							e.getAfk().reset(AFK.Status.ACTIVE);
 							break;
 						case REMOVABLE:
+							e.getAfk().remove();
 							Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &b" + p.getName() + " &c&owas kicked for being AFK too long.").translate());
 							p.kickPlayer(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + "\n" + "&c&oAFK too long.\n&c&oKicking to ensure safety :)").translate());
-							e.getAfk().remove();
 							break;
 						case CHATTING:
 						case EXECUTING:
@@ -384,9 +384,6 @@ public class PlayerEventListener implements Listener {
 	@Subscribe
 	public void afkInit(DefaultEvent.Join e) {
 		Player p = e.getPlayer();
-		if (supply(p) != null) {
-			Message.form(p).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send("&eTry not to afk too long!");
-		}
 
 	}
 

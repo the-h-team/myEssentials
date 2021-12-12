@@ -12,12 +12,10 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
@@ -45,10 +43,13 @@ public final class GamemodeCommand extends CommandBuilder {
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
-		if (args.length != 2) {
+		if (args.length == 0) {
 			// message usage
 			sendUsage(player);
 			return false;
+		}
+		if (args.length == 1) {
+			return setGamemode(player, args[0], null);
 		}
 		// testPermission
 		if (!testPermission(player)) return true;
@@ -83,18 +84,27 @@ public final class GamemodeCommand extends CommandBuilder {
 				// invalid gamemode
 				return false;
 		}
-		final Player player = Bukkit.getPlayer(playerName);
-		if (player == null) {
-			// Name isn't a player
-			sendMessage(sender, ConfiguredMessage.NOT_VALID_PLAYER);
-		} else if (!player.isOnline()) {
-			// Player must be online
-			sendMessage(sender, ConfiguredMessage.PLAYER_MUST_BE_ONLINE);
+		if (playerName != null) {
+			final Player player = Bukkit.getPlayer(playerName);
+			if (player == null) {
+				// Name isn't a player
+				sendMessage(sender, ConfiguredMessage.NOT_VALID_PLAYER);
+			} else if (!player.isOnline()) {
+				// Player must be online
+				sendMessage(sender, ConfiguredMessage.PLAYER_MUST_BE_ONLINE);
+			} else {
+				// We have a valid player
+				// valid player
+				player.setGameMode(gameMode);
+				sendMessage(sender, ConfiguredMessage.SET_GAMEMODE.replace(playerName, gamemodeName));
+			}
 		} else {
 			// We have a valid player
 			// valid player
-			player.setGameMode(gameMode);
-			sendMessage(sender, ConfiguredMessage.SET_GAMEMODE.replace(playerName, gamemodeName));
+			if (sender instanceof Player) {
+				((Player) sender).setGameMode(gameMode);
+				sendMessage(sender, ConfiguredMessage.SET_GAMEMODE.replace(sender.getName(), gamemodeName));
+			}
 		}
 		return false;
 	}

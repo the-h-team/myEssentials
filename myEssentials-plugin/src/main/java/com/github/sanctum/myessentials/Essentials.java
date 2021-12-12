@@ -81,20 +81,18 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		LoadingLogic.get(this).onEnable();
 		this.teleportRunner = new TeleportRunnerImpl(this);
 		this.messenger = new MessengerImpl(this);
-		new Registry<>(Listener.class).source(this).pick("com.github.sanctum.myessentials.listeners").operate(l -> LabyrinthProvider.getService(Service.VENT).subscribe(this, l));
+		new Registry<>(Listener.class).source(this).filter("com.github.sanctum.myessentials.listeners").operate(l -> LabyrinthProvider.getService(Service.VENT).subscribe(this, l));
 		InternalCommandData.defaultOrReload(this);
 		ConfiguredMessage.loadProperties(this);
 		OptionLoader.renewRemainingBans();
 		OptionLoader.checkConfig();
 		RegistryData<CommandBuilder> data = new Registry<>(CommandBuilder.class)
-				.source(this)
-				.pick("com.github.sanctum.myessentials.commands")
+				.source(this).filter("com.github.sanctum.myessentials.commands")
 				.operate(builder -> {
 				});
 
 		getLogger().info("- (" + data.getData().size() + ") Unique commands registered.");
 		TeleportationManager.registerListeners(this);
-		Commands.register();
 
 		FileManager man = getFileList().get("Heads", "Data");
 

@@ -10,11 +10,23 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
+import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
+import com.github.sanctum.labyrinth.library.Items;
+import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,16 +38,177 @@ public final class GiveCommand extends CommandBuilder {
 	@Override
 	public @Nullable
 	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-		return null;
+		return SimpleTabCompletion.of(args)
+				.then(TabCompletionIndex.ONE, Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
+				.then(TabCompletionIndex.TWO, Arrays.stream(Material.values()).map(material -> material.name().toLowerCase(Locale.ROOT).replace("_", "")).collect(Collectors.toList()))
+				.then(TabCompletionIndex.THREE, Arrays.stream(Material.values()).map(material -> material.name().toLowerCase(Locale.ROOT).replace("_", "")).collect(Collectors.toList()))
+				.get();
 	}
 
 	@Override
 	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
+		if (testPermission(player)) {
+			if (args.length == 0) {
+				sendUsage(player);
+				return true;
+			}
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (args.length == 1) {
+				if (search.isValid()) {
+
+					if (search.isOnline()) {
+						sendUsage(player);
+					} else {
+						sendMessage(player, ConfiguredMessage.PLAYER_MUST_BE_ONLINE.replace(args[0]));
+					}
+
+				} else {
+					sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND.replace(args[0]));
+				}
+				return true;
+			}
+
+			if (args.length == 2) {
+				if (search.isValid()) {
+
+					if (search.isOnline()) {
+
+						Material result = Items.findMaterial(args[1]);
+
+						if (result != null && !result.isAir()) {
+							ItemStack item = new ItemStack(result, 1);
+							search.getPlayer().getWorld().dropItem(search.getPlayer().getEyeLocation(), item);
+							sendMessage(player, "&aTarget &e" + search.getPlayer().getName() + " &agiven &6x" + 1 + " &f" + args[1]);
+							sendMessage(search.getPlayer(), "&aYou've been given &6x" + 1 + " &f" + args[1]);
+						} else {
+							sendMessage(player, "&cMaterial '" + args[1] + "' unknown.");
+						}
+
+					} else {
+						sendMessage(player, ConfiguredMessage.PLAYER_MUST_BE_ONLINE.replace(args[0]));
+					}
+
+				} else {
+					sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND.replace(args[0]));
+				}
+				return true;
+			}
+
+			if (args.length == 3) {
+				if (search.isValid()) {
+
+					if (search.isOnline()) {
+
+						Material result = Items.findMaterial(args[2]);
+
+						if (result != null && !result.isAir()) {
+
+							if (StringUtils.use(args[1]).isInt()) {
+								ItemStack item = new ItemStack(result, Integer.parseInt(args[1]));
+								search.getPlayer().getWorld().dropItem(search.getPlayer().getEyeLocation(), item);
+								sendMessage(player, "&aTarget &e" + search.getPlayer().getName() + " &agiven &6x" + args[1] + " &f" + args[2]);
+								sendMessage(search.getPlayer(), "&aYou've been given &6x" + args[1] + " &f" + args[2]);
+							} else {
+								sendMessage(player, "&cInvalid amount specified!");
+							}
+
+						} else {
+							sendMessage(player, "&cMaterial '" + args[2] + "' unknown.");
+						}
+
+					} else {
+						sendMessage(player, ConfiguredMessage.PLAYER_MUST_BE_ONLINE.replace(args[0]));
+					}
+
+				} else {
+					sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND.replace(args[0]));
+				}
+				return true;
+			}
+
+		}
+		return true;
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
+	public boolean consoleView(@NotNull CommandSender player, @NotNull String commandLabel, @NotNull String[] args) {
+		if (args.length == 0) {
+			sendUsage(player);
+			return true;
+		}
+		PlayerSearch search = PlayerSearch.look(args[0]);
+		if (args.length == 1) {
+			if (search.isValid()) {
+
+				if (search.isOnline()) {
+					sendUsage(player);
+				} else {
+					sendMessage(player, ConfiguredMessage.PLAYER_MUST_BE_ONLINE.replace(args[0]));
+				}
+
+			} else {
+				sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND.replace(args[0]));
+			}
+			return true;
+		}
+
+		if (args.length == 2) {
+			if (search.isValid()) {
+
+				if (search.isOnline()) {
+
+					Material result = Items.findMaterial(args[1]);
+
+					if (result != null && !result.isAir()) {
+						ItemStack item = new ItemStack(result, 1);
+						search.getPlayer().getWorld().dropItem(search.getPlayer().getEyeLocation(), item);
+						sendMessage(player, "&aTarget &e" + search.getPlayer().getName() + " &agiven &6x" + 1 + " &f" + args[1]);
+						sendMessage(search.getPlayer(), "&aYou've been given &6x" + 1 + " &f" + args[1]);
+					} else {
+						sendMessage(player, "&cMaterial '" + args[1] + "' unknown.");
+					}
+
+				} else {
+					sendMessage(player, ConfiguredMessage.PLAYER_MUST_BE_ONLINE.replace(args[0]));
+				}
+
+			} else {
+				sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND.replace(args[0]));
+			}
+			return true;
+		}
+
+		if (args.length == 3) {
+			if (search.isValid()) {
+
+				if (search.isOnline()) {
+
+					Material result = Items.findMaterial(args[2]);
+
+					if (result != null && !result.isAir()) {
+
+						if (StringUtils.use(args[1]).isInt()) {
+							ItemStack item = new ItemStack(result, Integer.parseInt(args[1]));
+							search.getPlayer().getWorld().dropItem(search.getPlayer().getEyeLocation(), item);
+							sendMessage(player, "&aTarget &e" + search.getPlayer().getName() + " &agiven &6x" + args[1] + " &f" + args[2]);
+							sendMessage(search.getPlayer(), "&aYou've been given &6x" + args[1] + " &f" + args[2]);
+						} else {
+							sendMessage(player, "&cInvalid amount specified!");
+						}
+
+					} else {
+						sendMessage(player, "&cMaterial '" + args[2] + "' unknown.");
+					}
+
+				} else {
+					sendMessage(player, ConfiguredMessage.PLAYER_MUST_BE_ONLINE.replace(args[0]));
+				}
+
+			} else {
+				sendMessage(player, ConfiguredMessage.PLAYER_NOT_FOUND.replace(args[0]));
+			}
+			return true;
+		}
+		return true;
 	}
 }
