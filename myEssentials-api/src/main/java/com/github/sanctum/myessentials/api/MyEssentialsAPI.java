@@ -14,7 +14,7 @@ import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.InjectedExecutorHandler;
 import com.github.sanctum.myessentials.model.Messenger;
-import com.github.sanctum.myessentials.util.SignWrapper;
+import com.github.sanctum.myessentials.util.SignEdit;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import java.util.Set;
 import java.util.UUID;
@@ -79,7 +79,7 @@ public interface MyEssentialsAPI {
      */
     TeleportRunner getTeleportRunner();
 
-    SignWrapper wrapSign(Block b);
+	SignEdit wrapSign(Block b);
 
     /**
      * Get the messenger.

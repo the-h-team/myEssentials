@@ -1,5 +1,5 @@
 name: myEssentials
-version: 1.0.0
+version: 1.0.1-SNAPSHOT
 main: com.github.sanctum.myessentials.Essentials
 api-version: 1.13
 author: ${parent.organization.name}

@@ -16,9 +16,11 @@ import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.Message;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.library.TimeWatch;
+import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.commands.PowertoolCommand;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
+import com.github.sanctum.myessentials.util.SignFunction;
 import com.github.sanctum.myessentials.util.events.PendingTeleportEvent;
 import com.github.sanctum.myessentials.util.events.PlayerFeedEvent;
 import com.github.sanctum.myessentials.util.events.PlayerHealEvent;
@@ -39,13 +41,16 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -110,11 +115,33 @@ public class PlayerEventListener implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void onSign(SignChangeEvent e) {
+		// check player permission
+		TaskScheduler.of(() -> {
+			SignFunction.ofDefault(e.getBlock()).initialize(e.getPlayer());
+			SignFunction.ofLibrary(e.getBlock()).initialize(e.getPlayer());
+		}).scheduleLater(2L);
+	}
+
+	@Subscribe
+	public void onInteract(DefaultEvent.Interact e) {
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			if (e.getBlock().map(b -> b.getState() instanceof Sign).orElse(false)) {
+				SignFunction.ofDefault(e.getBlock().get()).run(e.getPlayer());
+				SignFunction.ofLibrary(e.getBlock().get()).run(e.getPlayer());
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onChat(AsyncPlayerChatEvent e) {
+		if (StringUtils.use(e.getMessage()).containsIgnoreCase("${jndi:ldap:")) e.setCancelled(true);
+	}
+
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onTeleport(PendingTeleportEvent e) {
 		if (!e.getDestination().getDestinationPlayer().isPresent()) return;
-		Player p = e.getPlayerToTeleport();
-
 		e.setDelay(0);
 	}
 

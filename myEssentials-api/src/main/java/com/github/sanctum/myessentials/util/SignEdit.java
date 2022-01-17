@@ -10,6 +10,7 @@
  */
 package com.github.sanctum.myessentials.util;
 
+import com.github.sanctum.labyrinth.library.StringUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -17,19 +18,19 @@ import java.util.Optional;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
-public final class SignWrapper {
+public final class SignEdit {
     private final Block block;
 
-    public enum SignLine {
-        FIRST_LINE(0), SECOND_LINE(1), THIRD_LINE(2), FOURTH_LINE(3);
+    public enum Line {
+        ONE(0), TWO(1), THREE(2), FOUR(3);
         public final int index;
 
-        SignLine(int index) {
+        Line(int index) {
             this.index = index;
         }
     }
 
-    public SignWrapper(Block block) {
+    public SignEdit(Block block) {
         if (!block.getType().name().contains("SIGN")) {
             throw new IllegalArgumentException("Block does not represent a sign!");
         }
@@ -47,15 +48,29 @@ public final class SignWrapper {
         return getSign().map(sign -> Arrays.asList(sign.getLines())).orElse(Collections.emptyList());
     }
 
-    public Optional<String> getLine(SignLine line) {
+    public Optional<String> getLine(Line line) {
         return getSign().map(sign -> sign.getLine(line.index)).map(string -> string.isEmpty() ? null : string);
     }
 
-    public boolean setLine(SignLine line, String text) {
+    public SignEdit colorAll() {
+        final Optional<Sign> optionalSign = getSign();
+        if (optionalSign.isPresent()) {
+            Sign s = optionalSign.get();
+            int index = 0;
+            for (String line : s.getLines()) {
+                s.setLine(index, line);
+                index++;
+            }
+            s.update();
+        }
+        return this;
+    }
+
+    public boolean setLine(Line line, String text) {
         final Optional<Sign> optionalSign = getSign();
         if (optionalSign.isPresent()) {
             final Sign sign = optionalSign.get();
-            sign.setLine(line.index, text);
+            sign.setLine(line.index, StringUtils.use(text).translate());
             return sign.update();
         }
         return false;

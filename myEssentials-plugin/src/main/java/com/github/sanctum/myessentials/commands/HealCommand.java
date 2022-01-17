@@ -62,6 +62,27 @@ public class HealCommand extends CommandBuilder {
 
 	@Override
 	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-		return false;
+		if (args.length == 1) {
+			PlayerSearch search = PlayerSearch.look(args[0]);
+			if (search.isValid()) {
+				if (search.isOnline()) {
+					Player target = search.getPlayer();
+					if (testPermission(sender)) {
+						assert target != null;
+						search.heal(sender, 20);
+						sendMessage(sender, ConfiguredMessage.HEAL_TARGET_MAXED.replace(target.getName()));
+					}
+				} else {
+					if (testPermission(sender)) {
+						sendMessage(sender, ConfiguredMessage.HEAL_TARGET_NOT_ONLINE.replace(search.getOfflinePlayer().getName()));
+					}
+				}
+			} else {
+				if (testPermission(sender)) {
+					sendMessage(sender, ConfiguredMessage.TARGET_NOT_FOUND.replace(args[0]));
+				}
+			}
+		}
+		return true;
 	}
 }

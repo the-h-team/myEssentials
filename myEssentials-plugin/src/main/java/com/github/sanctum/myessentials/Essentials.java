@@ -28,7 +28,7 @@ import com.github.sanctum.myessentials.model.Messenger;
 import com.github.sanctum.myessentials.model.action.IExecutorCalculating;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
-import com.github.sanctum.myessentials.util.SignWrapper;
+import com.github.sanctum.myessentials.util.SignEdit;
 import com.github.sanctum.myessentials.util.factory.LoadingLogic;
 import com.github.sanctum.myessentials.util.factory.MessengerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
@@ -190,8 +190,8 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	}
 
 	@Override
-	public SignWrapper wrapSign(Block b) {
-		return new SignWrapper(b);
+	public SignEdit wrapSign(Block b) {
+		return new SignEdit(b);
 	}
 
 	@Override

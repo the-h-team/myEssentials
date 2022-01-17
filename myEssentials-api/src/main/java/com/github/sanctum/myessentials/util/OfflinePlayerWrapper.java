@@ -15,15 +15,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 public class OfflinePlayerWrapper extends UniformedComponents<OfflinePlayer> {
-	private final List<OfflinePlayer> list;
-
-	public OfflinePlayerWrapper() {
-		this.list = new ArrayList<>(Arrays.asList(Bukkit.getOfflinePlayers()));
-	}
 
 	@Override
 	public List<OfflinePlayer> list() {
-		return list;
+		return Arrays.asList(Bukkit.getOfflinePlayers());
 	}
 
 	public Optional<OfflinePlayer> get(String name) {

@@ -10,9 +10,11 @@
  */
 package com.github.sanctum.myessentials.commands;
 
+import com.github.sanctum.labyrinth.LabyrinthProvider;
 import com.github.sanctum.labyrinth.library.ListUtils;
+import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.TextLib;
-import com.github.sanctum.labyrinth.library.VaultPlayer;
+import com.github.sanctum.labyrinth.permissions.Permissions;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
@@ -47,10 +49,11 @@ public final class OnlineListCommand extends CommandBuilder {
 		List<BaseComponent> list = new ArrayList<>();
 		TextLib lib = TextLib.getInstance();
 		sendMessage(player, "&fThere are currently &b" + PlayerSearch.getOnlinePlayers().list().size() + " &7/ &3" + Bukkit.getMaxPlayers() + "&f players online.");
-		sendMessage(player, "&f&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		Mailer.empty(player).chat("&f&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").deploy();
 		Map<String, List<Player>> map = new HashMap<>();
+		Permissions permissions = LabyrinthProvider.getInstance().getServicesManager().load(Permissions.class);
 		for (Player p : PlayerSearch.getOnlinePlayers().sort()) {
-			String group = VaultPlayer.wrap(p).getGroup(p.getWorld().getName()).getName();
+			String group = permissions.getUser(p).getGroup(p.getWorld().getName()).getName();
 			if (map.get(group) == null) {
 				List<Player> l = new ArrayList<>();
 				l.add(p);
@@ -76,7 +79,7 @@ public final class OnlineListCommand extends CommandBuilder {
 		for (BaseComponent b : list) {
 			sendComponent(player, b);
 		}
-		sendMessage(player, "&f&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		Mailer.empty(player).chat("&f&l&m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬").deploy();
 		return true;
 	}
 

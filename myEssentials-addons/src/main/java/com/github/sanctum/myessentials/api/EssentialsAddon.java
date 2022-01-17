@@ -10,7 +10,7 @@ package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.library.Deployable;
 import com.github.sanctum.labyrinth.library.HUID;
-import com.github.sanctum.labyrinth.task.Schedule;
+import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
 import java.io.File;
@@ -155,6 +155,6 @@ public abstract class EssentialsAddon {
 	 */
 	public final void remove() {
 		EssentialsAddonQuery.disable(this);
-		Schedule.sync(() -> EssentialsAddonQuery.getKnownAddons().removeIf(c -> c.getName().equals(getName()))).wait(1);
+		TaskScheduler.of(() -> EssentialsAddonQuery.getKnownAddons().removeIf(c -> c.getName().equals(getName()))).scheduleLater(1L);
 	}
 }

@@ -15,15 +15,9 @@ import org.bukkit.entity.Player;
 
 public class PlayerWrapper extends UniformedComponents<Player> {
 
-	private final List<Player> list;
-
-	public PlayerWrapper() {
-		list = new ArrayList<>(Bukkit.getOnlinePlayers());
-	}
-
 	@Override
 	public List<Player> list() {
-		return list;
+		return new ArrayList<>(Bukkit.getOnlinePlayers());
 	}
 
 	public Optional<Player> get(String name) {

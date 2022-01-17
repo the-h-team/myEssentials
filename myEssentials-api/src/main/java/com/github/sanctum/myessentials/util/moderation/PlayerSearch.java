@@ -106,7 +106,7 @@ public final class PlayerSearch implements CooldownFinder {
 	public static PlayerSearch look(Player target) {
 		if (target == null) return null;
 		for (PlayerSearch s : CACHE) {
-			if (s.uuid.equals(target.getUniqueId())) {
+			if (target.getUniqueId().equals(s.uuid)) {
 				return s;
 			}
 		}
