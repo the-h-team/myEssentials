@@ -21,6 +21,7 @@
     <!-- I have no idea if that's functional though, safest bet is the my-essentials (plugin) submodule -->
 
     <name>myEssentials</name>
+    <url>https://github.com/the-h-team/myEssentials</url>
     <description>myEssentials. Quality of life, revived.</description>
     <inceptionYear>2021</inceptionYear>
 
