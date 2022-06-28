@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.List;
@@ -11,19 +11,19 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DayCommand extends CommandBuilder {
+public class DayCommand extends CommandOutput {
 	public DayCommand() {
 		super(InternalCommandData.DAY_COMMAND);
 	}
 
 	@Override
-	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public @Nullable List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return SimpleTabCompletion.of(args).then(TabCompletionIndex.ONE, "morning", "noon", "afternoon")
 				.get();
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
 			if (testPermission(player)) {
 				player.getWorld().setTime(0);
@@ -63,7 +63,7 @@ public class DayCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }

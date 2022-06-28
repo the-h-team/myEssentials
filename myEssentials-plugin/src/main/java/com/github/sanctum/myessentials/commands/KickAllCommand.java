@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -9,18 +9,18 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class KickAllCommand extends CommandBuilder {
+public class KickAllCommand extends CommandOutput {
 	public KickAllCommand() {
 		super(InternalCommandData.KICKALL_COMMAND);
 	}
 
 	@Override
-	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public @Nullable List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return defaultCompletion(player, alias, args);
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
 			if (testPermission(player)) {
 				for (Player p : Bukkit.getOnlinePlayers()) {
@@ -44,7 +44,7 @@ public class KickAllCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
 			if (testPermission(sender)) {
 				for (Player p : Bukkit.getOnlinePlayers()) {

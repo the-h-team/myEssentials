@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.library.Items;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import java.util.List;
@@ -11,18 +11,18 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RenameCommand extends CommandBuilder {
+public class RenameCommand extends CommandOutput {
 	public RenameCommand() {
 		super(OptionLoader.TEST_COMMAND.from("rename", "/rename", "Rename an item title.", "mess.staff.rename", "label", "itemname"));
 	}
 
 	@Override
-	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public @Nullable List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return defaultCompletion(player, alias, args);
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (testPermission(player)) {
 			if (args.length >= 1) {
 				final ItemStack item = new ItemStack(player.getInventory().getItemInMainHand());
@@ -47,7 +47,7 @@ public class RenameCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
 		return true;
 	}

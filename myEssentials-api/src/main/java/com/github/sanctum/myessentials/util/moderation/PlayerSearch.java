@@ -1,8 +1,10 @@
 package com.github.sanctum.myessentials.util.moderation;
 
+import com.github.sanctum.labyrinth.LabyrinthProvider;
 import com.github.sanctum.labyrinth.library.Cooldown;
-import com.github.sanctum.labyrinth.library.Message;
+import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.StringUtils;
+import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CooldownFinder;
 import com.github.sanctum.myessentials.util.OfflinePlayerWrapper;
@@ -288,10 +290,10 @@ public final class PlayerSearch implements CooldownFinder {
 		if (uuid == null) {
 			return null;
 		}
-		if (timer("MyBan-id-" + uuid) == null) {
+		if (timer("MyBan-id") == null) {
 			return null;
 		}
-		return factory(Objects.requireNonNull(timer("MyBan-id-" + uuid.toString())));
+		return factory(Objects.requireNonNull(timer("MyBan-id")));
 	}
 
 	/**
@@ -306,10 +308,10 @@ public final class PlayerSearch implements CooldownFinder {
 		if (uuid == null) {
 			return Optional.empty();
 		}
-		if (timer("MyBan-id-" + uuid) == null) {
+		if (timer("MyBan-id") == null) {
 			return Optional.empty();
 		}
-		return Optional.ofNullable(timer("MyBan-id-" + uuid.toString()).format(format));
+		return Optional.ofNullable(timer("MyBan-id").format(format));
 	}
 
 	/**
@@ -494,10 +496,12 @@ public final class PlayerSearch implements CooldownFinder {
 		}
 		BanCooldown cooldown = new BanCooldown(uuid, time);
 		cooldown.save();
-		KickReason r = KickReason.next();
-		reason.accept(r);
-		kick(r);
-		Bukkit.getBanList(BanList.Type.NAME).addBan(Objects.requireNonNull(getOfflinePlayer().getName()), r.getReason(), null, source);
+		TaskScheduler.of(() -> {
+			KickReason r = KickReason.next();
+			reason.accept(r);
+			kick(r);
+			Bukkit.getBanList(BanList.Type.NAME).addBan(Objects.requireNonNull(getOfflinePlayer().getName()), r.getReason(), null, source);
+		}).schedule();
 		return true;
 	}
 
@@ -520,13 +524,15 @@ public final class PlayerSearch implements CooldownFinder {
 		}
 		BanCooldown cooldown = new BanCooldown(uuid, time);
 		cooldown.save();
-		KickReason r = KickReason.next();
-		reason.accept(r);
-		kick(r);
-		if (!silent) {
-			Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getOfflinePlayer().getName() + " &c&owas banned for &r" + '"' + ChatColor.stripColor(r.getReason()) + "&r" + '"').translate());
-		}
-		Bukkit.getBanList(BanList.Type.NAME).addBan(Objects.requireNonNull(getOfflinePlayer().getName()), r.getReason(), null, source);
+		TaskScheduler.of(() -> {
+			KickReason r = KickReason.next();
+			reason.accept(r);
+			kick(r);
+			if (!silent) {
+				Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &4" + getOfflinePlayer().getName() + " &c&owas banned for &r" + '"' + ChatColor.stripColor(r.getReason()) + "&r" + '"').translate());
+			}
+			Bukkit.getBanList(BanList.Type.NAME).addBan(Objects.requireNonNull(getOfflinePlayer().getName()), r.getReason(), null, source);
+		}).schedule();
 		return true;
 	}
 
@@ -593,7 +599,7 @@ public final class PlayerSearch implements CooldownFinder {
 			return false;
 		}
 		if (getBanTimer() != null) {
-			Cooldown.remove(getBanTimer());
+			LabyrinthProvider.getInstance().remove(getBanTimer());
 		}
 		Bukkit.getBanList(BanList.Type.NAME).pardon(Objects.requireNonNull(getOfflinePlayer().getName()));
 		return true;
@@ -613,7 +619,7 @@ public final class PlayerSearch implements CooldownFinder {
 			return false;
 		}
 		if (getBanTimer() != null) {
-			Cooldown.remove(getBanTimer());
+			LabyrinthProvider.getInstance().remove(getBanTimer());
 		}
 		if (!silent) {
 			Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &6&oPlayer &e" + getOfflinePlayer().getName() + " &6&owas unbanned.").translate());
@@ -745,7 +751,7 @@ public final class PlayerSearch implements CooldownFinder {
 			JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(message.toString());
 			return;
 		}
-		new Message(getPlayer(), MyEssentialsAPI.getInstance().getPrefix()).send(message.toString());
+		Mailer.empty(getPlayer()).chat(MyEssentialsAPI.getInstance().getPrefix() + " " + message.toString()).deploy();
 	}
 
 	/**
@@ -758,7 +764,7 @@ public final class PlayerSearch implements CooldownFinder {
 			JavaPlugin.getProvidingPlugin(getClass()).getLogger().info(text);
 			return;
 		}
-		new Message(getPlayer(), MyEssentialsAPI.getInstance().getPrefix()).send(text);
+		Mailer.empty(getPlayer()).chat(MyEssentialsAPI.getInstance().getPrefix() + " " + text).deploy();
 	}
 
 	/**
@@ -769,6 +775,6 @@ public final class PlayerSearch implements CooldownFinder {
 	 */
 	@Override
 	public @Nullable Cooldown timer(String id) {
-		return Cooldown.getById(id + "-" + getId().toString()) != null ? Cooldown.getById(id + "-" + getId().toString()) : null;
+		return LabyrinthProvider.getInstance().getCooldown(id + "-" + getId().toString()) != null ? LabyrinthProvider.getInstance().getCooldown(id + "-" + getId().toString()) : null;
 	}
 }

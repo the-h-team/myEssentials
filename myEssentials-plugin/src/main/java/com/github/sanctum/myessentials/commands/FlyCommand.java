@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
@@ -18,18 +18,18 @@ import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class FlyCommand extends CommandBuilder {
+public class FlyCommand extends CommandOutput {
 	public FlyCommand() {
 		super(InternalCommandData.FLY_COMMAND);
 	}
 
 	@Override
-	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public @Nullable List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return null;
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (!testPermission(player)) {
 			return true;
 		}
@@ -152,7 +152,7 @@ public class FlyCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		PlayerSearch search = PlayerSearch.look(sender);
 		search.sendMessage(ConfiguredMessage.MUST_BE_PLAYER);
 		return true;

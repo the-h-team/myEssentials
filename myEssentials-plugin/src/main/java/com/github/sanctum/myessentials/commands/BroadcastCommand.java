@@ -12,14 +12,14 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class BroadcastCommand extends CommandBuilder {
+public final class BroadcastCommand extends CommandOutput {
 	public BroadcastCommand() {
 		super(InternalCommandData.BROADCAST_COMMAND);
 	}
@@ -27,7 +27,7 @@ public final class BroadcastCommand extends CommandBuilder {
 	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 
 	@Override
-	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return builder
 				.fillArgs(args)
 				.then(TabCompletionIndex.ONE, "message")
@@ -37,7 +37,7 @@ public final class BroadcastCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (!testPermission(player)) {
 			return false;
 		}
@@ -46,7 +46,7 @@ public final class BroadcastCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		api.getMessenger().broadcastMessage(String.join(" ", args));
 		return true;
 	}

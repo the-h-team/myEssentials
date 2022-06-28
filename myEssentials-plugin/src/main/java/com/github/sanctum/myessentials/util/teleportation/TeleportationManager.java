@@ -8,8 +8,8 @@
  */
 package com.github.sanctum.myessentials.util.teleportation;
 
-import com.github.sanctum.labyrinth.library.Message;
-import com.github.sanctum.labyrinth.task.Schedule;
+import com.github.sanctum.labyrinth.library.Mailer;
+import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
@@ -29,74 +29,74 @@ import org.bukkit.scheduler.BukkitRunnable;
  * Teleportation utility registration.
  */
 public final class TeleportationManager {
-    private static TeleportationManager instance;
-    protected final PluginManager pluginManager;
-    protected final JavaPlugin plugin;
-    private final List<Listener> listeners = new ArrayList<>();
+	private static TeleportationManager instance;
+	protected final PluginManager pluginManager;
+	protected final JavaPlugin plugin;
+	private final List<Listener> listeners = new ArrayList<>();
 
-    private TeleportationManager(Essentials essentials) {
-        if (instance != null) throw new IllegalStateException("Already initialized!");
-        instance = this;
-        pluginManager = essentials.getServer().getPluginManager();
-        plugin = essentials;
-        registerListeners();
-    }
+	private TeleportationManager(Essentials essentials) {
+		if (instance != null) throw new IllegalStateException("Already initialized!");
+		instance = this;
+		pluginManager = essentials.getServer().getPluginManager();
+		plugin = essentials;
+		registerListeners();
+	}
 
-    private void registerListeners() {
-        listeners.add(new PendingTeleportListener());
-        listeners.add(new TeleportListener());
-        for (Listener listener : listeners) {
-            plugin.getServer().getPluginManager().registerEvents(listener, plugin);
-        }
-    }
+	private void registerListeners() {
+		listeners.add(new PendingTeleportListener());
+		listeners.add(new TeleportListener());
+		for (Listener listener : listeners) {
+			plugin.getServer().getPluginManager().registerEvents(listener, plugin);
+		}
+	}
 
-    private class PendingTeleportListener implements Listener {
-        @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-        public void onPendingPlayerTeleport(PendingTeleportEvent e) {
-            // Same impl for teleport toLocation + toPlayer
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (e.getRequest().isPresent()) {
-                        if (e.getRequest().get().getStatus() != TeleportRequest.Status.CANCELLED && e.getRequest().get().getStatus() != TeleportRequest.Status.REJECTED) {
-                            pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), e.getRequest().orElse(null)));
-                        }
-                    } else {
-                        pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), null));
-                    }
-                }
-            }.runTaskLater(plugin, e.getDelay());
-        }
-    }
+	private class PendingTeleportListener implements Listener {
+		@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+		public void onPendingPlayerTeleport(PendingTeleportEvent e) {
+			// Same impl for teleport toLocation + toPlayer
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					if (e.getRequest().isPresent()) {
+						if (e.getRequest().get().getStatus() != TeleportRequest.Status.CANCELLED && e.getRequest().get().getStatus() != TeleportRequest.Status.REJECTED) {
+							pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), e.getRequest().orElse(null)));
+						}
+					} else {
+						pluginManager.callEvent(new TeleportEvent(e.getPlayerToTeleport(), e.getPlayerToTeleport().getLocation(), e.getDestination().toLocation(), null));
+					}
+				}
+			}.runTaskLater(plugin, e.getDelay());
+		}
+	}
 
-    public static void registerListeners(Essentials essentials) {
-        new TeleportationManager(essentials);
-    }
+	public static void registerListeners(Essentials essentials) {
+		new TeleportationManager(essentials);
+	}
 
-    public static void unregisterListeners() {
-        instance.listeners.clear();
-        instance = null;
-    }
+	public static void unregisterListeners() {
+		instance.listeners.clear();
+		instance = null;
+	}
 
-    /**
-     * Performs the final teleport. If additional checks result in
-     * this event being cancelled, this handler will not run. If
-     * more sophisticated logic is desire (messages, etc), locate
-     * in another listener class.
-     */
-    private static class TeleportListener implements Listener {
-        @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-        public void onMEssTeleportEvent(TeleportEvent e) {
-            if (e.getRequest().isPresent()) {
-                if (e.getRequest().get().getStatus() != TeleportRequest.Status.CANCELLED && e.getRequest().get().getStatus() != TeleportRequest.Status.REJECTED) {
-                    e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    Message.form(e.getPlayer()).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(ConfiguredMessage.TP_SUCCESS.replace(e.getRequest().get().getPlayerRequesting().getName()));
-                }
-                Schedule.sync(() -> MyEssentialsAPI.getInstance().getTeleportRunner().cancelRequest(e.getRequest().get())).run();
-            } else {
-                e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-            }
+	/**
+	 * Performs the final teleport. If additional checks result in
+	 * this event being cancelled, this handler will not run. If
+	 * more sophisticated logic is desire (messages, etc), locate
+	 * in another listener class.
+	 */
+	private static class TeleportListener implements Listener {
+		@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+		public void onMessTeleportEvent(TeleportEvent e) {
+			if (e.getRequest().isPresent()) {
+				if (e.getRequest().get().getStatus() != TeleportRequest.Status.CANCELLED && e.getRequest().get().getStatus() != TeleportRequest.Status.REJECTED) {
+					e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+					Mailer.empty(e.getPlayer()).chat(MyEssentialsAPI.getInstance().getPrefix() + " " + ConfiguredMessage.TP_SUCCESS.replace(e.getRequest().get().getPlayerRequesting().getName()));
+				}
+				TaskScheduler.of(() -> MyEssentialsAPI.getInstance().getTeleportRunner().cancelRequest(e.getRequest().get())).schedule();
+			} else {
+				e.getPlayer().teleport(e.getTo(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+			}
 //                e.player.sendMessage("TP call sent"); // Use a separate EventHandler for messages
-        }
-    }
+		}
+	}
 }

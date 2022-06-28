@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.pagination.EasyPagination;
 import com.github.sanctum.labyrinth.library.TimeWatch;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import java.text.MessageFormat;
@@ -15,18 +15,18 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PlaytimeCommand extends CommandBuilder {
+public class PlaytimeCommand extends CommandOutput {
 	public PlaytimeCommand() {
 		super(OptionLoader.TEST_COMMAND.from("playtime", "/playtime", "Check your amount of time played.", null, "pt", "timeplayed"));
 	}
 
 	@Override
-	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public @Nullable List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return defaultCompletion(player, alias, args);
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		final long time = player.getFirstPlayed();
 
 		if (args.length == 0) {
@@ -63,7 +63,7 @@ public class PlaytimeCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
 		return true;
 	}

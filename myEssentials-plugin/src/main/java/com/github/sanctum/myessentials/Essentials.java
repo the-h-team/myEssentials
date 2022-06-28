@@ -16,16 +16,25 @@ import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.data.Registry;
 import com.github.sanctum.labyrinth.data.RegistryData;
-import com.github.sanctum.labyrinth.task.Schedule;
+import com.github.sanctum.labyrinth.data.container.LabyrinthCollection;
+import com.github.sanctum.labyrinth.data.container.LabyrinthEntryMap;
+import com.github.sanctum.labyrinth.data.container.LabyrinthMap;
+import com.github.sanctum.labyrinth.data.container.LabyrinthSet;
+import com.github.sanctum.labyrinth.library.CommandUtils;
+import com.github.sanctum.labyrinth.library.Cooldown;
+import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.listeners.PlayerEventListener;
-import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.CommandImpl;
-import com.github.sanctum.myessentials.model.InjectedExecutorHandler;
+import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.IExecutorHandler;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.model.Messenger;
-import com.github.sanctum.myessentials.model.action.IExecutorCalculating;
+import com.github.sanctum.myessentials.model.executor.IExecutorCommandBase;
+import com.github.sanctum.myessentials.model.kit.Kit;
+import com.github.sanctum.myessentials.model.warp.Warp;
+import com.github.sanctum.myessentials.model.warp.WarpHolder;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.SignEdit;
@@ -35,7 +44,6 @@ import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
 import com.github.sanctum.skulls.CustomHead;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -47,38 +55,37 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
-	private static final Map<CommandData, Command> REGISTRATIONS = new HashMap<>();
-	public static final CommandMap SERVER_COMMAND_MAP;
-	public static final Map<String, Command> KNOWN_COMMANDS_MAP;
+	private static final Map<CommandData, Command> commandMap = new HashMap<>();
+	final LabyrinthMap<UUID, Kit.Holder> kitHolderMap = new LabyrinthEntryMap<>();
+	final LabyrinthMap<UUID, WarpHolder> warpHolderMap = new LabyrinthEntryMap<>();
+	final LabyrinthMap<String, Kit> kitMap = new LabyrinthEntryMap<>();
+	final LabyrinthMap<String, Warp> WARPS = new LabyrinthEntryMap<>();
 
 	public final Set<CommandData> registeredCommands = new HashSet<>();
 
 	private TeleportRunner teleportRunner;
 	private MessengerImpl messenger;
-	private InjectedExecutorHandler executor;
-
-	@Override
-	public void onLoad() {
-		executor = new InjectedExecutorHandler(this);
-	}
+	private IExecutorHandler executor;
 
 	@Override
 	public void onEnable() {
 		Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
 		LoadingLogic.get(this).onEnable();
+		this.executor = new IExecutorHandler();
 		this.teleportRunner = new TeleportRunnerImpl(this);
 		this.messenger = new MessengerImpl(this);
 		new Registry<>(Listener.class).source(this).filter("com.github.sanctum.myessentials.listeners").operate(l -> LabyrinthProvider.getService(Service.VENT).subscribe(this, l));
@@ -86,7 +93,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		ConfiguredMessage.loadProperties(this);
 		OptionLoader.renewRemainingBans();
 		OptionLoader.checkConfig();
-		RegistryData<CommandBuilder> data = new Registry<>(CommandBuilder.class)
+		RegistryData<CommandOutput> data = new Registry<>(CommandOutput.class)
 				.source(this).filter("com.github.sanctum.myessentials.commands")
 				.operate(builder -> {
 				});
@@ -118,44 +125,48 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	}
 
 	@Override
-	public Command registerCommand(CommandBuilder commandBuilder) {
+	public Command registerCommand(CommandOutput commandBuilder) {
 		final Command command = new CommandImpl(commandBuilder);
-		SERVER_COMMAND_MAP
-				.register(commandBuilder.commandData.getLabel(),
-						getName(), command);
-		REGISTRATIONS.put(commandBuilder.commandData, command);
+		CommandUtils.read(e -> {
+			CommandMap map = e.getKey();
+			map.register(commandBuilder.commandData.getLabel(),
+					getName(), command);
+			return null;
+		});
+		commandMap.put(commandBuilder.commandData, command);
 		return command;
 	}
 
 	@Override
 	public void unregisterCommand(Command command) {
-		KNOWN_COMMANDS_MAP.remove(command.getName());
-		for (String alias : command.getAliases()) {
-			if (KNOWN_COMMANDS_MAP.containsKey(alias) && KNOWN_COMMANDS_MAP.get(alias).getAliases().contains(alias)) {
-				KNOWN_COMMANDS_MAP.remove(alias);
-			}
+		CommandUtils.read(e -> {
+			Map<String, Command> map = e.getValue();
+			map.remove(command.getName());
+			for (String alias : command.getAliases()) {
+				if (map.containsKey(alias) && map.get(alias).getAliases().contains(alias)) {
+					map.remove(alias);
+				}
 
-		}
-		for (Map.Entry<CommandData, List<IExecutorCalculating<? extends CommandSender>>> entry : executor.getExecutorCalculations().entrySet()) {
-			if (entry.getKey().getLabel().equals(command.getLabel())) {
-				Schedule.sync(() -> executor
-						.removeCompletions(entry.getKey())
-						.removeConsoleCalculation(entry.getKey())
-						.removePlayerCalculation(entry.getKey())
-				).run();
-				break;
 			}
-		}
-		command.unregister(SERVER_COMMAND_MAP);
+			for (Map.Entry<CommandData, List<IExecutorCommandBase<? extends CommandSender>>> entry : executor.getExecutorCalculations().entrySet()) {
+				if (entry.getKey().getLabel().equals(command.getLabel())) {
+					TaskScheduler.of(() -> executor.removeCompletions(entry.getKey()).removeConsoleCalculation(entry.getKey()).removePlayerCalculation(entry.getKey())
+					).schedule();
+					break;
+				}
+			}
+			command.unregister(e.getKey());
+			return null;
+		});
 	}
 
 	@Override
 	public Command getRegistration(CommandData commandData) {
-		return REGISTRATIONS.get(commandData);
+		return commandMap.get(commandData);
 	}
 
 	@Override
-	public InjectedExecutorHandler getExecutorHandler() {
+	public IExecutorHandler getExecutorHandler() {
 		return executor;
 	}
 
@@ -200,6 +211,181 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	}
 
 	@Override
+	public Kit.Holder getKitHolder(@NotNull OfflinePlayer player) {
+		return kitHolderMap.computeIfAbsent(player.getUniqueId(), new Kit.Holder() {
+
+			final String name;
+			final UUID id;
+			Kit current;
+
+			{
+				this.id = player.getUniqueId();
+				this.name = player.getName();
+			}
+
+			@Override
+			public @NotNull String getName() {
+				return name;
+			}
+
+			@Override
+			public @NotNull UUID getId() {
+				return id;
+			}
+
+			@Override
+			public @Nullable Kit getCurrent() {
+				return current;
+			}
+
+			@Override
+			public boolean apply(@NotNull Kit kit) {
+				Cooldown test = LabyrinthProvider.getService(Service.COOLDOWNS).getCooldown(kit.getName() + "-" + getName());
+				if (test != null) {
+					if (!test.isComplete()) {
+						return false;
+					}
+					LabyrinthProvider.getInstance().remove(test);
+				}
+				current = kit;
+				Player pl = Bukkit.getPlayer(id);
+				if (pl != null) {
+					if (kit.getCooldown() != null) {
+						Cooldown n = new KitCooldownImpl(kit.getName() + "-" + getName(), kit.getCooldown().toSeconds());
+						n.save();
+					}
+					pl.getInventory().setContents(kit.getInventory());
+					if (kit.getHelmet() != null) {
+						pl.getInventory().setHelmet(kit.getHelmet());
+					}
+					if (kit.getChestplate() != null) {
+						pl.getInventory().setChestplate(kit.getChestplate());
+					}
+					if (kit.getLeggings() != null) {
+						pl.getInventory().setLeggings(kit.getLeggings());
+					}
+					if (kit.getBoots() != null) {
+						pl.getInventory().setBoots(kit.getBoots());
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+	}
+
+	@Override
+	public WarpHolder getWarpHolder(@NotNull OfflinePlayer player) {
+		return warpHolderMap.computeIfAbsent(player.getUniqueId(), () -> new WarpHolder() {
+
+			final String name = player.getName();
+			final UUID id = player.getUniqueId();
+			final LabyrinthCollection<Warp> warps = new LabyrinthSet<>();
+
+			@Override
+			public @NotNull String getName() {
+				return name;
+			}
+
+			@Override
+			public UUID getId() {
+				return id;
+			}
+
+			@Override
+			public @Nullable Warp get(@NotNull String name) {
+				return warps.stream().filter(w -> w.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+			}
+
+			@Override
+			public @NotNull LabyrinthCollection<Warp> getAll() {
+				return warps;
+			}
+
+			@Override
+			public void add(@NotNull Warp warp) {
+				warps.add(warp);
+			}
+
+			@Override
+			public void remove(@NotNull Warp warp) {
+				warps.remove(warp);
+			}
+		});
+	}
+
+	@Override
+	public LabyrinthCollection<Kit.Holder> getKitHolders() {
+		return kitHolderMap.values();
+	}
+
+	@Override
+	public LabyrinthCollection<WarpHolder> getWarpHolders() {
+		return warpHolderMap.values();
+	}
+
+	@Override
+	public LabyrinthCollection<Kit> getKits() {
+		return kitMap.values();
+	}
+
+	@Override
+	public LabyrinthCollection<Warp> getWarps() {
+		return WARPS.values();
+	}
+
+	static class KitCooldownImpl extends Cooldown {
+
+		final String id;
+		final long time;
+
+		KitCooldownImpl(String id, Number seconds) {
+			this.id = id;
+			this.time = abv(seconds.longValue());
+		}
+
+		@Override
+		public String getId() {
+			return id;
+		}
+
+		@Override
+		public long getCooldown() {
+			return time;
+		}
+	}
+
+	@Override
+	public Kit getKit(@NotNull String name) {
+		return kitMap.get(name);
+	}
+
+	@Override
+	public Warp getWarp(@NotNull String name) {
+		return this.WARPS.get(name);
+	}
+
+	@Override
+	public void loadKit(@NotNull Kit kit) {
+		kitMap.computeIfAbsent(kit.getName(), () -> kit);
+	}
+
+	@Override
+	public void unloadKit(@NotNull Kit kit) {
+		this.kitMap.remove(kit.getName());
+	}
+
+	@Override
+	public void loadWarp(@NotNull Warp warp) {
+		this.WARPS.put(warp.getName(), warp);
+	}
+
+	@Override
+	public void unloadWarp(@NotNull Warp warp) {
+		this.WARPS.remove(warp.getName());
+	}
+
+	@Override
 	public String getPrefix() {
 		return ConfiguredMessage.PREFIX.get();
 	}
@@ -225,8 +411,8 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	}
 
 	public static LinkedList<String> getCommandList() {
-		return REGISTRATIONS.keySet().stream()
-				.map(data -> data.getUsage() + " &r- " + data.getDescription())
+		return commandMap.keySet().stream()
+				.map(data -> "/" + data.getLabel() + " &r- " + data.getDescription())
 				.collect(Collectors.toCollection(LinkedList::new));
 	}
 
@@ -234,27 +420,4 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 		return JavaPlugin.getPlugin(Essentials.class);
 	}
 
-	// Prepare the command management utilities.
-	static {
-		try {
-			final Field commandMapField = Bukkit.getServer().getClass().getDeclaredField("commandMap");
-			commandMapField.setAccessible(true);
-			SERVER_COMMAND_MAP = (SimpleCommandMap) commandMapField.get(Bukkit.getServer());
-		} catch (NoSuchFieldException e) {
-			throw new IllegalStateException("Unable to retrieve commandMap field on Server class!");
-		} catch (IllegalAccessException e) {
-			throw new IllegalStateException("Unable to access commandMap field on Server class!");
-		}
-		try {
-			final Field knownCommandsField;
-			knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
-			knownCommandsField.setAccessible(true);
-			//noinspection unchecked
-			KNOWN_COMMANDS_MAP = (Map<String, Command>) knownCommandsField.get(SERVER_COMMAND_MAP);
-		} catch (NoSuchFieldException e) {
-			throw new IllegalStateException("Unable to retrieve knownCommands field from SimpleCommandMap class!");
-		} catch (IllegalAccessException e) {
-			throw new IllegalStateException("Unable to access knownCommands field on server's CommandMap!");
-		}
-	}
 }

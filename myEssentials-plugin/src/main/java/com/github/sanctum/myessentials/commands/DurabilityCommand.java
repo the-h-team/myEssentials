@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.data.service.PlayerSearch;
 import com.github.sanctum.labyrinth.library.StringUtils;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -15,18 +15,18 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DurabilityCommand extends CommandBuilder {
+public class DurabilityCommand extends CommandOutput {
 	public DurabilityCommand() {
 		super(OptionLoader.TEST_COMMAND.from("durability", "/durability", "Adjust the durability of the item you hold.", "mess.staff.durability", "damageitem"));
 	}
 
 	@Override
-	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public @Nullable List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return defaultCompletion(player, alias, args);
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (testPermission(player)) {
 
 			if (args.length == 1) {
@@ -88,7 +88,7 @@ public class DurabilityCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 2) {
 
 			if (!StringUtils.use(args[1]).isInt()) {

@@ -171,74 +171,73 @@ public interface SignFunction {
 
 			@Override
 			public boolean isFor(Type type) {
-				return StringUtils.use(ChatColor.stripColor(getLine(SignEdit.Line.ONE))).containsIgnoreCase(type.toTag());
+				return getLine(SignEdit.Line.ONE) != null && StringUtils.use(ChatColor.stripColor(getLine(SignEdit.Line.ONE))).containsIgnoreCase(type.toTag());
 			}
 
 			@Override
 			public void initialize(Player creator) {
 				Type type = getType();
 
-				if (type.getNode() != null) {
+				if (type != null && type.getNode() != null) {
 					if (!creator.hasPermission(type.getNode() + ".create")) {
 						Mailer.empty(creator).chat("&cYou don't have permission " + '"' + type.getNode() + ".create" + '"').queue();
 						return;
+					}
+					switch (type) {
+						case BALANCE:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Balance&6]");
+							break;
+						case BUY:
+							if (getLine(SignEdit.Line.TWO) != null && getLine(SignEdit.Line.THREE) != null) {
+								if (StringUtils.use(getLine(SignEdit.Line.TWO)).isInt()) {
+									edit.setLine(SignEdit.Line.ONE, "&6[&2Buy&6]");
+								} else {
+									edit.setLine(SignEdit.Line.ONE, "&e[&cBuy&e]");
+								}
+							} else {
+								edit.setLine(SignEdit.Line.ONE, "&e[&cBuy&e]");
+							}
+							break;
+						case DISPOSAL:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Disposal&6]");
+							break;
+						case DURABILITY:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Durability&6]");
+							break;
+						case FEED:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Feed&6]");
+							break;
+						case FREE:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Free&6]");
+							break;
+						case HEAL:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Heal&6]");
+							break;
+						case KIT:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Kit&6]");
+							break;
+						case REPAIR:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Repair&6]");
+							break;
+						case SELL:
+							if (getLine(SignEdit.Line.TWO) != null && getLine(SignEdit.Line.THREE) != null) {
+								if (StringUtils.use(getLine(SignEdit.Line.TWO)).isInt()) {
+									edit.setLine(SignEdit.Line.ONE, "&6[&2Sell&6]");
+								} else {
+									edit.setLine(SignEdit.Line.ONE, "&e[&cSell&e]");
+								}
+							} else {
+								edit.setLine(SignEdit.Line.ONE, "&e[&cSell&e]");
+							}
+							break;
+						case WARP:
+							edit.setLine(SignEdit.Line.ONE, "&6[&2Warp&6]");
+							break;
 					}
 				}
 				if (creator.hasPermission("mess.sign.color")) {
 					edit.colorAll();
 				}
-				switch (type) {
-					case BALANCE:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Balance&6]");
-						break;
-					case BUY:
-						if (getLine(SignEdit.Line.TWO) != null && getLine(SignEdit.Line.THREE) != null) {
-							if (StringUtils.use(getLine(SignEdit.Line.TWO)).isInt()) {
-								edit.setLine(SignEdit.Line.ONE, "&6[&2Buy&6]");
-							} else {
-								edit.setLine(SignEdit.Line.ONE, "&e[&cBuy&e]");
-							}
-						} else {
-							edit.setLine(SignEdit.Line.ONE, "&e[&cBuy&e]");
-						}
-						break;
-					case DISPOSAL:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Disposal&6]");
-						break;
-					case DURABILITY:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Durability&6]");
-						break;
-					case FEED:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Feed&6]");
-						break;
-					case FREE:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Free&6]");
-						break;
-					case HEAL:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Heal&6]");
-						break;
-					case KIT:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Kit&6]");
-						break;
-					case REPAIR:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Repair&6]");
-						break;
-					case SELL:
-						if (getLine(SignEdit.Line.TWO) != null && getLine(SignEdit.Line.THREE) != null) {
-							if (StringUtils.use(getLine(SignEdit.Line.TWO)).isInt()) {
-								edit.setLine(SignEdit.Line.ONE, "&6[&2Sell&6]");
-							} else {
-								edit.setLine(SignEdit.Line.ONE, "&e[&cSell&e]");
-							}
-						} else {
-							edit.setLine(SignEdit.Line.ONE, "&e[&cSell&e]");
-						}
-						break;
-					case WARP:
-						edit.setLine(SignEdit.Line.ONE, "&6[&2Warp&6]");
-						break;
-				}
-
 			}
 
 			@Override
@@ -287,119 +286,120 @@ public interface SignFunction {
 
 				Type type = getType();
 
-				if (type.getNode() != null) {
+				if (type != null && type.getNode() != null) {
 					if (!player.hasPermission(type.getNode())) {
 						Mailer.empty(player).chat("&cYou don't have permission " + '"' + type.getNode() + '"').queue();
 						return;
 					}
-				}
-				String rawAmount = ChatColor.stripColor(getLine(SignEdit.Line.TWO).replace("+", ""));
-				switch (type) {
+					String rawAmount = ChatColor.stripColor((getLine(SignEdit.Line.TWO) != null ? getLine(SignEdit.Line.TWO) : "0").replace("+", ""));
+					switch (type) {
 
-					case BALANCE:
-						player.performCommand("balance");
-						break;
-					case BUY:
-						if (StringUtils.use(rawAmount).isInt()) {
-							int i = Integer.parseInt(rawAmount);
-							player.performCommand("buy " + i + " " + getLine(SignEdit.Line.THREE));
-						} else {
-							edit.setLine(SignEdit.Line.TWO, "&4" + rawAmount);
-						}
-						break;
-					case DISPOSAL:
-						MenuType.SINGULAR.build()
-								.setHost(MyEssentialsAPI.getInstance().getFileList().getPlugin())
-								.setSize(Menu.Rows.SIX)
-								.setProperty(Menu.Property.RECURSIVE)
-								.setTitle("&6&lDisposal")
-								.setStock(i -> {
-									i.addItem(it -> {
-										it.setElement(ed -> ed.setType(Material.LAVA_BUCKET).setTitle("&4Destroy").build());
-										it.setClick(click -> {
-											click.setCancelled(true);
-											click.getParent().getParent().open(click.getElement());
+						case BALANCE:
+							player.performCommand("balance");
+							break;
+						case BUY:
+							if (StringUtils.use(rawAmount).isInt()) {
+								int i = Integer.parseInt(rawAmount);
+								player.performCommand("buy " + i + " " + getLine(SignEdit.Line.THREE));
+							} else {
+								edit.setLine(SignEdit.Line.TWO, "&4" + rawAmount);
+							}
+							break;
+						case DISPOSAL:
+							MenuType.SINGULAR.build()
+									.setHost(MyEssentialsAPI.getInstance().getFileList().getPlugin())
+									.setSize(Menu.Rows.SIX)
+									.setProperty(Menu.Property.RECURSIVE)
+									.setTitle("&6&lDisposal")
+									.setStock(i -> {
+										i.addItem(it -> {
+											it.setElement(ed -> ed.setType(Material.LAVA_BUCKET).setTitle("&4Destroy").build());
+											it.setClick(click -> {
+												click.setCancelled(true);
+												click.getParent().getParent().open(click.getElement());
+											});
+											it.setSlot(53);
 										});
-										it.setSlot(53);
-									});
-								})
-								.join()
-								.open(player);
-						break;
-					case DURABILITY:
+									})
+									.join()
+									.open(player);
+							break;
+						case DURABILITY:
 
-						if (StringUtils.use(rawAmount).isInt()) {
-							int i = Integer.parseInt(rawAmount);
-							player.performCommand("durability " + (rawAmount.contains("-") ? Math.abs(i) : -i) + " -s");
-						} else {
-							edit.setLine(SignEdit.Line.TWO, "&4" + rawAmount);
-						}
-						break;
-					case FEED:
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "feed " + player.getName());
-						break;
-					case FREE:
-						MenuType.SINGULAR.build()
-								.setHost(MyEssentialsAPI.getInstance().getFileList().getPlugin())
-								.setSize(Menu.Rows.THREE)
-								.setProperty(Menu.Property.CACHEABLE, Menu.Property.SHAREABLE)
-								.setTitle("&b&lFree")
-								.setKey("Mess;Freebie:" + block.getLocation())
-								.setStock(i -> {
-									i.addItem(it -> {
-										it.setElement(ed -> ed.setType(Material.LAVA_BUCKET).setTitle("&eTake All").build());
-										it.setClick(click -> {
-											click.setCancelled(true);
-											Inventory inv = click.getParent().getParent().getElement();
-											ItemStack item = Items.edit(ed -> ed.setType(Material.CYAN_SHULKER_BOX).build());
-											if (item.getItemMeta() instanceof BlockStateMeta) {
-												BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
-												if (im.getBlockState() instanceof ShulkerBox) {
-													ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-													Inventory sh = shulker.getInventory();
-													int amount = 0;
-													for (ItemStack itemStack : inv) {
-														if (itemStack != null && !itemStack.equals(click.getParent().getElement())) {
-															sh.addItem(itemStack);
-															amount++;
+							if (StringUtils.use(rawAmount).isInt()) {
+								int i = Integer.parseInt(rawAmount);
+								player.performCommand("durability " + (rawAmount.contains("-") ? Math.abs(i) : -i) + " -s");
+							} else {
+								edit.setLine(SignEdit.Line.TWO, "&4" + rawAmount);
+							}
+							break;
+						case FEED:
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "feed " + player.getName());
+							break;
+						case FREE:
+							MenuType.SINGULAR.build()
+									.setHost(MyEssentialsAPI.getInstance().getFileList().getPlugin())
+									.setSize(Menu.Rows.THREE)
+									.setProperty(Menu.Property.CACHEABLE, Menu.Property.SHAREABLE)
+									.setTitle("&b&lFree")
+									.setKey("Mess;Freebie:" + block.getLocation())
+									.setStock(i -> {
+										i.addItem(it -> {
+											it.setElement(ed -> ed.setType(Material.LAVA_BUCKET).setTitle("&eTake All").build());
+											it.setClick(click -> {
+												click.setCancelled(true);
+												Inventory inv = click.getParent().getParent().getElement();
+												ItemStack item = Items.edit(ed -> ed.setType(Material.CYAN_SHULKER_BOX).build());
+												if (item.getItemMeta() instanceof BlockStateMeta) {
+													BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
+													if (im.getBlockState() instanceof ShulkerBox) {
+														ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+														Inventory sh = shulker.getInventory();
+														int amount = 0;
+														for (ItemStack itemStack : inv) {
+															if (itemStack != null && !itemStack.equals(click.getParent().getElement())) {
+																sh.addItem(itemStack);
+																amount++;
+															}
 														}
+														im.setDisplayName(StringUtils.use("&eFreebie &fx" + amount).translate());
+														im.setBlockState(shulker);
+														item.setItemMeta(im);
 													}
-													im.setDisplayName(StringUtils.use("&eFreebie &fx" + amount).translate());
-													im.setBlockState(shulker);
-													item.setItemMeta(im);
 												}
-											}
-											LabyrinthProvider.getInstance().getItemComposter().add(item, click.getElement());
-											inv.clear();
-											click.getParent().getParent().open(click.getElement());
+												LabyrinthProvider.getInstance().getItemComposter().add(item, click.getElement());
+												inv.clear();
+												click.getParent().getParent().open(click.getElement());
+											});
+											it.setSlot(26);
 										});
-										it.setSlot(26);
-									});
-								})
-								.orGet(m -> m.getKey().map(("Mess;Freebie:" + block.getLocation())::equals).orElse(false))
-								.open(player);
-						break;
-					case HEAL:
-						Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "heal " + player.getName());
-						break;
-					case KIT:
-						player.performCommand("kit " + getLine(SignEdit.Line.TWO));
-						break;
-					case REPAIR:
-						player.performCommand("repair");
-						break;
-					case SELL:
-						if (StringUtils.use(rawAmount).isInt()) {
-							int i = Integer.parseInt(rawAmount);
-							player.performCommand("sell " + i + " " + getLine(SignEdit.Line.THREE));
-						} else {
-							edit.setLine(SignEdit.Line.TWO, "&4" + rawAmount);
-						}
-						break;
-					case WARP:
-						player.performCommand("warp " + getLine(SignEdit.Line.TWO));
-						break;
+									})
+									.orGet(m -> m.getKey().map(("Mess;Freebie:" + block.getLocation())::equals).orElse(false))
+									.open(player);
+							break;
+						case HEAL:
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "heal " + player.getName());
+							break;
+						case KIT:
+							player.performCommand("kit " + getLine(SignEdit.Line.TWO));
+							break;
+						case REPAIR:
+							player.performCommand("repair");
+							break;
+						case SELL:
+							if (StringUtils.use(rawAmount).isInt()) {
+								int i = Integer.parseInt(rawAmount);
+								player.performCommand("sell " + i + " " + getLine(SignEdit.Line.THREE));
+							} else {
+								edit.setLine(SignEdit.Line.TWO, "&4" + rawAmount);
+							}
+							break;
+						case WARP:
+							player.performCommand("warp " + getLine(SignEdit.Line.TWO));
+							break;
+					}
 				}
+
 
 			}
 		};

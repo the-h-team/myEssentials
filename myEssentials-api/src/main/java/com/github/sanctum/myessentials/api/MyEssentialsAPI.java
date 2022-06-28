@@ -10,10 +10,14 @@ package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.labyrinth.data.container.LabyrinthCollection;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.model.InjectedExecutorHandler;
+import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.IExecutorHandler;
 import com.github.sanctum.myessentials.model.Messenger;
+import com.github.sanctum.myessentials.model.kit.Kit;
+import com.github.sanctum.myessentials.model.warp.Warp;
+import com.github.sanctum.myessentials.model.warp.WarpHolder;
 import com.github.sanctum.myessentials.util.SignEdit;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
 import java.util.Set;
@@ -21,9 +25,11 @@ import java.util.UUID;
 import java.util.function.Supplier;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface MyEssentialsAPI {
@@ -32,14 +38,14 @@ public interface MyEssentialsAPI {
         return Bukkit.getServicesManager().load(MyEssentialsAPI.class);
     }
 
-    Command registerCommand(CommandBuilder commandBuilder);
+    Command registerCommand(CommandOutput commandBuilder);
 
     void unregisterCommand(Command command);
 
     @Nullable
     Command getRegistration(CommandData commandData);
 
-    InjectedExecutorHandler getExecutorHandler();
+    IExecutorHandler getExecutorHandler();
 
     /**
      * Get data for all commands registered by MyEssentials.
@@ -79,7 +85,7 @@ public interface MyEssentialsAPI {
      */
     TeleportRunner getTeleportRunner();
 
-	SignEdit wrapSign(Block b);
+    SignEdit wrapSign(Block b);
 
     /**
      * Get the messenger.
@@ -87,6 +93,30 @@ public interface MyEssentialsAPI {
      * @return message utility
      */
     Messenger getMessenger();
+
+    Kit.Holder getKitHolder(@NotNull OfflinePlayer player);
+
+    WarpHolder getWarpHolder(@NotNull OfflinePlayer player);
+
+    LabyrinthCollection<Kit.Holder> getKitHolders();
+
+    LabyrinthCollection<WarpHolder> getWarpHolders();
+
+    LabyrinthCollection<Kit> getKits();
+
+    LabyrinthCollection<Warp> getWarps();
+
+    Kit getKit(@NotNull String name);
+
+    Warp getWarp(@NotNull String name);
+
+    void loadKit(@NotNull Kit kit);
+
+    void unloadKit(@NotNull Kit kit);
+
+    void loadWarp(@NotNull Warp warp);
+
+    void unloadWarp(@NotNull Warp warp);
 
     String getPrefix();
 

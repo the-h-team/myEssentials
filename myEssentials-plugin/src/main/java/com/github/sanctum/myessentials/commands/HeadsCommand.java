@@ -8,7 +8,7 @@ import com.github.sanctum.labyrinth.gui.unity.impl.ListElement;
 import com.github.sanctum.labyrinth.gui.unity.impl.MenuType;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.skulls.CustomHead;
 import com.github.sanctum.skulls.SkullType;
@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class HeadsCommand extends CommandBuilder {
+public class HeadsCommand extends CommandOutput {
 	public HeadsCommand() {
 		super(OptionLoader.TEST_COMMAND.from("heads", "/heads", "Retrieve the entire list of cached skull items", "mess.staff.heads"));
 	}
@@ -77,12 +77,12 @@ public class HeadsCommand extends CommandBuilder {
 	}
 
 	@Override
-	public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public @Nullable List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return defaultCompletion(player, alias, args);
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player p, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player p, @NotNull String commandLabel, @NotNull String[] args) {
 		if (testPermission(p)) {
 			menu(p).open(p);
 		}
@@ -90,7 +90,7 @@ public class HeadsCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }

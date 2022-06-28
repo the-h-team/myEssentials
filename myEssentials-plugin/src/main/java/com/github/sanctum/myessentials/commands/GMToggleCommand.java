@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.Collections;
@@ -12,31 +12,31 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class GMToggleCommand extends CommandBuilder {
-    public GMToggleCommand() {
-        super(InternalCommandData.GM_COMMAND);
-    }
+public final class GMToggleCommand extends CommandOutput {
+	public GMToggleCommand() {
+		super(InternalCommandData.GM_COMMAND);
+	}
 
-    @Override
-    public @Nullable List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-        // if more than one arg is provided, or player does not have perms return no completions
-        if (args.length > 1 || !command.testPermissionSilent(player)) return Collections.emptyList();
-        // return default completion (online players)
-        return null;
-    }
+	@Override
+	public @Nullable List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+		// if more than one arg is provided, or player does not have perms return no completions
+		if (args.length > 1 || !command.testPermissionSilent(player)) return Collections.emptyList();
+		// return default completion (online players)
+		return null;
+	}
 
-    @Override
-    public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	@Override
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
-        if (!testPermission(player))
-            return true;
+		if (!testPermission(player))
+			return true;
 
-        if (args.length < 1) {
-            // set for player
-            final GameMode original = player.getGameMode();
-            final GameMode newMode;
-            if (original == GameMode.SURVIVAL) {
-                newMode = GameMode.CREATIVE;
+		if (args.length < 1) {
+			// set for player
+			final GameMode original = player.getGameMode();
+			final GameMode newMode;
+			if (original == GameMode.SURVIVAL) {
+				newMode = GameMode.CREATIVE;
             } else if (original == GameMode.CREATIVE) {
                 newMode = GameMode.SURVIVAL;
             } else {
@@ -53,16 +53,16 @@ public final class GMToggleCommand extends CommandBuilder {
         return toggleForPlayer(player, args[0]);
     }
 
-    @Override
-    public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        if (args.length < 1) {
-            sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
-        } else if (args.length == 1) {
-            return toggleForPlayer(sender, args[0]);
-        }
-        sendUsage(sender);
-        return false;
-    }
+	@Override
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+		if (args.length < 1) {
+			sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
+		} else if (args.length == 1) {
+			return toggleForPlayer(sender, args[0]);
+		}
+		sendUsage(sender);
+		return false;
+	}
 
     private boolean toggleForPlayer(CommandSender sender, String playerName) {
         // check if arg = playerName

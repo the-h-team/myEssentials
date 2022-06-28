@@ -58,7 +58,7 @@ public final class SignEdit {
             Sign s = optionalSign.get();
             int index = 0;
             for (String line : s.getLines()) {
-                s.setLine(index, line);
+                s.setLine(index, StringUtils.use(line).translate());
                 index++;
             }
             s.update();

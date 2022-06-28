@@ -15,7 +15,7 @@ import com.github.sanctum.labyrinth.library.ListUtils;
 import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.TextLib;
 import com.github.sanctum.labyrinth.permissions.Permissions;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
@@ -33,19 +33,19 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class OnlineListCommand extends CommandBuilder {
+public final class OnlineListCommand extends CommandOutput {
 	public OnlineListCommand() {
 		super(InternalCommandData.ONLINELIST_COMMAND);
 	}
 
 	@Override
 	public @Nullable
-	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return null;
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		List<BaseComponent> list = new ArrayList<>();
 		TextLib lib = TextLib.getInstance();
 		sendMessage(player, "&fThere are currently &b" + PlayerSearch.getOnlinePlayers().list().size() + " &7/ &3" + Bukkit.getMaxPlayers() + "&f players online.");
@@ -84,7 +84,7 @@ public final class OnlineListCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
 		return true;
 	}

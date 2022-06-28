@@ -13,7 +13,7 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.library.Entities;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class SpawnMobCommand extends CommandBuilder {
+public final class SpawnMobCommand extends CommandOutput {
 	public SpawnMobCommand() {
 		super(InternalCommandData.SPAWNMOB_COMMAND);
 	}
@@ -34,7 +34,7 @@ public final class SpawnMobCommand extends CommandBuilder {
 
 	@Override
 	public @NotNull
-	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 
 		List<String> result = new ArrayList<>();
 		if (args.length == 1) {
@@ -101,7 +101,7 @@ public final class SpawnMobCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (testPermission(player)) {
 
 			if (args.length == 0) {
@@ -174,7 +174,7 @@ public final class SpawnMobCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }

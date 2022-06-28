@@ -10,7 +10,7 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.Arrays;
@@ -23,14 +23,14 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class GamemodeCommand extends CommandBuilder {
+public final class GamemodeCommand extends CommandOutput {
 	public GamemodeCommand() {
 		super(InternalCommandData.GAMEMODE_COMMAND);
 	}
 
 	@Override
 	public @Nullable
-	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		if (args.length < 2) {
 			// null = returns default completion (with player names)
 			return null;
@@ -42,7 +42,7 @@ public final class GamemodeCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
 			// message usage
 			sendUsage(player);
@@ -57,7 +57,7 @@ public final class GamemodeCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length != 2) {
 			sendUsage(sender);
 			return false;

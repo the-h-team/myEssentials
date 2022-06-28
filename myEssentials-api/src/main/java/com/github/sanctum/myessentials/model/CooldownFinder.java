@@ -1,12 +1,13 @@
 package com.github.sanctum.myessentials.model;
 
+import com.github.sanctum.labyrinth.LabyrinthProvider;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import org.jetbrains.annotations.Nullable;
 
 public interface CooldownFinder {
 
 	default @Nullable Cooldown timer(String id) {
-		return Cooldown.getById(id);
+		return LabyrinthProvider.getInstance().getCooldown(id);
 	}
 
 	default Cooldown factory(Cooldown c) {

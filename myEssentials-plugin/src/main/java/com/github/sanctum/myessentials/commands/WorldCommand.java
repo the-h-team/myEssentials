@@ -12,9 +12,10 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.labyrinth.task.Schedule;
+import com.github.sanctum.labyrinth.task.TaskPredicate;
+import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.HashMap;
@@ -36,7 +37,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class WorldCommand extends CommandBuilder {
+public final class WorldCommand extends CommandOutput {
 	private final Map<UUID, Boolean> taskScheduled = new HashMap<>();
 	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 	private final AtomicReference<Location> teleportLocation = new AtomicReference<>();
@@ -47,7 +48,7 @@ public final class WorldCommand extends CommandBuilder {
 
 	@Override
 	public @NotNull
-	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return builder
 				.fillArgs(args)
 				.then(TabCompletionIndex.ONE, Bukkit.getWorlds()
@@ -77,7 +78,7 @@ public final class WorldCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
 		if (testPermission(player)) {
 
@@ -100,7 +101,7 @@ public final class WorldCommand extends CommandBuilder {
 				}
 				taskScheduled.put(player.getUniqueId(), true);
 
-				Schedule.sync(() -> {
+				TaskScheduler.of(() -> {
 					int x = random(10500);
 					int z = random(3500);
 					int y = 150;
@@ -110,14 +111,16 @@ public final class WorldCommand extends CommandBuilder {
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(color(MyEssentialsAPI.getInstance().getPrefix() + " Searching for suitable location...")));
 					player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 10, 1);
 
-				}).cancelAfter(player).cancelAfter(task -> {
+				}).scheduleTimer(UUID.randomUUID().toString(), 0, 3 * 20, TaskPredicate.cancelAfter(player), TaskPredicate.cancelAfter(task -> {
 					if (taskScheduled.containsKey(player.getUniqueId()) && !taskScheduled.get(player.getUniqueId())) {
 						sendMessage(player, ConfiguredMessage.SEARCH_INTERRUPTED);
 						task.cancel();
+						return false;
 					}
 					if (!taskScheduled.containsKey(player.getUniqueId())) {
 						sendMessage(player, ConfiguredMessage.SEARCH_INTERRUPTED);
 						task.cancel();
+						return false;
 					}
 					if (teleportLocation.get() != null) {
 						if (hasSurface(teleportLocation.get())) {
@@ -126,9 +129,11 @@ public final class WorldCommand extends CommandBuilder {
 							sendMessage(player, ConfiguredMessage.TELEPORTED_SAFEST_LOCATION.replace(world));
 							taskScheduled.remove(player.getUniqueId());
 							task.cancel();
+							return false;
 						}
 					}
-				}).repeat(0, 3 * 20);
+					return true;
+				}));
 
 				return true;
 			}
@@ -140,7 +145,7 @@ public final class WorldCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }

@@ -13,7 +13,7 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.library.Items;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public final class ItemCommand extends CommandBuilder {
+public final class ItemCommand extends CommandOutput {
 	public ItemCommand() {
 		super(InternalCommandData.ITEM_COMMAND);
 	}
@@ -33,7 +33,7 @@ public final class ItemCommand extends CommandBuilder {
 
 	@Override
 	public @NotNull
-	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return builder.fillArgs(args)
 				.then(TabCompletionIndex.ONE, Arrays.stream(Material.values()).map(Enum::name).map(s -> s.toLowerCase().replace("_", "")).collect(Collectors.toList()))
 				.then(TabCompletionIndex.TWO, Arrays.stream(Material.values()).map(Enum::name).map(s -> s.toLowerCase().replace("_", "")).collect(Collectors.toList()))
@@ -42,7 +42,7 @@ public final class ItemCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
 		if (testPermission(player)) {
 
@@ -100,7 +100,7 @@ public final class ItemCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 }

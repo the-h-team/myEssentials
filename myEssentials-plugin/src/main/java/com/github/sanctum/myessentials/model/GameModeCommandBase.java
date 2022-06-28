@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Base class for gamemode switch commands.
  */
-public abstract class GameModeCommandBase extends CommandBuilder {
+public abstract class GameModeCommandBase extends CommandOutput {
 	protected final GameMode gameMode;
 	protected final String gamemodeName;
 
@@ -24,35 +24,35 @@ public abstract class GameModeCommandBase extends CommandBuilder {
 	}
 
 	@Override
-    public @Nullable
-    List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-        // if more than one arg is provided, or player does not have perms return no completions
-        if (args.length > 1 || !command.testPermissionSilent(player)) return Collections.emptyList();
-        // return default completion (online players)
-        return null;
-    }
+	public @Nullable
+	List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+		// if more than one arg is provided, or player does not have perms return no completions
+		if (args.length > 1 || !command.testPermissionSilent(player)) return Collections.emptyList();
+		// return default completion (online players)
+		return null;
+	}
 
-    @Override
-    public final boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
-        final boolean b = testPermission(player);
-        if (!b) return false;
-        if (args.length == 0) {
-            // player has permission
-            player.setGameMode(gameMode);
-            sendMessage(player, ConfiguredMessage.PLAYER_GAMEMODE_SET.replace(gamemodeName));
-            return true;
-        }
-        return setGameMode(player, args[0]);
-    }
+	@Override
+	public final boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+		final boolean b = testPermission(player);
+		if (!b) return false;
+		if (args.length == 0) {
+			// player has permission
+			player.setGameMode(gameMode);
+			sendMessage(player, ConfiguredMessage.PLAYER_GAMEMODE_SET.replace(gamemodeName));
+			return true;
+		}
+		return setGameMode(player, args[0]);
+	}
 
-    @Override
-    public final boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
-        if (args.length != 1) {
-            sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
-            return false;
-        }
-        return setGameMode(sender, args[0]);
-    }
+	@Override
+	public final boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+		if (args.length != 1) {
+			sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
+			return false;
+		}
+		return setGameMode(sender, args[0]);
+	}
 
     private boolean setGameMode(CommandSender sender, String playerName) {
         final Player player = Bukkit.getPlayer(playerName);

@@ -8,7 +8,7 @@ public final class BanCooldown extends Cooldown {
 	private final UUID user;
 	private final long cooldown;
 
-	protected BanCooldown(UUID user, long time) {
+	BanCooldown(UUID user, long time) {
 		this.user = user;
 		this.cooldown = abv((int) time);
 	}
@@ -24,8 +24,8 @@ public final class BanCooldown extends Cooldown {
 	}
 
 	@Override
-	public String fullTimeLeft() {
-		return "&e" + getDaysLeft() + " &rDays &e" + getHoursLeft() + " &rHours &e" + getMinutesLeft() + " &rMinutes &e" + getSecondsLeft() + " &rSeconds";
+	public String toFormat() {
+		return "&e" + getDays() + " &rDays &e" + getHours() + " &rHours &e" + getMinutes() + " &rMinutes &e" + getSeconds() + " &rSeconds";
 	}
 
 }

@@ -1,26 +1,25 @@
-package com.github.sanctum.myessentials.model.action;
+package com.github.sanctum.myessentials.model.executor;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
-import com.github.sanctum.myessentials.model.base.IExecutorBaseCommand;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.bukkit.command.CommandSender;
 
 @FunctionalInterface
-public interface IExecutorCalculating<T extends CommandSender> extends IExecutorBaseCommand {
+public interface IExecutorCommandBase<T extends CommandSender> extends IExecutorCommand {
 
 	@SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})
 	@Override
-	default void execute(CommandBuilder builder, CommandSender sender, String commandLabel, String[] args) {
+	default void execute(CommandOutput output, CommandSender sender, String commandLabel, String[] args) {
 		Method runMethod = Arrays.stream(this.getClass().getDeclaredMethods()).filter(m -> m.getName().equals("run")).findFirst().get();
 		Class<?> type = runMethod.getParameterTypes()[1];
 		if (type.isInstance(sender)) {
-			this.run(builder, (T) type.cast(sender), commandLabel, args);
+			this.run(output, (T) type.cast(sender), commandLabel, args);
 		} else {
 			throw new IllegalStateException("Unable to process resulting executor, type " + type.getSimpleName() + " isn't representative of object CommandSender.");
 		}
 	}
 
-	void run(CommandBuilder builder, T sender, String commandLabel, String[] args);
+	void run(CommandOutput builder, T sender, String commandLabel, String[] args);
 
 }

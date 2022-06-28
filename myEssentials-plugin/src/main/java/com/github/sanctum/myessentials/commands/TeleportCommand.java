@@ -10,7 +10,7 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import com.github.sanctum.myessentials.util.teleportation.Destination;
@@ -26,14 +26,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
-public final class TeleportCommand extends CommandBuilder {
+public final class TeleportCommand extends CommandOutput {
 
 	public TeleportCommand() {
 		super(InternalCommandData.TELEPORT_COMMAND);
 	}
 
 	@Override
-	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		if (!command.testPermissionSilent(player)) return ImmutableList.of();
 		final Collection<Player> players = PlayerSearch.getOnlinePlayers().collect();
 		final ImmutableList.Builder<String> builder = new ImmutableList.Builder<>();
@@ -134,7 +134,7 @@ public final class TeleportCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (!testPermission(player)) {
 			return false;
 		}
@@ -168,11 +168,11 @@ public final class TeleportCommand extends CommandBuilder {
 				sendMessage(player, "&cInvalid coordinates.");
 			}
 		}
-		return consoleView(player, commandLabel, args);
+		return onConsole(player, commandLabel, args);
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length < 2) {
 			sendUsage(sender);
 			return false;

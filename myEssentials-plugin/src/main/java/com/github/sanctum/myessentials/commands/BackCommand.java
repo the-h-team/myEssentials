@@ -10,30 +10,28 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-
+import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.Collections;
 import java.util.List;
-
-import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class BackCommand extends CommandBuilder {
+public final class BackCommand extends CommandOutput {
 	public BackCommand() {
 		super(InternalCommandData.BACK_COMMAND);
 	}
 
 	@Override
-	public List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return Collections.emptyList();
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
 			if (!testPermission(player)) {
 				return true;
@@ -52,7 +50,7 @@ public final class BackCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		sendMessage(sender, ConfiguredMessage.MUST_BE_PLAYER);
 		return false;
 	}

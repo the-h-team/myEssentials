@@ -10,31 +10,30 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.labyrinth.formatting.PaginatedList;
+import com.github.sanctum.labyrinth.formatting.FancyMessage;
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.labyrinth.library.Message;
-import com.github.sanctum.labyrinth.library.TextLib;
-import com.github.sanctum.myessentials.Essentials;
+import com.github.sanctum.labyrinth.formatting.pagination.EasyPagination;
+import com.github.sanctum.labyrinth.library.CommandUtils;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
 import com.github.sanctum.myessentials.api.EssentialsAddonQuery;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public final class HelpCommand extends CommandBuilder {
+public final class HelpCommand extends CommandOutput {
 	public HelpCommand() {
 		super(InternalCommandData.HELP_COMMAND);
 	}
@@ -42,7 +41,7 @@ public final class HelpCommand extends CommandBuilder {
 	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 
 	@Override
-	public @NotNull List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	public @NotNull List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return builder.fillArgs(args)
 				.then(TabCompletionIndex.ONE, getCommands(player).stream().filter(command -> {
 					try {
@@ -58,139 +57,73 @@ public final class HelpCommand extends CommandBuilder {
 				.get();
 	}
 
-	private PaginatedList<EssentialsAddon> addons(Player p) {
-		Message msg = Message.form(p);
-		return new PaginatedList<>(new ArrayList<>(EssentialsAddonQuery.getKnownAddons()))
-				.limit(10)
-				.compare(Comparator.comparing(EssentialsAddon::getName))
-				.start((pagination, page, max) -> msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &fmEssentials (" + page + "/" + max + ") &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"))
-				.finish((pagination, page, max) -> {
-					msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-					TextLib component = TextLib.getInstance();
-					int next = page + 1;
-					int last = Math.max(page - 1, 1);
-					List<BaseComponent> toSend = new LinkedList<>();
-					if (page == 1) {
-						if (page == max) {
-							toSend.add(component.textHoverable("", "&8« ", "You are on the first page already."));
-							toSend.add(component.textHoverable("&f<&7" + page + "&f/&7" + max + "&f>", "", ""));
-							toSend.add(component.textHoverable("", " &8»", "You are already on the last page."));
-							msg.build(toSend.toArray(new BaseComponent[0]));
-							return;
-						}
-						toSend.add(component.textHoverable("", "&8« ", "You are on the first page already."));
-						toSend.add(component.textHoverable("&f<&7" + page + "&f/&7" + max + "&f>", "", ""));
-						toSend.add(component.execute(() -> pagination.get(next), component.textHoverable("", " &3»", "")));
-						msg.build(toSend.toArray(new BaseComponent[0]));
-						return;
-					}
-					if (page == max) {
-						toSend.add(component.execute(() -> pagination.get(last), component.textHoverable("", "&3« ", "")));
-						toSend.add(component.textHoverable("&f<&7" + page + "&f/&7" + max + "&f>", "", ""));
-						toSend.add(component.textHoverable("", " &8»", "You are already on the last page."));
-						msg.build(toSend.toArray(new BaseComponent[0]));
-						return;
-					}
-					if (next <= max) {
-						toSend.add(component.execute(() -> pagination.get(last), component.textHoverable("", "&3« ", "")));
-						toSend.add(component.textHoverable("&f<&7" + page + "&f/&7" + max + "&f>", "", ""));
-						toSend.add(component.execute(() -> pagination.get(next), component.textHoverable("", " &3»", "")));
-						msg.build(toSend.toArray(new BaseComponent[0]));
-					}
-				}).decorate((pagination, addon, page, max, placement) -> {
-					TextLib.consume(t -> {
-						LinkedList<BaseComponent> toSend = new LinkedList<>();
-						toSend.add(t.execute(() -> {
-							sendMessage(p, "&f&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-							sendMessage(p, "&aTotal Commands: &e" + addon.getContext().getCommands().size());
-							sendMessage(p, "&aTotal Listeners: &e" + addon.getContext().getListeners().size());
-							sendMessage(p, "&Active: &3" + addon.isActive());
-							sendMessage(p, "&f&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-						}, t.textHoverable("&r| [&7" + Arrays.toString(addon.getAuthors()) + "&r] ", "&2" + addon.getName(), "&6Click &rfor &6info.")));
-						toSend.add(t.textHoverable("", " &7[&8Description&7]", (!addon.getDescription().isEmpty() ? addon.getDescription() : "Nothing sorry :/")));
-						msg.build(toSend.toArray(new BaseComponent[0]));
-
-					});
-				});
+	private EasyPagination<EssentialsAddon> addons(Player p) {
+		EasyPagination<EssentialsAddon> easy = new EasyPagination<>(p, EssentialsAddonQuery.getKnownAddons(), Comparator.comparing(EssentialsAddon::getName));
+		easy.limit(10);
+		easy.setHeader((player, message) -> {
+			message.then("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &fmEssentials &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		});
+		easy.setFooter((player, message) -> {
+			message.then("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		});
+		easy.setFormat((addon, integer, m) -> {
+			m.then("&r| [&7" + Arrays.toString(addon.getAuthors()) + "&r] &2" + addon.getName()).hover("&6Click &rfor &6info.").action(() -> {
+				FancyMessage message = new FancyMessage();
+				message.then("&f&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+				message.then("\n");
+				message.then("&aTotal Commands: &e" + addon.getContext().getCommands().size());
+				message.then("\n");
+				message.then("&aTotal Commands: &e" + addon.getContext().getCommands().size());
+				message.then("\n");
+				message.then("&aTotal Listeners: &e" + addon.getContext().getListeners().size());
+				message.then("\n");
+				message.then("&Active: &3" + addon.isActive());
+				message.then("\n");
+				message.then("&f&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+				message.then("\n");
+				message.then("&7[&8Description&7]").hover(!addon.getDescription().isEmpty() ? addon.getDescription() : "Nothing sorry :/");
+				message.send(p).deploy();
+			});
+		});
+		return easy;
 	}
 
-	private PaginatedList<Command> help(Player p) {
-		Message msg = Message.form(p);
-		return new PaginatedList<>(getCommands(p))
-				.limit(10)
-				.compare(Comparator.comparing(Command::getLabel))
-				.start((pagination, page, max) -> msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &fmEssentials (" + page + "/" + max + ") &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"))
-				.finish((pagination, page, max) -> {
-					msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-					TextLib component = TextLib.getInstance();
-					int next = page + 1;
-					int last = Math.max(page - 1, 1);
-					List<BaseComponent> toSend = new LinkedList<>();
-					if (page == 1) {
-						if (page == max) {
-							toSend.add(component.textHoverable("", "&8« ", "You are on the first page already."));
-							toSend.add(component.textHoverable("&f<&7" + page + "&f/&7" + max + "&f>", "", ""));
-							toSend.add(component.textHoverable("", " &8»", "You are already on the last page."));
-							msg.build(toSend.toArray(new BaseComponent[0]));
-							return;
-						}
-						toSend.add(component.textHoverable("", "&8« ", "You are on the first page already."));
-						toSend.add(component.textHoverable("&f<&7" + page + "&f/&7" + max + "&f>", "", ""));
-						toSend.add(component.execute(() -> pagination.get(next), component.textHoverable("", " &3»", "")));
-						msg.build(toSend.toArray(new BaseComponent[0]));
-						return;
-					}
-					if (page == max) {
-						toSend.add(component.execute(() -> pagination.get(last), component.textHoverable("", "&3« ", "")));
-						toSend.add(component.textHoverable("&f<&7" + page + "&f/&7" + max + "&f>", "", ""));
-						toSend.add(component.textHoverable("", " &8»", "You are already on the last page."));
-						msg.build(toSend.toArray(new BaseComponent[0]));
-						return;
-					}
-					if (next <= max) {
-						toSend.add(component.execute(() -> pagination.get(last), component.textHoverable("", "&3« ", "")));
-						toSend.add(component.textHoverable("&f<&7" + page + "&f/&7" + max + "&f>", "", ""));
-						toSend.add(component.execute(() -> pagination.get(next), component.textHoverable("", " &3»", "")));
-						msg.build(toSend.toArray(new BaseComponent[0]));
-					}
-				}).decorate((pagination, command, page, max, placement) -> {
-					try {
-						Plugin providing = JavaPlugin.getProvidingPlugin(command.getClass());
+	private EasyPagination<Command> help(Player p) {
+		EasyPagination<Command> easy = new EasyPagination<>(p, getCommands(p), Comparator.comparing(Command::getLabel));
+		easy.limit(10);
+		easy.setHeader((player, message) -> {
+			message.then("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &fmEssentials &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		});
+		easy.setFooter((player, message) -> {
+			message.then("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		});
+		easy.setFormat((command, integer, m) -> {
+			try {
+				Plugin providing = JavaPlugin.getProvidingPlugin(command.getClass());
+				if (command instanceof PluginCommand) providing = ((PluginCommand) command).getPlugin();
+				m.then("&f/&6" + command.getLabel()).hover("&6Click &rto &6auto-suggest.").suggest("/" + command.getLabel() + " ")
+						.then(" &7[&2Plugin&7]").hover("&a" + providing).command("help " + providing.getName())
+						.then(" &7[&8Description&7]").hover(!command.getDescription().isEmpty() ? command.getDescription() : "No description.");
 
-						TextLib.consume(t -> {
-							LinkedList<BaseComponent> toSend = new LinkedList<>();
-							toSend.add(t.textSuggestable("&r/", "&6" + command.getLabel(), "&6Click &rto &6auto-suggest.", command.getLabel() + " "));
-							toSend.add(t.textRunnable("", " &7[&2Plugin&7]", "&a" + providing, "help " + providing.getName()));
-							toSend.add(t.textHoverable("", " &7[&8Description&7]", (!command.getDescription().isEmpty() ? command.getDescription() : "Nothing sorry :/")));
-							msg.build(toSend.toArray(new BaseComponent[0]));
+			} catch (IllegalArgumentException e) {
+				m.then("&f/&6" + command.getLabel()).hover("&6Click &rto &6auto-suggest.").suggest("/" + command.getLabel() + " ")
+						.then(" &7[&2Plugin&7]").hover("&cN/A")
+						.then(" &7[&8Description&7]").hover(!command.getDescription().isEmpty() ? command.getDescription() : "No description.");
+			}
 
-						});
-
-					} catch (IllegalArgumentException e) {
-						TextLib.consume(t -> {
-
-							LinkedList<BaseComponent> toSend = new LinkedList<>();
-							toSend.add(t.textSuggestable("&r/", "&6" + command.getLabel(), "&6Click &rto &6auto-suggest.", command.getLabel() + " "));
-							toSend.add(t.textHoverable("", " &7[&2Plugin&7]", "&cNo info :/"));
-							toSend.add(t.textHoverable("", " &7[&8Description&7]", (!command.getDescription().isEmpty() ? command.getDescription() : "Nothing sorry :/")));
-							msg.build(toSend.toArray(new BaseComponent[0]));
-
-						});
-					}
-				});
+		});
+		return easy;
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
 		int length = args.length;
 
 		if (length == 0) {
-			help(player).get(1);
+			help(player).send(1);
 			return true;
 		}
-
-		Message msg = Message.form(player);
 
 		if (length == 1) {
 			try {
@@ -198,23 +131,11 @@ public final class HelpCommand extends CommandBuilder {
 			} catch (NumberFormatException e) {
 
 				if (args[0].equalsIgnoreCase("addons")) {
-					addons(player).get(1);
+					addons(player).send(1);
 					return true;
 				}
-
-				help(player).filter(cmd -> {
-							try {
-								Plugin p = JavaPlugin.getProvidingPlugin(cmd.getClass());
-								return p.getName().equalsIgnoreCase(args[0]);
-							} catch (Exception ignored) {
-								return false;
-							}
-						}).start((pagination, page, max) -> msg.send("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &f" + args[0] + " (" + page + "/" + max + ") &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"))
-						.decorate((pagination, command, page, max, placement) ->
-								TextLib.consume(t -> msg.build(t.textSuggestable("&r/", "&6" + command.getLabel() + " &r- " + command.getDescription(), "&6Click &rto &6auto-suggest.", command.getLabel() + " ")))).get(1);
-				return true;
+				help(player).send(Integer.parseInt(args[0]));
 			}
-			help(player).get(Integer.parseInt(args[0]));
 			return true;
 		}
 
@@ -222,24 +143,27 @@ public final class HelpCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
 		return false;
 	}
 
 	public List<Command> getCommands(Player p) {
 		final List<Command> list = new LinkedList<>();
-		Essentials.KNOWN_COMMANDS_MAP.forEach((key, value) -> {
-			if (!list.contains(value)) {
-				if (value.getPermission() != null) {
-					if (p.hasPermission(value.getPermission())) {
+		return CommandUtils.read(e -> {
+			Map<String, Command> map = e.getValue();
+			map.forEach((key, value) -> {
+				if (!list.contains(value)) {
+					if (value.getPermission() != null) {
+						if (p.hasPermission(value.getPermission())) {
+							list.add(value);
+						}
+					} else {
 						list.add(value);
 					}
-				} else {
-					list.add(value);
 				}
-			}
+			});
+			return list;
 		});
-		return list;
 	}
 
 }

@@ -20,9 +20,9 @@ import org.jetbrains.annotations.NotNull;
  * otherwise CommandBuilder would also need to follow LGPL.
  */
 public final class CommandImpl extends Command {
-    protected final CommandBuilder commandBuilder;
+    protected final CommandOutput commandBuilder;
 
-    public CommandImpl(CommandBuilder commandBuilder) {
+    public CommandImpl(CommandOutput commandBuilder) {
         super(commandBuilder.commandData.getLabel());
         this.commandBuilder = commandBuilder;
         setDescription(this.commandBuilder.commandData.getDescription());
@@ -36,7 +36,12 @@ public final class CommandImpl extends Command {
 
     @Override
     public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-        final List<String> completions = commandBuilder.tabComplete((Player) sender, alias, args);
+        final List<String> completions;
+        if (sender instanceof Player) {
+            completions = commandBuilder.onPlayerTab((Player) sender, alias, args);
+        } else {
+            completions = commandBuilder.onConsoleTab(sender, alias, args);
+        }
         if (completions != null) {
             return completions;
         }
@@ -46,8 +51,8 @@ public final class CommandImpl extends Command {
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         if (!(sender instanceof Player)) {
-            return commandBuilder.consoleView(sender, commandLabel, args);
+            return commandBuilder.onConsole(sender, commandLabel, args);
         }
-        return commandBuilder.playerView((Player) sender, commandLabel, args);
+        return commandBuilder.onPlayer((Player) sender, commandLabel, args);
     }
 }

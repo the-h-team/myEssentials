@@ -13,7 +13,7 @@ import com.github.sanctum.labyrinth.event.custom.DefaultEvent;
 import com.github.sanctum.labyrinth.event.custom.Subscribe;
 import com.github.sanctum.labyrinth.library.AFK;
 import com.github.sanctum.labyrinth.library.Cooldown;
-import com.github.sanctum.labyrinth.library.Message;
+import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.library.TimeWatch;
 import com.github.sanctum.labyrinth.task.TaskScheduler;
@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import org.bukkit.BanEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -64,19 +63,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 // TODO: cleanup class a little, were gonna have to make due with consolidation like "PlayerEvent" & "EntityEvent" & others
 public class PlayerEventListener implements Listener {
-	private final Map<UUID, Boolean> taskScheduled = new HashMap<>();
-	private final AtomicReference<Location> teleportLocation = new AtomicReference<>();
 	private final Plugin plugin = JavaPlugin.getProvidingPlugin(getClass());
 
 	private static final Map<UUID, Location> prevLocations = new HashMap<>();
-
-	void sendMessage(Player p, String text) {
-		Message.form(p).send(text);
-	}
-
-	int random(int bounds) {
-		return (int) (Math.random() * bounds * (Math.random() > 0.5 ? 1 : -1));
-	}
 
 	/**
 	 * Checks if a location is safe (solid ground with 2 breathable blocks)
@@ -107,7 +96,7 @@ public class PlayerEventListener implements Listener {
 				if (r != null) {
 					if (r.getStatus() == TeleportRequest.Status.ACCEPTED) {
 						MyEssentialsAPI.getInstance().getTeleportRunner().cancelRequest(r);
-						Message.form(e.getPlayer()).setPrefix(MyEssentialsAPI.getInstance().getPrefix()).send(ConfiguredMessage.TP_CANCELLED.get());
+						Mailer.empty(e.getPlayer()).chat(MyEssentialsAPI.getInstance().getPrefix() + " " + ConfiguredMessage.TP_CANCELLED.get()).deploy();
 					}
 				}
 
@@ -127,7 +116,7 @@ public class PlayerEventListener implements Listener {
 	@Subscribe
 	public void onInteract(DefaultEvent.Interact e) {
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			if (e.getBlock().map(b -> b.getState() instanceof Sign).orElse(false)) {
+			if (e.getBlock().map(b -> b.getState() instanceof Sign).orElse(false) && !e.getPlayer().getInventory().getItemInMainHand().getType().name().contains("DYE")) {
 				SignFunction.ofDefault(e.getBlock().get()).run(e.getPlayer());
 				SignFunction.ofLibrary(e.getBlock().get()).run(e.getPlayer());
 			}
@@ -136,7 +125,8 @@ public class PlayerEventListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onChat(AsyncPlayerChatEvent e) {
-		if (StringUtils.use(e.getMessage()).containsIgnoreCase("${jndi:ldap:")) e.setCancelled(true);
+		if (StringUtils.use(e.getMessage()).containsIgnoreCase("${jndi:ldap:"))
+			e.setCancelled(true); // logj command prevention.
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST)
@@ -150,7 +140,7 @@ public class PlayerEventListener implements Listener {
 		Player p = e.getPlayer();
 
 		PlayerSearch search = PlayerSearch.look(p);
-		Cooldown timer = search.getBanTimer("&r(D&r)&e{DAYS} &r(H&r)&e{HOURS} &r(M&r)&e{MINUTES} &r(S&r)&e{SECONDS}").orElse(null);
+		Cooldown timer = search.getBanTimer();
 		if (timer != null) {
 			if (!timer.isComplete()) {
 				e.disallow(PlayerLoginEvent.Result.KICK_BANNED, KickReason.next()
@@ -160,69 +150,13 @@ public class PlayerEventListener implements Listener {
 						.input(4, "")
 						.input(5, ConfiguredMessage.LOGIN_BANNED_REASON.replace(search.getBanEntry().map(BanEntry::getReason).orElse("null")))
 						.input(6, "")
-						.input(7, ConfiguredMessage.LOGIN_BAN_EXPIRES.replace(timer.fullTimeLeft()))
+						.input(7, ConfiguredMessage.LOGIN_BAN_EXPIRES.replace(MessageFormat.format("&r(D&r)&e{0} &r(H&r)&e{1} &r(M&r)&e{2} &r(S&r)&e{3}", Math.abs(timer.getDays()), Math.abs(timer.getHours()), Math.abs(timer.getMinutes()), Math.abs(timer.getSeconds()))))
 						.toString());
 			} else {
 				PlayerSearch.look(p).unban();
-				Cooldown.remove(timer);
+				LabyrinthProvider.getInstance().remove(timer);
 				e.allow();
 			}
-		}
-
-		if (e.getResult() == PlayerLoginEvent.Result.ALLOWED) {
-			/*
-			Schedule.sync(() -> {
-				if (Region.spawn().isPresent()) {
-					if (Region.spawn().get().contains(e.getPlayer())) {
-						if (p.getLocation().getBlock().getType() == Material.ORANGE_CARPET) {
-							if (!taskScheduled.containsKey(p.getUniqueId())) {
-								taskScheduled.put(p.getUniqueId(), true);
-
-								Schedule.sync(() -> {
-									int x = random(10500);
-									int z = random(3500);
-									int y = 150;
-									teleportLocation.set(new Location(p.getWorld(), x, y, z));
-									y = Objects.requireNonNull(teleportLocation.get().getWorld()).getHighestBlockYAt(teleportLocation.get());
-									teleportLocation.get().setY(y);
-									Message.form(p).action(MyEssentialsAPI.getInstance().getPrefix() + " Searching for suitable location...");
-									p.playSound(p.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 10, 1);
-
-								}).cancelAfter(p).cancelAfter(task -> {
-									if (taskScheduled.containsKey(p.getUniqueId()) && !taskScheduled.get(p.getUniqueId())) {
-										sendMessage(p, ConfiguredMessage.SEARCH_INTERRUPTED.toString());
-										task.cancel();
-										return;
-									}
-									if (!taskScheduled.containsKey(p.getUniqueId())) {
-										sendMessage(p, ConfiguredMessage.SEARCH_INTERRUPTED.toString());
-										task.cancel();
-										return;
-									}
-									if (teleportLocation.get() != null) {
-										if (hasSurface(teleportLocation.get())) {
-											p.teleport(teleportLocation.get());
-											teleportLocation.set(null);
-											sendMessage(p, ConfiguredMessage.TELEPORTED_SAFEST_LOCATION.replace(p.getWorld().getName()));
-											taskScheduled.remove(p.getUniqueId());
-											task.cancel();
-										}
-									}
-								}).repeat(0, 3 * 20);
-							}
-
-						} else {
-							if (taskScheduled.containsKey(p.getUniqueId()) && taskScheduled.get(p.getUniqueId())) {
-								taskScheduled.remove(p.getUniqueId());
-								sendMessage(p, ConfiguredMessage.STOPPING_SEARCH.toString());
-							}
-						}
-					}
-				}
-			}).repeatReal(0, 2 * 20);
-
-			 */
-
 		}
 
 	}
@@ -274,12 +208,12 @@ public class PlayerEventListener implements Listener {
 		if (healer != null) {
 			if (healer instanceof Player) {
 				Player heal = (Player) healer;
-				Message.form(target).send(ConfiguredMessage.PLAYER_HEALED_YOU.replace(plugin, heal.getName()));
+				Mailer.empty(target).chat(ConfiguredMessage.PLAYER_HEALED_YOU.replace(plugin.getName(), heal.getName())).deploy();
 			} else {
-				Message.form(target).send(ConfiguredMessage.CONSOLE_HEALED_YOU.replace(plugin));
+				Mailer.empty(target).chat(ConfiguredMessage.CONSOLE_HEALED_YOU.replace(plugin.getName())).deploy();
 			}
 		} else {
-			Message.form(target).send(ConfiguredMessage.HEALED.replace(plugin));
+			Mailer.empty(target).chat(ConfiguredMessage.HEALED.replace(plugin.getName())).deploy();
 		}
 	}
 
@@ -307,12 +241,12 @@ public class PlayerEventListener implements Listener {
 		if (healer != null) {
 			if (healer instanceof Player) {
 				Player heal = (Player) healer;
-				Message.form(target).send(ConfiguredMessage.PLAYER_FED_YOU.replace(plugin, heal.getName()));
+				Mailer.empty(target).chat(ConfiguredMessage.PLAYER_FED_YOU.replace(plugin.getName(), heal.getName())).deploy();
 			} else {
-				Message.form(target).send(ConfiguredMessage.CONSOLE_FED_YOU.replace(plugin));
+				Mailer.empty(target).chat(ConfiguredMessage.CONSOLE_FED_YOU.replace(plugin.getName())).deploy();
 			}
 		} else {
-			Message.form(target).send(ConfiguredMessage.FED.replace(plugin));
+			Mailer.empty(target).chat(ConfiguredMessage.FED.replace(plugin.getName())).deploy();
 		}
 	}
 

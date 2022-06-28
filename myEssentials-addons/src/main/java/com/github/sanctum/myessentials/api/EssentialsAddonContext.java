@@ -1,15 +1,15 @@
 package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.library.Deployable;
-import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import org.bukkit.event.Listener;
 
-public interface AddonLoaderContext {
+public interface EssentialsAddonContext {
 
 	EssentialsAddon loadAddon(File jar) throws IOException, InvalidAddonException;
 
@@ -27,12 +27,12 @@ public interface AddonLoaderContext {
 	/**
 	 * Get the collection of command classes to be registered.
 	 *
-	 * @return The collection of {@link CommandBuilder} classes for this addon.
+	 * @return The collection of {@link CommandOutput} classes for this addon.
 	 */
-	Map<CommandData, Class<? extends CommandBuilder>> getCommands();
+	Map<CommandData, Class<? extends CommandOutput>> getCommands();
 
 	void stage(Listener listener);
 
-	<T extends CommandBuilder> void stage(CommandData data, Class<T> t);
+	<T extends CommandOutput> void stage(CommandData data, Class<T> t);
 
 }

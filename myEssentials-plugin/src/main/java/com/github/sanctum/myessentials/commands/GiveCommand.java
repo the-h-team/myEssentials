@@ -14,7 +14,7 @@ import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.library.Items;
 import com.github.sanctum.labyrinth.library.StringUtils;
-import com.github.sanctum.myessentials.model.CommandBuilder;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
@@ -30,14 +30,14 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class GiveCommand extends CommandBuilder {
+public final class GiveCommand extends CommandOutput {
 	public GiveCommand() {
 		super(InternalCommandData.GIVE_COMMAND);
 	}
 
 	@Override
 	public @Nullable
-	List<String> tabComplete(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+	List<String> onPlayerTab(@NotNull Player player, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
 		return SimpleTabCompletion.of(args)
 				.then(TabCompletionIndex.ONE, Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()))
 				.then(TabCompletionIndex.TWO, Arrays.stream(Material.values()).map(material -> material.name().toLowerCase(Locale.ROOT).replace("_", "")).collect(Collectors.toList()))
@@ -46,7 +46,7 @@ public final class GiveCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean playerView(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (testPermission(player)) {
 			if (args.length == 0) {
 				sendUsage(player);
@@ -131,7 +131,7 @@ public final class GiveCommand extends CommandBuilder {
 	}
 
 	@Override
-	public boolean consoleView(@NotNull CommandSender player, @NotNull String commandLabel, @NotNull String[] args) {
+	public boolean onConsole(@NotNull CommandSender player, @NotNull String commandLabel, @NotNull String[] args) {
 		if (args.length == 0) {
 			sendUsage(player);
 			return true;

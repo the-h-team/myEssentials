@@ -13,9 +13,11 @@ import com.github.sanctum.labyrinth.annotation.Note;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.Registry;
 import com.github.sanctum.labyrinth.data.RegistryData;
+import com.github.sanctum.labyrinth.data.container.LabyrinthEntryMap;
+import com.github.sanctum.labyrinth.data.container.LabyrinthMap;
 import com.github.sanctum.labyrinth.task.Procedure;
-import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.IOException;
@@ -25,13 +27,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.event.HandlerList;
@@ -43,28 +44,19 @@ import org.jetbrains.annotations.NotNull;
 
 public final class EssentialsAddonQuery {
 
-	private static final Collection<EssentialsAddon> ESSENTIALS_ADDONS = new HashSet<>();
+	private static final LabyrinthMap<String, EssentialsAddon> addonMap = new LabyrinthEntryMap<>();
 
-	private static final List<String> DATA_LOG = new ArrayList<>();
-
-	private static EssentialsAddonQuery instance;
-	private final MyEssentialsAPI api = MyEssentialsAPI.getInstance();
-	private final JavaPlugin plugin = JavaPlugin.getProvidingPlugin(api.getClass());
-
-	// lazy grab the api+plugin
-	private EssentialsAddonQuery() {
-		instance = this;
-	}
+	private static final List<String> dataLog = new ArrayList<>();
 
 	/**
 	 * Get the collection of persistently picked up addons.
-	 *
+	 * <p>
 	 * *NOTE: If the addon doesn't persist it won't be in cache.
 	 *
 	 * @return A collection of enabled/disabled registered addons.
 	 */
 	public static Collection<EssentialsAddon> getKnownAddons() {
-		return CompletableFuture.supplyAsync(() -> ESSENTIALS_ADDONS).join();
+		return addonMap.values().stream().collect(Collectors.toList());
 	}
 
 	/**
@@ -74,42 +66,38 @@ public final class EssentialsAddonQuery {
 	 * @return An {@link EssentialsAddon} object.
 	 */
 	public static EssentialsAddon find(String name) {
-		return getKnownAddons().stream().filter(c -> c.getName().equals(name)).findFirst().orElse(null);
+		return addonMap.get(name);
+	}
+
+	public static void cache(@NotNull EssentialsAddon addon) {
+		addonMap.put(addon.getName(), addon);
 	}
 
 	/**
-	 * Get the list of currently registered but disabled addons by name.
+	 * Get a stream of currently registered but disabled addons.
 	 *
-	 * @return All disabled persistent addons by name.
+	 * @return All disabled persistent addons.
 	 */
-	public static List<String> getDisabledAddons() {
-		List<String> array = new ArrayList<>();
-		for (EssentialsAddon e : ESSENTIALS_ADDONS) {
-			if (!e.isActive()) array.add(e.getName());
-		}
-		return array;
+	public static Stream<EssentialsAddon> getDisabledAddons() {
+		return addonMap.values().stream().filter(e -> !e.isActive());
 	}
 
 	/**
-	 * Get the list of currently registered but enabled addons by name.
+	 * Get the list of currently registered but enabled addons.
 	 *
-	 * @return All enabled persistent addons by name.
+	 * @return All enabled persistent addons.
 	 */
-	public static List<String> getEnabledAddons() {
-		List<String> array = new ArrayList<>();
-		for (EssentialsAddon e : ESSENTIALS_ADDONS) {
-			if (e.isActive()) array.add(e.getName());
-		}
-		return array;
+	public static Stream<EssentialsAddon> getEnabledAddons() {
+		return addonMap.values().stream().filter(EssentialsAddon::isActive);
 	}
 
 	/**
-	 * Get the list of currently persistent registered addons by name.
+	 * Get the list of currently persistent registered addons.
 	 *
 	 * @return All persistent registered addons.
 	 */
-	public static List<String> getRegisteredAddons() {
-		return CompletableFuture.supplyAsync(() -> getKnownAddons().stream().sequential().map(EssentialsAddon::getName).collect(Collectors.toList())).join();
+	public static Stream<EssentialsAddon> getRegisteredAddons() {
+		return addonMap.values().stream();
 	}
 
 	/**
@@ -120,38 +108,37 @@ public final class EssentialsAddonQuery {
 	 */
 	public static boolean disable(EssentialsAddon e) {
 		if (!e.isActive()) return false;
-		DATA_LOG.clear();
-		if (instance == null) new EssentialsAddonQuery();
-		instance.api.logInfo("- Queueing removal of " + '"' + e.getName() + '"' + " addon information.");
-		DATA_LOG.add("[Essentials] - Queueing removal of " + '"' + e.getName() + '"' + " addon information.");
+		dataLog.clear();
+		MyEssentialsAPI.getInstance().logInfo("- Queueing removal of " + '"' + e.getName() + '"' + " addon information.");
+		dataLog.add("[Essentials] - Queueing removal of " + '"' + e.getName() + '"' + " addon information.");
 		e.onDisable();
-		List<Listener> a = HandlerList.getRegisteredListeners(instance.plugin).stream()
+		List<Listener> a = HandlerList.getRegisteredListeners(JavaPlugin.getProvidingPlugin(EssentialsAddon.class)).stream()
 				.filter(r -> e.getContext().getListeners().contains(r.getListener())).map(RegisteredListener::getListener).collect(Collectors.toList());
 		int count = 0;
 		if (!a.isEmpty()) {
-			DATA_LOG.add(" - Unregistering addon from handler-list.");
+			dataLog.add(" - Unregistering addon from handler-list.");
 			for (Listener l : a) {
 				HandlerList.unregisterAll(l);
 				count++;
 			}
 			if (count > 0) {
-				instance.api.logInfo("- (+" + count + ") Listener(s) successfully un-registered");
-				DATA_LOG.add(" - (+" + count + ") Listener(s) found and un-registered");
+				MyEssentialsAPI.getInstance().logInfo("- (+" + count + ") Listener(s) successfully un-registered");
+				dataLog.add(" - (+" + count + ") Listener(s) found and un-registered");
 			}
 		} else {
-			instance.api.logInfo("- Failed to un-register events. None currently running.");
-			DATA_LOG.add(" - Failed to un-register events. None currently running.");
+			MyEssentialsAPI.getInstance().logInfo("- Failed to un-register events. None currently running.");
+			dataLog.add(" - Failed to un-register events. None currently running.");
 		}
 		for (CommandData command : e.getContext().getCommands().keySet()) {
-			Command c = instance.api.getRegistration(command);
+			Command c = MyEssentialsAPI.getInstance().getRegistration(command);
 			if (c == null) continue;
 			if (c.isRegistered()) {
-				instance.api.unregisterCommand(c);
-				instance.api.logInfo(() -> "- Successfully un-registered command " + c.getClass().getSimpleName());
-				DATA_LOG.add(" - Successfully un-registered command " + c.getClass().getSimpleName());
+				MyEssentialsAPI.getInstance().unregisterCommand(c);
+				MyEssentialsAPI.getInstance().logInfo(() -> "- Successfully un-registered command " + c.getClass().getSimpleName());
+				dataLog.add(" - Successfully un-registered command " + c.getClass().getSimpleName());
 			} else {
-				instance.api.logInfo(() -> "- Failed to un-register command " + c.getClass().getSimpleName());
-				DATA_LOG.add(" - Failed to un-register command " + c.getClass().getSimpleName());
+				MyEssentialsAPI.getInstance().logInfo(() -> "- Failed to un-register command " + c.getClass().getSimpleName());
+				dataLog.add(" - Failed to un-register command " + c.getClass().getSimpleName());
 			}
 		}
 		return true;
@@ -165,39 +152,38 @@ public final class EssentialsAddonQuery {
 	 */
 	public static boolean enable(EssentialsAddon e) {
 		if (e.isActive()) return false;
-		DATA_LOG.clear();
-		if (instance == null) new EssentialsAddonQuery();
-		instance.api.logInfo(() -> "- Queueing pickup for " + '"' + e.getName() + '"' + " addon information.");
-		DATA_LOG.add("[Essentials] - Queueing pickup for " + '"' + e.getName() + '"' + " addon information.");
+		dataLog.clear();
+		MyEssentialsAPI.getInstance().logInfo(() -> "- Queueing pickup for " + '"' + e.getName() + '"' + " addon information.");
+		dataLog.add("[Essentials] - Queueing pickup for " + '"' + e.getName() + '"' + " addon information.");
 		e.onEnable();
-		List<Listener> a = HandlerList.getRegisteredListeners(instance.plugin).stream().sequential().filter(r -> e.getContext().getListeners().contains(r.getListener())).map(RegisteredListener::getListener).collect(Collectors.toList());
+		List<Listener> a = HandlerList.getRegisteredListeners(JavaPlugin.getProvidingPlugin(EssentialsAddon.class)).stream().sequential().filter(r -> e.getContext().getListeners().contains(r.getListener())).map(RegisteredListener::getListener).collect(Collectors.toList());
 		int count = 0;
 		for (Listener add : e.getContext().getListeners()) {
 			if (a.contains(add)) {
-				instance.api.logInfo("- (+1) Listener failed to register. Already registered and skipping.");
-				DATA_LOG.add(" - (+1) Listener failed to register. Already registered and skipping.");
+				MyEssentialsAPI.getInstance().logInfo("- (+1) Listener failed to register. Already registered and skipping.");
+				dataLog.add(" - (+1) Listener failed to register. Already registered and skipping.");
 			} else {
-				Bukkit.getPluginManager().registerEvents(add, instance.plugin);
+				Bukkit.getPluginManager().registerEvents(add, JavaPlugin.getProvidingPlugin(EssentialsAddon.class));
 				count++;
 			}
 		}
 		int count2 = 0;
-		for (Class<? extends CommandBuilder> command : e.getContext().getCommands().values()) {
+		for (Class<? extends CommandOutput> command : e.getContext().getCommands().values()) {
 			try {
 				command.getDeclaredConstructor().newInstance();
 				count2++;
 			} catch (Exception ex) {
-				instance.api.logInfo("- (+1) Command failed to register. Already registered and skipping.");
-				DATA_LOG.add(" - (+1) Command failed to register. Already registered and skipping.");
+				MyEssentialsAPI.getInstance().logInfo("- (+1) Command failed to register. Already registered and skipping.");
+				dataLog.add(" - (+1) Command failed to register. Already registered and skipping.");
 			}
 		}
 		if (count > 0) {
-			instance.api.logInfo("- (+" + count + ") Listener(s) successfully re-registered");
-			DATA_LOG.add(" - (+" + count + ") Listener(s) found and re-registered");
+			MyEssentialsAPI.getInstance().logInfo("- (+" + count + ") Listener(s) successfully re-registered");
+			dataLog.add(" - (+" + count + ") Listener(s) found and re-registered");
 		}
 		if (count2 > 0) {
-			instance.api.logInfo("- (+" + count2 + ") Command(s) successfully re-registered");
-			DATA_LOG.add(" - (+" + count2 + ") Command(s) found and re-registered");
+			MyEssentialsAPI.getInstance().logInfo("- (+" + count2 + ") Command(s) successfully re-registered");
+			dataLog.add(" - (+" + count2 + ") Command(s) found and re-registered");
 		}
 		return true;
 	}
@@ -215,7 +201,7 @@ public final class EssentialsAddonQuery {
 	 */
 	public static void pickup(Class<? extends EssentialsAddon> aClass) {
 		try {
-			EssentialsAddon addon = aClass.newInstance();
+			EssentialsAddon addon = aClass.getDeclaredConstructor().newInstance();
 			try {
 				addon.onLoad();
 				addon.register();
@@ -223,9 +209,8 @@ public final class EssentialsAddonQuery {
 				LabyrinthProvider.getInstance().getLogger().warning(() -> "- You have outdated libraries. Additions for addon " + addon.getName() + " will not work.");
 				LabyrinthProvider.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
 			}
-		} catch (InstantiationException | IllegalAccessException e) {
-			if (instance == null) new EssentialsAddonQuery();
-			instance.api.logSevere(() -> "- Unable to cast EssentialsAddon to the class " + aClass.getName() + ". This likely means you are not implementing the EssentialsAddon interface for your event class properly.");
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+			MyEssentialsAPI.getInstance().logSevere(() -> "- Unable to cast EssentialsAddon to the class " + aClass.getName() + ". This likely means you are not implementing the EssentialsAddon interface for your event class properly.");
 			e.printStackTrace();
 		}
 	}
@@ -260,7 +245,7 @@ public final class EssentialsAddonQuery {
 	 * you need to loop through the total collection of addons using {@link EssentialsAddonQuery#getKnownAddons()}
 	 * find the addon's you're looking for and register the listeners using {@link EssentialsAddonQuery#enable(EssentialsAddon)}
 	 *
-	 * @param plugin The plugin thats providing the addons.
+	 * @param plugin      The plugin thats providing the addons.
 	 * @param packageName The package location where the {@link EssentialsAddon} addons are located.
 	 */
 	public static void pickupAll(@NotNull final Plugin plugin, @NotNull final String packageName) {
@@ -271,7 +256,6 @@ public final class EssentialsAddonQuery {
 		} catch (IOException e) {
 			throw new IllegalStateException("Unable to access jar!", e);
 		}
-		if (instance == null) new EssentialsAddonQuery();
 		for (JarEntry jarEntry : Collections.list(jarFile.entries())) {
 			String className = jarEntry.getName().replace("/", ".");
 			if (className.startsWith(packageName) && className.endsWith(".class")) {
@@ -279,7 +263,7 @@ public final class EssentialsAddonQuery {
 				try {
 					clazz = Class.forName(className.substring(0, className.length() - 6));
 				} catch (ClassNotFoundException e) {
-					instance.api.logSevere("- Unable to find class" + className + "! Double check package location. See the error below for more information.");
+					MyEssentialsAPI.getInstance().logSevere("- Unable to find class" + className + "! Double check package location. See the error below for more information.");
 					break;
 				}
 				if (EssentialsAddon.class.isAssignableFrom(clazz)) {
@@ -298,7 +282,7 @@ public final class EssentialsAddonQuery {
 					LabyrinthProvider.getInstance().getLogger().warning("- It's possible this has no effect to you as of this moment so you may be safe to ignore this message.");
 				}
 			} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-				instance.api.logSevere("- Unable to cast EssentialsAddon to the class " + aClass.getName() + ". This likely means you are not implementing the EssentialsAddon interface for your event class properly.");
+				MyEssentialsAPI.getInstance().logSevere("- Unable to cast EssentialsAddon to the class " + aClass.getName() + ". This likely means you are not implementing the EssentialsAddon interface for your event class properly.");
 				e.printStackTrace();
 				break;
 			}
@@ -317,54 +301,53 @@ public final class EssentialsAddonQuery {
 	public static void register(EssentialsAddon addon) {
 		addon.onLoad();
 		addon.register();
-		if (instance == null) new EssentialsAddonQuery();
 		if (addon.isStaged()) {
-			instance.api.logInfo(" ");
-			instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-			instance.api.logInfo("- Addon: " + addon.getName());
-			instance.api.logInfo("- Author(s): " + Arrays.toString(addon.getAuthors()));
-			instance.api.logInfo("- Description: " + addon.getDescription());
-			instance.api.logInfo("- Persistent: (" + addon.isStaged() + ")");
-			instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-			instance.api.logInfo(" ");
-			instance.api.logInfo("- Listeners: (" + addon.getContext().getListeners().size() + ")");
+			MyEssentialsAPI.getInstance().logInfo(" ");
+			MyEssentialsAPI.getInstance().logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+			MyEssentialsAPI.getInstance().logInfo("- Addon: " + addon.getName());
+			MyEssentialsAPI.getInstance().logInfo("- Author(s): " + Arrays.toString(addon.getAuthors()));
+			MyEssentialsAPI.getInstance().logInfo("- Description: " + addon.getDescription());
+			MyEssentialsAPI.getInstance().logInfo("- Persistent: (" + addon.isStaged() + ")");
+			MyEssentialsAPI.getInstance().logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+			MyEssentialsAPI.getInstance().logInfo(" ");
+			MyEssentialsAPI.getInstance().logInfo("- Listeners: (" + addon.getContext().getListeners().size() + ")");
 			addon.onEnable();
 			for (Listener addition : addon.getContext().getListeners()) {
-				boolean registered = HandlerList.getRegisteredListeners(instance.plugin).stream().anyMatch(r -> r.getListener().equals(addition));
+				boolean registered = HandlerList.getRegisteredListeners(JavaPlugin.getProvidingPlugin(EssentialsAddon.class)).stream().anyMatch(r -> r.getListener().equals(addition));
 				if (!registered) {
-					instance.api.logInfo("- [" + addon.getName() + "] (+1) Listener " + addition.getClass().getSimpleName() + " loaded");
-					Bukkit.getPluginManager().registerEvents(addition, instance.plugin);
+					MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (+1) Listener " + addition.getClass().getSimpleName() + " loaded");
+					Bukkit.getPluginManager().registerEvents(addition, JavaPlugin.getProvidingPlugin(EssentialsAddon.class));
 				} else {
-					instance.api.logInfo("- [" + addon.getName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
+					MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
 				}
 			}
-			for (Class<? extends CommandBuilder> command : addon.getContext().getCommands().values()) {
+			for (Class<? extends CommandOutput> command : addon.getContext().getCommands().values()) {
 				try {
 					command.getDeclaredConstructor().newInstance();
-					instance.api.logInfo("- [" + addon.getName() + "] (+1) Command " + command.getSimpleName() + " loaded");
+					MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (+1) Command " + command.getSimpleName() + " loaded");
 				} catch (Exception ex) {
-					instance.api.logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
-					DATA_LOG.add(" - (+1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
+					MyEssentialsAPI.getInstance().logInfo("- (-1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
+					dataLog.add(" - (+1) Command " + command.getSimpleName() + " failed to register. Already registered and skipping.");
 				}
 			}
 			addon.active = true;
 		} else {
-			instance.api.logInfo(" ");
-			instance.api.logInfo("- Addon: " + addon.getName());
-			instance.api.logInfo("- Author(s): " + Arrays.toString(addon.getAuthors()));
-			instance.api.logInfo("- Description: " + addon.getDescription());
-			instance.api.logInfo("- Persistent: (" + addon.isStaged() + ")");
+			MyEssentialsAPI.getInstance().logInfo(" ");
+			MyEssentialsAPI.getInstance().logInfo("- Addon: " + addon.getName());
+			MyEssentialsAPI.getInstance().logInfo("- Author(s): " + Arrays.toString(addon.getAuthors()));
+			MyEssentialsAPI.getInstance().logInfo("- Description: " + addon.getDescription());
+			MyEssentialsAPI.getInstance().logInfo("- Persistent: (" + addon.isStaged() + ")");
 			addon.remove();
-			instance.api.logInfo(" ");
-			instance.api.logInfo("- Listeners: (" + addon.getContext().getListeners().size() + ")");
+			MyEssentialsAPI.getInstance().logInfo(" ");
+			MyEssentialsAPI.getInstance().logInfo("- Listeners: (" + addon.getContext().getListeners().size() + ")");
 			for (Listener addition : addon.getContext().getListeners()) {
-				instance.api.logInfo("- [" + addon.getName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
+				MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
 			}
-			for (Class<? extends CommandBuilder> command : addon.getContext().getCommands().values()) {
-				instance.api.logInfo("- [" + addon.getName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
+			for (Class<? extends CommandOutput> command : addon.getContext().getCommands().values()) {
+				MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
 			}
 		}
-		instance.api.logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		MyEssentialsAPI.getInstance().logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 	}
 
 	/**
@@ -381,7 +364,7 @@ public final class EssentialsAddonQuery {
 			EssentialsAddon addon = aClass.getDeclaredConstructor().newInstance();
 			register(addon);
 		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-			instance.api.logSevere("- Unable to cast EventCycle to the class " + aClass.getName() + ". This likely means you are not implementing the EssentialsAddon abstraction for your main class properly.");
+			MyEssentialsAPI.getInstance().logSevere("- Unable to cast EventCycle to the class " + aClass.getName() + ". This likely means you are not implementing the EssentialsAddon abstraction for your main class properly.");
 			e.printStackTrace();
 		}
 	}
@@ -392,20 +375,19 @@ public final class EssentialsAddonQuery {
 	 * <p>
 	 * You'll want to primarily use this method as it both pick's up addons in a specified package location of your plugin
 	 * and activates them.
-	 *
+	 * <p>
 	 * No extra steps are required like with {@link EssentialsAddonQuery#pickup(Class)} or {@link EssentialsAddonQuery#pickupAll(Plugin, String)}
 	 *
-	 * @param plugin The plugin that's providing the addons
+	 * @param plugin      The plugin that's providing the addons
 	 * @param packageName The package location where the {@link EssentialsAddon} addons are located.
 	 */
 	public static void registerAll(@NotNull final Plugin plugin, @NotNull final String packageName) {
-
 		RegistryData<EssentialsAddon> data = new Registry<>(EssentialsAddon.class)
 				.source(plugin)
-				.pick(packageName)
+				.filter(packageName)
 				.operate(addon -> {
 				});
-		instance.api.logInfo("- Found (" + data.getData().size() + ") addon(s)");
+		MyEssentialsAPI.getInstance().logInfo("- Found (" + data.getData().size() + ") addon(s)");
 		for (EssentialsAddon e : data.getData()) {
 			register(e);
 		}
@@ -413,7 +395,7 @@ public final class EssentialsAddonQuery {
 	}
 
 	@Note("You don't need to use this!")
-	protected static void runInjectionProcedures(JavaPlugin plugin) {
+	private static void runInjectionProcedures(JavaPlugin plugin) {
 		if (!plugin.getName().equals("myEssentials")) throw new IllegalArgumentException("Invalid plugin instance!");
 		Procedure.request(() -> JavaPlugin.class).next(instance -> {
 			File file = FileList.search(instance).get("dummy", "Addons").getRoot().getParent().getParentFile();
@@ -422,7 +404,7 @@ public final class EssentialsAddonQuery {
 			for (File f : file.listFiles()) {
 				if (f.isDirectory()) continue;
 				try {
-					EssentialsAddon addon = new EssentialsAddonClassLoader(f).addon;
+					EssentialsAddon addon = new EssentialsAddonClassLoader(f).getMainClass();
 					instance.getLogger().info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 					instance.getLogger().info("- Injected: " + addon.getName() + " v" + addon.getVersion());
 					instance.getLogger().info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
@@ -444,7 +426,7 @@ public final class EssentialsAddonQuery {
 	 * @return The most recent progress report.
 	 */
 	public static String[] getDataLog() {
-		return DATA_LOG.toArray(new String[0]);
+		return dataLog.toArray(new String[0]);
 	}
 
 }

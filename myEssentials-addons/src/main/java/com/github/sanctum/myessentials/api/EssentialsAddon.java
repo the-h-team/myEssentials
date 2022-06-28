@@ -11,8 +11,8 @@ package com.github.sanctum.myessentials.api;
 import com.github.sanctum.labyrinth.library.Deployable;
 import com.github.sanctum.labyrinth.library.HUID;
 import com.github.sanctum.labyrinth.task.TaskScheduler;
-import com.github.sanctum.myessentials.model.CommandBuilder;
 import com.github.sanctum.myessentials.model.CommandData;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,25 +22,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public abstract class EssentialsAddon {
 
 	boolean active;
 	private final ClassLoader classLoader;
-	private final AddonLoaderContext context;
+	private final EssentialsAddonContext context;
 
 	public EssentialsAddon() {
 		ClassLoader loader = this.getClass().getClassLoader();
 		if (!(loader instanceof EssentialsAddonClassLoader) && !MyEssentialsAPI.class.getClassLoader().equals(loader))
 			throw new InvalidAddonStateException("Addon not provided by " + EssentialsAddonClassLoader.class);
 		this.classLoader = loader;
-		this.context = new AddonLoaderContext() {
+		this.context = new EssentialsAddonContext() {
 			private final List<Listener> listeners = new ArrayList<>();
-			private final Map<CommandData, Class<? extends CommandBuilder>> commands = new HashMap<>();
+			private final Map<CommandData, Class<? extends CommandOutput>> commands = new HashMap<>();
 
 			@Override
 			public EssentialsAddon loadAddon(File jar) throws IOException, InvalidAddonException {
-				return new EssentialsAddonClassLoader(jar, EssentialsAddon.this).addon;
+				return new EssentialsAddonClassLoader(jar, EssentialsAddon.this).getMainClass();
 			}
 
 			@Override
@@ -59,7 +60,7 @@ public abstract class EssentialsAddon {
 			}
 
 			@Override
-			public Map<CommandData, Class<? extends CommandBuilder>> getCommands() {
+			public Map<CommandData, Class<? extends CommandOutput>> getCommands() {
 				return commands;
 			}
 
@@ -69,7 +70,7 @@ public abstract class EssentialsAddon {
 			}
 
 			@Override
-			public <T extends CommandBuilder> void stage(CommandData data, Class<T> t) {
+			public <T extends CommandOutput> void stage(CommandData data, Class<T> t) {
 				commands.put(data, t);
 			}
 
@@ -77,7 +78,7 @@ public abstract class EssentialsAddon {
 		};
 	}
 
-	public EssentialsAddon(AddonLoaderContext context) {
+	public EssentialsAddon(EssentialsAddonContext context) {
 		ClassLoader loader = this.getClass().getClassLoader();
 		if (!(loader instanceof EssentialsAddonClassLoader) && !MyEssentialsAPI.class.getClassLoader().equals(loader))
 			throw new InvalidAddonStateException("Addon not provided by " + EssentialsAddonClassLoader.class);
@@ -131,14 +132,14 @@ public abstract class EssentialsAddon {
 	public abstract String getDescription();
 
 	public final Logger getLogger() {
-		return MyEssentialsAPI.getInstance().getExecutorHandler().getPlugin().getLogger();
+		return JavaPlugin.getProvidingPlugin(MyEssentialsAPI.class).getLogger();
 	}
 
 	public final ClassLoader getClassLoader() {
 		return this.classLoader;
 	}
 
-	public final AddonLoaderContext getContext() {
+	public final EssentialsAddonContext getContext() {
 		return context;
 	}
 
@@ -147,7 +148,7 @@ public abstract class EssentialsAddon {
 	}
 
 	final void register() {
-		EssentialsAddonQuery.getKnownAddons().add(this);
+		EssentialsAddonQuery.cache(this);
 	}
 
 	/**

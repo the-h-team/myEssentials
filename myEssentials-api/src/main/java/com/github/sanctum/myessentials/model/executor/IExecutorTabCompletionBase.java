@@ -1,27 +1,26 @@
-package com.github.sanctum.myessentials.model.action;
+package com.github.sanctum.myessentials.model.executor;
 
-import com.github.sanctum.myessentials.model.CommandBuilder;
-import com.github.sanctum.myessentials.model.base.IExecutorBaseCompletion;
+import com.github.sanctum.myessentials.model.CommandOutput;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import org.bukkit.command.CommandSender;
 
 @FunctionalInterface
-public interface IExecutorCompleting<T extends CommandSender> extends IExecutorBaseCompletion {
+public interface IExecutorTabCompletionBase<T extends CommandSender> extends IExecutorTabCompletion {
 
 	@SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})
 	@Override
-	default List<String> execute(CommandBuilder builder, CommandSender sender, String commandLabel, String[] args) {
+	default List<String> execute(CommandOutput output, CommandSender sender, String commandLabel, String[] args) {
 		Method runMethod = Arrays.stream(this.getClass().getDeclaredMethods()).filter(m -> m.getName().equals("run")).findFirst().get();
 		Class<?> type = runMethod.getParameterTypes()[1];
 		if (type.isInstance(sender)) {
-			return this.run(builder, (T) type.cast(sender), commandLabel, args);
+			return this.run(output, (T) type.cast(sender), commandLabel, args);
 		} else {
 			throw new IllegalStateException("Unable to process resulting executor, type isn't representative of object CommandSender.");
 		}
 	}
 
-	List<String> run(CommandBuilder builder, T sender, String commandLabel, String[] args);
+	List<String> run(CommandOutput builder, T sender, String commandLabel, String[] args);
 
 }
