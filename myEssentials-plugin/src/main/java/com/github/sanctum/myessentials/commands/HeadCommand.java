@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.skulls.CustomHead;
@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class HeadCommand extends CommandOutput {
+public class HeadCommand extends CommandInput {
 	public HeadCommand() {
 		super(OptionLoader.TEST_COMMAND.from("head", "/head", "Get ANY ones head.", "mess.staff.head", "playerhead"));
 	}

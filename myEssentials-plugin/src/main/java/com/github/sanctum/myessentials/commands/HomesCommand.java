@@ -8,7 +8,7 @@ import com.github.sanctum.labyrinth.gui.unity.impl.ListElement;
 import com.github.sanctum.labyrinth.gui.unity.impl.MenuType;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.warp.Warp;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class HomesCommand extends CommandOutput {
+public class HomesCommand extends CommandInput {
 	public HomesCommand() {
 		super(OptionLoader.TEST_COMMAND.from("homes", "/homes", "View all private warps.", "mess.homes"));
 	}

@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.teleportation.ExistingTeleportRequestException;
@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TpaHereCommand extends CommandOutput {
+public class TpaHereCommand extends CommandInput {
 
     public TpaHereCommand() {
         super(InternalCommandData.TPA_HERE_COMMAND);

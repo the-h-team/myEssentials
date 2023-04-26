@@ -10,7 +10,7 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.Collections;
@@ -20,7 +20,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class BackCommand extends CommandOutput {
+public final class BackCommand extends CommandInput {
 	public BackCommand() {
 		super(InternalCommandData.BACK_COMMAND);
 	}

@@ -1,8 +1,8 @@
 package com.github.sanctum.myessentials.api;
 
-import com.github.sanctum.labyrinth.library.Deployable;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
+import com.github.sanctum.panther.util.Deployable;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -27,12 +27,12 @@ public interface EssentialsAddonContext {
 	/**
 	 * Get the collection of command classes to be registered.
 	 *
-	 * @return The collection of {@link CommandOutput} classes for this addon.
+	 * @return The collection of {@link CommandInput} classes for this addon.
 	 */
-	Map<CommandData, Class<? extends CommandOutput>> getCommands();
+	Map<CommandData, Class<? extends CommandInput>> getCommands();
 
 	void stage(Listener listener);
 
-	<T extends CommandOutput> void stage(CommandData data, Class<T> t);
+	<T extends CommandInput> void stage(CommandData data, Class<T> t);
 
 }

@@ -14,7 +14,7 @@ import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.library.Items;
 import com.github.sanctum.labyrinth.library.StringUtils;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
@@ -30,7 +30,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class GiveCommand extends CommandOutput {
+public final class GiveCommand extends CommandInput {
 	public GiveCommand() {
 		super(InternalCommandData.GIVE_COMMAND);
 	}

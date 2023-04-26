@@ -3,14 +3,13 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.labyrinth.LabyrinthProvider;
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.labyrinth.library.IllegalTimeFormatException;
-import com.github.sanctum.labyrinth.library.ParsedTimeFormat;
 import com.github.sanctum.labyrinth.library.StringUtils;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.DateTimeCalculator;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import com.github.sanctum.panther.util.ParsedTimeFormat;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,7 +23,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TempbanCommand extends CommandOutput {
+public class TempbanCommand extends CommandInput {
 	public TempbanCommand() {
 		super(InternalCommandData.TEMPBAN_COMMAND);
 	}
@@ -61,7 +60,7 @@ public class TempbanCommand extends CommandOutput {
 					long result;
 					try {
 						result = toSeconds(ParsedTimeFormat.of(args[1]));
-					} catch (DateTimeParseException | IllegalTimeFormatException e) {
+					} catch (DateTimeParseException e) {
 						sendMessage(player, ConfiguredMessage.INVALID_TIME_FORMAT);
 						sendMessage(player, ConfiguredMessage.TIME_EXAMPLE);
 						return true;
@@ -104,7 +103,7 @@ public class TempbanCommand extends CommandOutput {
 		long result;
 		try {
 			result = toSeconds(ParsedTimeFormat.of(args[1]));
-		} catch (DateTimeParseException | IllegalTimeFormatException e) {
+		} catch (DateTimeParseException e) {
 			sendMessage(player, ConfiguredMessage.INVALID_TIME_FORMAT);
 			sendMessage(player, ConfiguredMessage.TIME_EXAMPLE);
 			return true;
@@ -162,7 +161,7 @@ public class TempbanCommand extends CommandOutput {
 					long banLength;
 					try {
 						banLength = toSeconds(ParsedTimeFormat.of(args[1]));
-					} catch (DateTimeParseException | IllegalTimeFormatException e) {
+					} catch (DateTimeParseException e) {
 						sendMessage(sender, ConfiguredMessage.INVALID_TIME_CONSOLE);
 						sendMessage(sender, ConfiguredMessage.TIME_EXAMPLE);
 						return true;
@@ -207,7 +206,7 @@ public class TempbanCommand extends CommandOutput {
 		} catch (DateTimeParseException e) {
 			try {
 				banLength = toSeconds(ParsedTimeFormat.of(args[1]));
-			} catch (DateTimeParseException | IllegalTimeFormatException ex) {
+			} catch (DateTimeParseException ex) {
 				sendMessage(sender, ConfiguredMessage.INVALID_TIME_CONSOLE);
 				sendMessage(sender, ConfiguredMessage.TIME_EXAMPLE);
 				return true;

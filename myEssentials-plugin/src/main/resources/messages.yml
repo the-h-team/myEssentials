@@ -4,6 +4,7 @@ Messages:
 
   # Errors
   Errors:
+    no-permission: '&cYou do not have permission &4{0}'
     must-be-player: '&cYou must be a player!'
     try-in-survival: '&cTry this in Survival Mode'
     not-valid-player: '&cThat is not a valid player.'
@@ -57,12 +58,12 @@ Messages:
         max: 'Target {0} has been healed to max health.' # 0 = playerName
         not-online: "Target {0} isn't online." # 0 = playerName
         not-found: 'Target {0} was not found.' # 0 = playerName
-    ### skipped help
+    ### skipped help, home
     ## /Invsee
     invsee:
       deny-own-inventory: "&c&oYou can't edit your own inventory this way."
       player-not-found: '&c&oPlayer not found!'
-    ### skipped item, kickall, message
+    ### skipped item, kit, kickall, message
     ## /Night
     night:
       values: '&e&oEach value is a different time of night.'

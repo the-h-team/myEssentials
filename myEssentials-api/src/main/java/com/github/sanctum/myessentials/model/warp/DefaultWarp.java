@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.model.warp;
 
-import com.github.sanctum.labyrinth.library.HUID;
+import com.github.sanctum.panther.util.HUID;
 import org.bukkit.Location;
 import org.bukkit.permissions.ServerOperator;
 import org.jetbrains.annotations.NotNull;

@@ -1,6 +1,5 @@
 package com.github.sanctum.myessentials.util;
 
-import com.github.sanctum.labyrinth.data.Configurable;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.labyrinth.gui.unity.construct.Menu;
@@ -8,6 +7,7 @@ import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
+import com.github.sanctum.panther.file.Configurable;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;

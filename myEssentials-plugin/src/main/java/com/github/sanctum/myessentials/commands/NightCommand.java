@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NightCommand extends CommandOutput {
+public class NightCommand extends CommandInput {
 	public NightCommand() {
 		super(InternalCommandData.NIGHT_COMMAND);
 	}

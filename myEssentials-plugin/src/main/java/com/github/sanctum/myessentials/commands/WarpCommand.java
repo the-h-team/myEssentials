@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.warp.Warp;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WarpCommand extends CommandOutput {
+public class WarpCommand extends CommandInput {
 	public WarpCommand() {
 		super(OptionLoader.TEST_COMMAND.from("warp", "/warp", "Go to an existing warp", "mess.warp"));
 	}

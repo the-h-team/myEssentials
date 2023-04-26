@@ -14,7 +14,7 @@ import com.github.sanctum.labyrinth.library.Items;
 import com.github.sanctum.labyrinth.library.NamespacedKey;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +25,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class PowertoolCommand extends CommandOutput {
+public final class PowertoolCommand extends CommandInput {
 	public PowertoolCommand() {
 		super(InternalCommandData.POWERTOOL_COMMAND);
 	}

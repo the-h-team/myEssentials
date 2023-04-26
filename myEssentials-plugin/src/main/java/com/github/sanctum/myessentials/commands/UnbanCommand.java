@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class UnbanCommand extends CommandOutput {
+public class UnbanCommand extends CommandInput {
 	public UnbanCommand() {
 		super(InternalCommandData.UNBAN_COMMAND);
 	}

@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.FancyMessage;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.warp.DefaultWarp;
 import com.github.sanctum.myessentials.model.warp.Warp;
 import com.github.sanctum.myessentials.model.warp.WarpHolder;
@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SetHomeCommand extends CommandOutput {
+public class SetHomeCommand extends CommandInput {
 
 	public SetHomeCommand() {
 		super(OptionLoader.TEST_COMMAND.from("sethome", "/sethome", "Set a home.", "mess.sethome"));

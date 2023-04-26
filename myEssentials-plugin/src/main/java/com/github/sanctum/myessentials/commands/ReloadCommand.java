@@ -13,7 +13,7 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.labyrinth.data.FileManager;
 import com.github.sanctum.myessentials.Essentials;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +22,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class ReloadCommand extends CommandOutput {
+public final class ReloadCommand extends CommandInput {
 	public ReloadCommand() {
 		super(InternalCommandData.RELOAD_COMMAND);
 	}

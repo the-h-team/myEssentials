@@ -4,7 +4,7 @@ import com.github.sanctum.labyrinth.library.ListUtils;
 import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.labyrinth.library.TextLib;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +17,7 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PluginCommand extends CommandOutput {
+public class PluginCommand extends CommandInput {
 	public PluginCommand() {
 		super(OptionLoader.TEST_COMMAND.from("pl", "/pl", "View plugin information.", "mess.plugins", "?"));
 	}

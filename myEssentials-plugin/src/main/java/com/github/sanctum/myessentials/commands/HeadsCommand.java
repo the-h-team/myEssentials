@@ -8,7 +8,7 @@ import com.github.sanctum.labyrinth.gui.unity.impl.ListElement;
 import com.github.sanctum.labyrinth.gui.unity.impl.MenuType;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.Essentials;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.skulls.CustomHead;
 import com.github.sanctum.skulls.SkullType;
@@ -19,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class HeadsCommand extends CommandOutput {
+public class HeadsCommand extends CommandInput {
 	public HeadsCommand() {
 		super(OptionLoader.TEST_COMMAND.from("heads", "/heads", "Retrieve the entire list of cached skull items", "mess.staff.heads"));
 	}

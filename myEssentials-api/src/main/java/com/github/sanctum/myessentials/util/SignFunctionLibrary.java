@@ -1,10 +1,11 @@
 package com.github.sanctum.myessentials.util;
 
-import com.github.sanctum.labyrinth.data.container.LabyrinthCollection;
-import com.github.sanctum.labyrinth.data.container.LabyrinthList;
+
+import com.github.sanctum.panther.container.PantherCollection;
+import com.github.sanctum.panther.container.PantherList;
 
 abstract class SignFunctionLibrary {
 
-	static final LabyrinthCollection<SignFunction.Adapter> ADAPTERS = new LabyrinthList<>();
+	static final PantherCollection<SignFunction.Adapter> ADAPTERS = new PantherList<>();
 
 }

@@ -20,9 +20,9 @@ import org.jetbrains.annotations.NotNull;
  * otherwise CommandBuilder would also need to follow LGPL.
  */
 public final class CommandImpl extends Command {
-    protected final CommandOutput commandBuilder;
+    protected final CommandInput commandBuilder;
 
-    public CommandImpl(CommandOutput commandBuilder) {
+    public CommandImpl(CommandInput commandBuilder) {
         super(commandBuilder.commandData.getLabel());
         this.commandBuilder = commandBuilder;
         setDescription(this.commandBuilder.commandData.getDescription());

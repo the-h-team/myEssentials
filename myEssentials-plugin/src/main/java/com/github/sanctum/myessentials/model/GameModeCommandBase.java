@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Base class for gamemode switch commands.
  */
-public abstract class GameModeCommandBase extends CommandOutput {
+public abstract class GameModeCommandBase extends CommandInput {
 	protected final GameMode gameMode;
 	protected final String gamemodeName;
 

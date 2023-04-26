@@ -1,6 +1,5 @@
 package com.github.sanctum.myessentials.model;
 
-import com.github.sanctum.labyrinth.library.Applicable;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.model.executor.IExecutorCommand;
 import com.github.sanctum.myessentials.model.executor.IExecutorConsolePointer;
@@ -10,6 +9,9 @@ import com.github.sanctum.myessentials.model.executor.IExecutorPlayerPointer;
 import com.github.sanctum.myessentials.model.executor.IExecutorPlayerTabCompletionPointer;
 import com.github.sanctum.myessentials.model.executor.IExecutorTabCompletion;
 import com.github.sanctum.myessentials.model.executor.IExecutorTabCompletionBase;
+import com.github.sanctum.panther.container.PantherEntryMap;
+import com.github.sanctum.panther.container.PantherMap;
+import com.github.sanctum.panther.util.Applicable;
 import java.util.function.Consumer;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("UnusedReturnValue")
 public final class CommandMapper {
 
+	private static final PantherMap<CommandData, IExecutorOutputChannel> outputChannels = new PantherEntryMap<>();
 	private final IExecutorHandler handler;
 	private final IExecutorOutputChannel output;
 
@@ -27,8 +30,8 @@ public final class CommandMapper {
 	}
 
 	public CommandMapper(@NotNull CommandData data, @NotNull IExecutorHandler handler, Applicable... applicables) {
-		this.handler = MyEssentialsAPI.getInstance().getExecutorHandler();
-		this.output = new IExecutorOutputChannel(handler, data, applicables);
+		this.handler = handler;
+		this.output = outputChannels.computeIfAbsent(data, new IExecutorOutputChannel(handler, data, applicables));
 	}
 
 	/**
@@ -105,7 +108,7 @@ public final class CommandMapper {
 	 *                        initialization with the underlying command data information.
 	 * @return An instantiated Command Mapper.
 	 */
-	public static @NotNull CommandMapper from(@NotNull CommandData data, @NotNull Consumer<CommandOutput> outputProcessor) {
+	public static @NotNull CommandMapper from(@NotNull CommandData data, @NotNull Consumer<CommandInput> outputProcessor) {
 		CommandMapper mapper = new CommandMapper(data);
 		outputProcessor.accept(mapper.output);
 		return mapper;

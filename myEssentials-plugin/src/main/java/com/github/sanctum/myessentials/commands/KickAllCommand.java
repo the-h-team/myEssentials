@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class KickAllCommand extends CommandOutput {
+public class KickAllCommand extends CommandInput {
 	public KickAllCommand() {
 		super(InternalCommandData.KICKALL_COMMAND);
 	}

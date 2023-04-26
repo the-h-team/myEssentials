@@ -15,7 +15,7 @@ import com.github.sanctum.labyrinth.library.ListUtils;
 import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.TextLib;
 import com.github.sanctum.labyrinth.permissions.Permissions;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
@@ -33,7 +33,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class OnlineListCommand extends CommandOutput {
+public final class OnlineListCommand extends CommandInput {
 	public OnlineListCommand() {
 		super(InternalCommandData.ONLINELIST_COMMAND);
 	}

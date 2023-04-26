@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.pagination.EasyPagination;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.PermissionCheck;
 import com.github.sanctum.myessentials.model.kit.Kit;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class KitsCommand extends CommandOutput {
+public class KitsCommand extends CommandInput {
 	public KitsCommand() {
 		super(OptionLoader.TEST_COMMAND.from("kits", "/kits", "View server kits.", "mess.kits"));
 	}

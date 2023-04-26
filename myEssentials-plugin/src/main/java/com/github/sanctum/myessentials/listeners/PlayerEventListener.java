@@ -9,13 +9,10 @@
 package com.github.sanctum.myessentials.listeners;
 
 import com.github.sanctum.labyrinth.LabyrinthProvider;
-import com.github.sanctum.labyrinth.event.custom.DefaultEvent;
-import com.github.sanctum.labyrinth.event.custom.Subscribe;
-import com.github.sanctum.labyrinth.library.AFK;
+import com.github.sanctum.labyrinth.event.DefaultEvent;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.StringUtils;
-import com.github.sanctum.labyrinth.library.TimeWatch;
 import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.commands.PowertoolCommand;
@@ -29,6 +26,7 @@ import com.github.sanctum.myessentials.util.events.PlayerPendingHealEvent;
 import com.github.sanctum.myessentials.util.moderation.KickReason;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
+import com.github.sanctum.panther.event.Subscribe;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -262,90 +260,6 @@ public class PlayerEventListener implements Listener {
 
 	public static Map<UUID, Location> getPrevLocations() {
 		return Collections.unmodifiableMap(prevLocations);
-	}
-
-
-	public static AFK supply(Player player) {
-		if (AFK.get(player) != null) {
-			return AFK.get(player);
-		}
-		return AFK.Initializer.use(player)
-				.next(LabyrinthProvider.getInstance().getPluginInstance())
-				.next((e, subscription) -> {
-					Player p = e.getAfk().getPlayer();
-					switch (e.getStatus()) {
-						case AWAY:
-							TimeWatch.Recording recording = e.getAfk().getRecording();
-							long minutes = recording.getMinutes();
-							long seconds = recording.getSeconds();
-							String format = "&cYou will be kicked in &4{0} &cseconds.";
-							if (minutes == 14) {
-								if (seconds == 50) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 10)).translate(), 0, 12, 5);
-								}
-								if (seconds == 51) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 9)).translate(), 0, 12, 5);
-								}
-								if (seconds == 52) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 8)).translate(), 0, 12, 5);
-								}
-								if (seconds == 53) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 7)).translate(), 0, 12, 5);
-								}
-								if (seconds == 54) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 6)).translate(), 0, 12, 5);
-								}
-								if (seconds == 55) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 5)).translate(), 0, 12, 5);
-								}
-								if (seconds == 56) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 4)).translate(), 0, 12, 5);
-								}
-								if (seconds == 57) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 3)).translate(), 0, 12, 5);
-								}
-								if (seconds == 58) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 2)).translate(), 0, 12, 5);
-								}
-								if (seconds == 59) {
-									p.sendTitle(StringUtils.use("&eHey AFK person!").translate(), StringUtils.use(MessageFormat.format(format, 1)).translate(), 0, 12, 5);
-								}
-							}
-							break;
-						case PENDING:
-							Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is now AFK").translate());
-							p.setDisplayName(StringUtils.use("&7*AFK&r " + p.getDisplayName()).translate());
-							e.getAfk().set(AFK.Status.AWAY);
-							break;
-						case RETURNING:
-							p.setDisplayName(p.getName());
-							Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is no longer AFK").translate());
-							e.getAfk().reset(AFK.Status.ACTIVE);
-							break;
-						case REMOVABLE:
-							e.getAfk().remove();
-							Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &c&oPlayer &b" + p.getName() + " &c&owas kicked for being AFK too long.").translate());
-							p.kickPlayer(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + "\n" + "&c&oAFK too long.\n&c&oKicking to ensure safety :)").translate());
-							break;
-						case CHATTING:
-						case EXECUTING:
-							e.getAfk().set(AFK.Status.RETURNING);
-							break;
-						case LEAVING:
-							p.setDisplayName(p.getName());
-							Bukkit.broadcastMessage(StringUtils.use(MyEssentialsAPI.getInstance().getPrefix() + " &7Player &b" + p.getName() + " &7is no longer AFK").translate());
-							e.getAfk().remove();
-							break;
-					}
-				})
-				.finish();
-	}
-
-
-	@Subscribe
-	public void afkInit(DefaultEvent.Join e) {
-		Player p = e.getPlayer();
-
 	}
 
 

@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.library.Items;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RenameCommand extends CommandOutput {
+public class RenameCommand extends CommandInput {
 	public RenameCommand() {
 		super(OptionLoader.TEST_COMMAND.from("rename", "/rename", "Rename an item title.", "mess.staff.rename", "label", "itemname"));
 	}

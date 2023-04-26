@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.model.executor;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.bukkit.command.CommandSender;
@@ -10,7 +10,7 @@ public interface IExecutorCommandBase<T extends CommandSender> extends IExecutor
 
 	@SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})
 	@Override
-	default void execute(CommandOutput output, CommandSender sender, String commandLabel, String[] args) {
+	default void execute(CommandInput output, CommandSender sender, String commandLabel, String[] args) {
 		Method runMethod = Arrays.stream(this.getClass().getDeclaredMethods()).filter(m -> m.getName().equals("run")).findFirst().get();
 		Class<?> type = runMethod.getParameterTypes()[1];
 		if (type.isInstance(sender)) {
@@ -20,6 +20,6 @@ public interface IExecutorCommandBase<T extends CommandSender> extends IExecutor
 		}
 	}
 
-	void run(CommandOutput builder, T sender, String commandLabel, String[] args);
+	void run(CommandInput builder, T sender, String commandLabel, String[] args);
 
 }

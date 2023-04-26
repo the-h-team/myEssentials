@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials.model.kit;
 
 import com.github.sanctum.labyrinth.library.IllegalTimeFormatException;
-import com.github.sanctum.labyrinth.library.ParsedTimeFormat;
+import com.github.sanctum.panther.util.ParsedTimeFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;

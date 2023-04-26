@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.warp.DefaultWarp;
 import com.github.sanctum.myessentials.model.warp.Warp;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SetWarpCommand extends CommandOutput {
+public class SetWarpCommand extends CommandInput {
 
 	public SetWarpCommand() {
 		super(OptionLoader.TEST_COMMAND.from("setwarp", "/setwarp", "Set a warp.", "mess.setwarp"));

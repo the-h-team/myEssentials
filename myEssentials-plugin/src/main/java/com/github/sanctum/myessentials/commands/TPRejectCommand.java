@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRequest;
@@ -11,7 +11,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class TPRejectCommand extends CommandOutput {
+public final class TPRejectCommand extends CommandInput {
     public TPRejectCommand() {
         super(InternalCommandData.TP_REJECT_COMMAND);
     }

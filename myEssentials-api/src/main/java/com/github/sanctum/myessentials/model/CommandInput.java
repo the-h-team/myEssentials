@@ -8,11 +8,11 @@
  */
 package com.github.sanctum.myessentials.model;
 
-import com.github.sanctum.labyrinth.library.Applicable;
 import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.util.ProvidedMessage;
+import com.github.sanctum.panther.util.Applicable;
 import java.util.List;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.Command;
@@ -23,19 +23,19 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class CommandOutput {
+public abstract class CommandInput {
 	protected final MyEssentialsAPI api = MyEssentialsAPI.getInstance();
 	public final Plugin plugin = JavaPlugin.getProvidingPlugin(MyEssentialsAPI.class);
 	protected final Command command;
 
 	public final CommandData commandData;
 
-	public CommandOutput(CommandData commandData) {
+	public CommandInput(CommandData commandData) {
 		this.commandData = commandData;
 		this.command = api.registerCommand(this);
 	}
 
-	public CommandOutput(CommandData commandData, Applicable... pre) {
+	public CommandInput(CommandData commandData, Applicable... pre) {
 		this.commandData = commandData;
 		for (Applicable p : pre) {
 			p.run();

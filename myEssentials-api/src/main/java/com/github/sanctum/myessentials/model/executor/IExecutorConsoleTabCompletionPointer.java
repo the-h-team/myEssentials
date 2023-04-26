@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.model.executor;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import java.util.List;
 import org.bukkit.command.CommandSender;
 
@@ -10,7 +10,7 @@ import org.bukkit.command.CommandSender;
 @FunctionalInterface
 public interface IExecutorConsoleTabCompletionPointer extends IExecutorTabCompletionBase<CommandSender> {
 
-	List<String> run(CommandOutput output, CommandSender sender, String commandLabel, String[] args);
+	List<String> run(CommandInput output, CommandSender sender, String commandLabel, String[] args);
 
 	@Override
 	default IExecutorEntity getEntity() {

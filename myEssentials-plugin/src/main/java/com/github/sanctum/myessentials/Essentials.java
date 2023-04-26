@@ -14,12 +14,6 @@ import com.github.sanctum.labyrinth.LabyrinthProvider;
 import com.github.sanctum.labyrinth.api.Service;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
-import com.github.sanctum.labyrinth.data.Registry;
-import com.github.sanctum.labyrinth.data.RegistryData;
-import com.github.sanctum.labyrinth.data.container.LabyrinthCollection;
-import com.github.sanctum.labyrinth.data.container.LabyrinthEntryMap;
-import com.github.sanctum.labyrinth.data.container.LabyrinthMap;
-import com.github.sanctum.labyrinth.data.container.LabyrinthSet;
 import com.github.sanctum.labyrinth.library.CommandUtils;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.task.TaskScheduler;
@@ -27,23 +21,23 @@ import com.github.sanctum.myessentials.api.MyEssentialsAPI;
 import com.github.sanctum.myessentials.listeners.PlayerEventListener;
 import com.github.sanctum.myessentials.model.CommandData;
 import com.github.sanctum.myessentials.model.CommandImpl;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.IExecutorHandler;
-import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.model.Messenger;
 import com.github.sanctum.myessentials.model.executor.IExecutorCommandBase;
 import com.github.sanctum.myessentials.model.kit.Kit;
 import com.github.sanctum.myessentials.model.warp.Warp;
 import com.github.sanctum.myessentials.model.warp.WarpHolder;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
-import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.SignEdit;
 import com.github.sanctum.myessentials.util.factory.LoadingLogic;
 import com.github.sanctum.myessentials.util.factory.MessengerImpl;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
-import com.github.sanctum.myessentials.util.teleportation.TeleportRunnerImpl;
-import com.github.sanctum.myessentials.util.teleportation.TeleportationManager;
-import com.github.sanctum.skulls.CustomHead;
+import com.github.sanctum.panther.container.PantherCollection;
+import com.github.sanctum.panther.container.PantherEntryMap;
+import com.github.sanctum.panther.container.PantherMap;
+import com.github.sanctum.panther.container.PantherSet;
+import com.github.sanctum.panther.event.Vent;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -55,61 +49,37 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
+public final class Essentials extends JavaPlugin implements MyEssentialsAPI, Vent.Host {
 
 	private static final Map<CommandData, Command> commandMap = new HashMap<>();
-	final LabyrinthMap<UUID, Kit.Holder> kitHolderMap = new LabyrinthEntryMap<>();
-	final LabyrinthMap<UUID, WarpHolder> warpHolderMap = new LabyrinthEntryMap<>();
-	final LabyrinthMap<String, Kit> kitMap = new LabyrinthEntryMap<>();
-	final LabyrinthMap<String, Warp> WARPS = new LabyrinthEntryMap<>();
+	final PantherMap<UUID, Kit.Holder> kitHolderMap = new PantherEntryMap<>();
+	final PantherMap<UUID, WarpHolder> warpHolderMap = new PantherEntryMap<>();
+	final PantherMap<String, Kit> kitMap = new PantherEntryMap<>();
+	final PantherMap<String, Warp> WARPS = new PantherEntryMap<>();
 
 	public final Set<CommandData> registeredCommands = new HashSet<>();
 
-	private TeleportRunner teleportRunner;
-	private MessengerImpl messenger;
-	private IExecutorHandler executor;
+	TeleportRunner teleportRunner;
+	MessengerImpl messenger;
+	IExecutorHandler executor;
 
 	@Override
 	public void onEnable() {
 		Bukkit.getServicesManager().register(MyEssentialsAPI.class, this, this, ServicePriority.Normal);
 		LoadingLogic.get(this).onEnable();
-		this.executor = new IExecutorHandler();
-		this.teleportRunner = new TeleportRunnerImpl(this);
-		this.messenger = new MessengerImpl(this);
-		new Registry<>(Listener.class).source(this).filter("com.github.sanctum.myessentials.listeners").operate(l -> LabyrinthProvider.getService(Service.VENT).subscribe(this, l));
-		InternalCommandData.defaultOrReload(this);
-		ConfiguredMessage.loadProperties(this);
-		OptionLoader.renewRemainingBans();
-		OptionLoader.checkConfig();
-		RegistryData<CommandOutput> data = new Registry<>(CommandOutput.class)
-				.source(this).filter("com.github.sanctum.myessentials.commands")
-				.operate(builder -> {
-				});
-
-		getLogger().info("- (" + data.getData().size() + ") Unique commands registered.");
-		TeleportationManager.registerListeners(this);
-
-		FileManager man = getFileList().get("Heads", "Data");
-
-		if (!man.getRoot().exists()) {
-			FileList.copy(getResource("Heads.yml"), man.getRoot().getParent());
-			man.getRoot().reload();
-		}
-
-		CustomHead.Manager.newLoader(man.getRoot()).look("My_heads").complete();
-
 	}
 
 
@@ -117,15 +87,25 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	public void onDisable() {
 		try {
 			LoadingLogic.get(this).onDisable();
-			TeleportationManager.unregisterListeners();
-			OptionLoader.recordRemainingBans();
 		} catch (Exception e) {
 			getLogger().severe("- Reload detected.");
 		}
 	}
 
+	public void setExecutor(IExecutorHandler executor) {
+		this.executor = executor;
+	}
+
+	public void setMessenger(MessengerImpl messenger) {
+		this.messenger = messenger;
+	}
+
+	public void setTeleportRunner(TeleportRunner teleportRunner) {
+		this.teleportRunner = teleportRunner;
+	}
+
 	@Override
-	public Command registerCommand(CommandOutput commandBuilder) {
+	public Command registerCommand(CommandInput commandBuilder) {
 		final Command command = new CommandImpl(commandBuilder);
 		CommandUtils.read(e -> {
 			CommandMap map = e.getKey();
@@ -254,7 +234,21 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 						Cooldown n = new KitCooldownImpl(kit.getName() + "-" + getName(), kit.getCooldown().toSeconds());
 						n.save();
 					}
-					pl.getInventory().setContents(kit.getInventory());
+					for (int i = 0; i < kit.getInventory().length; i++) {
+						ItemStack item = kit.getInventory()[i];
+						if (item.getType() != Material.AIR) {
+							ItemStack inside = pl.getInventory().getItem(i);
+							if (inside != null) {
+								if (inside.getType() == Material.AIR) {
+									pl.getInventory().setItem(i, item);
+								} else {
+									LabyrinthProvider.getInstance().getItemComposter().add(item, pl);
+								}
+							} else {
+								pl.getInventory().setItem(i, item);
+							}
+						}
+					}
 					if (kit.getHelmet() != null) {
 						pl.getInventory().setHelmet(kit.getHelmet());
 					}
@@ -280,7 +274,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 
 			final String name = player.getName();
 			final UUID id = player.getUniqueId();
-			final LabyrinthCollection<Warp> warps = new LabyrinthSet<>();
+			final PantherCollection<Warp> warps = new PantherSet<>();
 
 			@Override
 			public @NotNull String getName() {
@@ -298,7 +292,7 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 			}
 
 			@Override
-			public @NotNull LabyrinthCollection<Warp> getAll() {
+			public @NotNull PantherCollection<Warp> getAll() {
 				return warps;
 			}
 
@@ -315,22 +309,22 @@ public final class Essentials extends JavaPlugin implements MyEssentialsAPI {
 	}
 
 	@Override
-	public LabyrinthCollection<Kit.Holder> getKitHolders() {
+	public PantherCollection<Kit.Holder> getKitHolders() {
 		return kitHolderMap.values();
 	}
 
 	@Override
-	public LabyrinthCollection<WarpHolder> getWarpHolders() {
+	public PantherCollection<WarpHolder> getWarpHolders() {
 		return warpHolderMap.values();
 	}
 
 	@Override
-	public LabyrinthCollection<Kit> getKits() {
+	public PantherCollection<Kit> getKits() {
 		return kitMap.values();
 	}
 
 	@Override
-	public LabyrinthCollection<Warp> getWarps() {
+	public PantherCollection<Warp> getWarps() {
 		return WARPS.values();
 	}
 

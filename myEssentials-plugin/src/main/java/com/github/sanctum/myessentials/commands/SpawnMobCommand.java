@@ -13,7 +13,7 @@ package com.github.sanctum.myessentials.commands;
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.library.Entities;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class SpawnMobCommand extends CommandOutput {
+public final class SpawnMobCommand extends CommandInput {
 	public SpawnMobCommand() {
 		super(InternalCommandData.SPAWNMOB_COMMAND);
 	}

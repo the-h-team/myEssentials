@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.warp.Warp;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DeleteWarpCommand extends CommandOutput {
+public class DeleteWarpCommand extends CommandInput {
 
 	public DeleteWarpCommand() {
 		super(OptionLoader.TEST_COMMAND.from("delwarp", "/delwarp", "Delete a warp.", "mess.delwarp"));

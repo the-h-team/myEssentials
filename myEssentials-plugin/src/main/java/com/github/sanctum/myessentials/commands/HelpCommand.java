@@ -17,7 +17,7 @@ import com.github.sanctum.labyrinth.formatting.pagination.EasyPagination;
 import com.github.sanctum.labyrinth.library.CommandUtils;
 import com.github.sanctum.myessentials.api.EssentialsAddon;
 import com.github.sanctum.myessentials.api.EssentialsAddonQuery;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -33,7 +33,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public final class HelpCommand extends CommandOutput {
+public final class HelpCommand extends CommandInput {
 	public HelpCommand() {
 		super(InternalCommandData.HELP_COMMAND);
 	}
@@ -69,6 +69,8 @@ public final class HelpCommand extends CommandOutput {
 		easy.setFormat((addon, integer, m) -> {
 			m.then("&r| [&7" + Arrays.toString(addon.getAuthors()) + "&r] &2" + addon.getName()).hover("&6Click &rfor &6info.").action(() -> {
 				FancyMessage message = new FancyMessage();
+				message.then("&7[&8Description&7]").hover(!addon.getDescription().isEmpty() ? addon.getDescription() : "Nothing sorry :/");
+				message.then("\n");
 				message.then("&f&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 				message.then("\n");
 				message.then("&aTotal Commands: &e" + addon.getContext().getCommands().size());
@@ -77,11 +79,9 @@ public final class HelpCommand extends CommandOutput {
 				message.then("\n");
 				message.then("&aTotal Listeners: &e" + addon.getContext().getListeners().size());
 				message.then("\n");
-				message.then("&Active: &3" + addon.isActive());
+				message.then("&aActive: &3" + addon.isActive());
 				message.then("\n");
 				message.then("&f&l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-				message.then("\n");
-				message.then("&7[&8Description&7]").hover(!addon.getDescription().isEmpty() ? addon.getDescription() : "Nothing sorry :/");
 				message.send(p).deploy();
 			});
 		});
@@ -115,6 +115,39 @@ public final class HelpCommand extends CommandOutput {
 		return easy;
 	}
 
+	private EasyPagination<Command> help(Player p, String plugin) {
+		EasyPagination<Command> easy = new EasyPagination<>(p, getCommands(p), Comparator.comparing(Command::getLabel), command1 -> {
+			try {
+				Plugin providing = JavaPlugin.getProvidingPlugin(command1.getClass());
+				if (command instanceof PluginCommand) providing = ((PluginCommand) command).getPlugin();
+				return providing.getName().equals(plugin);
+			} catch (IllegalArgumentException ignored) {
+				return false;
+			}
+		});
+		easy.limit(10);
+		easy.setHeader((player, message) -> {
+			message.then("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬[ &f" + plugin + " &e]▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		});
+		easy.setFooter((player, message) -> {
+			message.then("&e▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+		});
+		easy.setFormat((command, integer, m) -> {
+			try {
+				Plugin providing = JavaPlugin.getProvidingPlugin(command.getClass());
+				if (command instanceof PluginCommand) providing = ((PluginCommand) command).getPlugin();
+				m.then("&f/&6" + command.getLabel()).hover("&6Click &rto &6auto-suggest.").suggest("/" + command.getLabel() + " ")
+						.then(" &7[&8Description&7]").hover(!command.getDescription().isEmpty() ? command.getDescription() : "No description.");
+
+			} catch (IllegalArgumentException e) {
+				m.then("&f/&6" + command.getLabel()).hover("&6Click &rto &6auto-suggest.").suggest("/" + command.getLabel() + " ")
+						.then(" &7[&8Description&7]").hover(!command.getDescription().isEmpty() ? command.getDescription() : "No description.");
+			}
+
+		});
+		return easy;
+	}
+
 	@Override
 	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 
@@ -129,13 +162,14 @@ public final class HelpCommand extends CommandOutput {
 			try {
 				Integer.parseInt(args[0]);
 			} catch (NumberFormatException e) {
-
 				if (args[0].equalsIgnoreCase("addons")) {
 					addons(player).send(1);
 					return true;
 				}
-				help(player).send(Integer.parseInt(args[0]));
+				help(player, args[0]).send(1);
+				return true;
 			}
+			help(player).send(Integer.parseInt(args[0]));
 			return true;
 		}
 

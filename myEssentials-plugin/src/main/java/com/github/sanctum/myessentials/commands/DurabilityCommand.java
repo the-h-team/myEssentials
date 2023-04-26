@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.data.service.PlayerSearch;
 import com.github.sanctum.labyrinth.library.StringUtils;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import java.util.List;
 import org.bukkit.Bukkit;
@@ -15,7 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DurabilityCommand extends CommandOutput {
+public class DurabilityCommand extends CommandInput {
 	public DurabilityCommand() {
 		super(OptionLoader.TEST_COMMAND.from("durability", "/durability", "Adjust the durability of the item you hold.", "mess.staff.durability", "damageitem"));
 	}

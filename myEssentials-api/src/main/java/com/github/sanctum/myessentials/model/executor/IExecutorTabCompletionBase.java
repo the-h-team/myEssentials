@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.model.executor;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,7 @@ public interface IExecutorTabCompletionBase<T extends CommandSender> extends IEx
 
 	@SuppressWarnings({"OptionalGetWithoutIsPresent", "unchecked"})
 	@Override
-	default List<String> execute(CommandOutput output, CommandSender sender, String commandLabel, String[] args) {
+	default List<String> execute(CommandInput output, CommandSender sender, String commandLabel, String[] args) {
 		Method runMethod = Arrays.stream(this.getClass().getDeclaredMethods()).filter(m -> m.getName().equals("run")).findFirst().get();
 		Class<?> type = runMethod.getParameterTypes()[1];
 		if (type.isInstance(sender)) {
@@ -21,6 +21,6 @@ public interface IExecutorTabCompletionBase<T extends CommandSender> extends IEx
 		}
 	}
 
-	List<String> run(CommandOutput builder, T sender, String commandLabel, String[] args);
+	List<String> run(CommandInput builder, T sender, String commandLabel, String[] args);
 
 }

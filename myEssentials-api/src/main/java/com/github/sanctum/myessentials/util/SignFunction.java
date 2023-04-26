@@ -1,13 +1,13 @@
 package com.github.sanctum.myessentials.util;
 
 import com.github.sanctum.labyrinth.LabyrinthProvider;
-import com.github.sanctum.labyrinth.annotation.Note;
 import com.github.sanctum.labyrinth.gui.unity.construct.Menu;
 import com.github.sanctum.labyrinth.gui.unity.impl.MenuType;
 import com.github.sanctum.labyrinth.library.Items;
 import com.github.sanctum.labyrinth.library.Mailer;
 import com.github.sanctum.labyrinth.library.StringUtils;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
+import com.github.sanctum.panther.annotation.Note;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

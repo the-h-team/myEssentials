@@ -10,7 +10,7 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.Arrays;
@@ -23,7 +23,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class GamemodeCommand extends CommandOutput {
+public final class GamemodeCommand extends CommandInput {
 	public GamemodeCommand() {
 		super(InternalCommandData.GAMEMODE_COMMAND);
 	}

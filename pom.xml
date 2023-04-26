@@ -28,7 +28,8 @@
     <properties>
         <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <labyrinth.version>1.7.9</labyrinth.version>
+        <labyrinth.version>1.9.0</labyrinth.version>
+        <panther.version>1.0.2</panther.version>
     </properties>
 
     <licenses>
@@ -111,37 +112,43 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.the-h-team.Labyrinth</groupId>
+            <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-common</artifactId>
             <version>${labyrinth.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.the-h-team.Labyrinth</groupId>
+            <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-gui</artifactId>
             <version>${labyrinth.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.the-h-team.Labyrinth</groupId>
-            <artifactId>labyrinth-placeholders</artifactId>
-            <version>${labyrinth.version}</version>
+            <groupId>com.github.the-h-team.Panther</groupId>
+            <artifactId>panther-placeholders</artifactId>
+            <version>${panther.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.the-h-team.Labyrinth</groupId>
+            <groupId>com.github.the-h-team.Panther</groupId>
+            <artifactId>panther-common</artifactId>
+            <version>${panther.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-perms</artifactId>
             <version>${labyrinth.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.the-h-team.Labyrinth</groupId>
+            <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-regions</artifactId>
             <version>${labyrinth.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.the-h-team.Labyrinth</groupId>
+            <groupId>com.github.the-h-team</groupId>
             <artifactId>labyrinth-skulls</artifactId>
             <version>${labyrinth.version}</version>
             <scope>provided</scope>
@@ -154,7 +161,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>20.1.0</version>
+            <version>24.0.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

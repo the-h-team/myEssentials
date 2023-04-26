@@ -4,7 +4,7 @@ import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
 import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.warp.Warp;
 import com.github.sanctum.myessentials.model.warp.WarpHolder;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
@@ -18,7 +18,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class HomeCommand extends CommandOutput {
+public class HomeCommand extends CommandInput {
 
 	public HomeCommand() {
 		super(OptionLoader.TEST_COMMAND.from("home", "/home", "Warp to a home.", "mess.home"));
@@ -35,7 +35,7 @@ public class HomeCommand extends CommandOutput {
 	public boolean onPlayer(@NotNull Player player, @NotNull String commandLabel, @NotNull String[] args) {
 		WarpHolder holder = MyEssentialsAPI.getInstance().getWarpHolder(player);
 		if (args.length == 0) {
-
+			sendMessage(player, "&cInvalid usage expected a warp name.");
 		}
 		if (args.length == 1) {
 			Warp warp = holder.get(args[0]);

@@ -1,9 +1,9 @@
 package com.github.sanctum.myessentials.model.executor;
 
-import com.github.sanctum.labyrinth.library.Applicable;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.IExecutorHandler;
+import com.github.sanctum.panther.util.Applicable;
 import java.util.List;
 import java.util.Objects;
 import org.bukkit.command.CommandSender;
@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class IExecutorOutputChannel extends CommandOutput {
+public final class IExecutorOutputChannel extends CommandInput {
 	private final IExecutorHandler handler;
 
 	public IExecutorOutputChannel(IExecutorHandler handler, CommandData commandData) {

@@ -10,8 +10,8 @@ package com.github.sanctum.myessentials.model;
 
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
-import com.github.sanctum.labyrinth.data.Node;
 import com.github.sanctum.myessentials.Essentials;
+import com.github.sanctum.panther.file.Node;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Objects;

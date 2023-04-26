@@ -4,7 +4,7 @@ import com.github.sanctum.labyrinth.gui.unity.construct.Menu;
 import com.github.sanctum.labyrinth.gui.unity.construct.SingularMenu;
 import com.github.sanctum.labyrinth.gui.unity.impl.MenuType;
 import com.github.sanctum.myessentials.Essentials;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.List;
@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class InvseeCommand extends CommandOutput {
+public class InvseeCommand extends CommandInput {
 	public InvseeCommand() {
 		super(InternalCommandData.INVSEE_COMMAND);
 	}

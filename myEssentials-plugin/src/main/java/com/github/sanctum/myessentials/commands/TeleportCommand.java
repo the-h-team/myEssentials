@@ -10,7 +10,7 @@
  */
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import com.github.sanctum.myessentials.util.teleportation.Destination;
@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
-public final class TeleportCommand extends CommandOutput {
+public final class TeleportCommand extends CommandInput {
 
 	public TeleportCommand() {
 		super(InternalCommandData.TELEPORT_COMMAND);

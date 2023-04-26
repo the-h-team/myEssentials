@@ -2,7 +2,7 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.pagination.EasyPagination;
 import com.github.sanctum.labyrinth.library.TimeWatch;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import java.text.MessageFormat;
@@ -15,7 +15,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PlaytimeCommand extends CommandOutput {
+public class PlaytimeCommand extends CommandInput {
 	public PlaytimeCommand() {
 		super(OptionLoader.TEST_COMMAND.from("playtime", "/playtime", "Check your amount of time played.", null, "pt", "timeplayed"));
 	}

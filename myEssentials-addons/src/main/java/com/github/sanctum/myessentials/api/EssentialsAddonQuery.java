@@ -9,15 +9,15 @@
 package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.LabyrinthProvider;
-import com.github.sanctum.labyrinth.annotation.Note;
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.Registry;
 import com.github.sanctum.labyrinth.data.RegistryData;
-import com.github.sanctum.labyrinth.data.container.LabyrinthEntryMap;
-import com.github.sanctum.labyrinth.data.container.LabyrinthMap;
 import com.github.sanctum.labyrinth.task.Procedure;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
+import com.github.sanctum.panther.annotation.Note;
+import com.github.sanctum.panther.container.PantherEntryMap;
+import com.github.sanctum.panther.container.PantherMap;
 import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class EssentialsAddonQuery {
 
-	private static final LabyrinthMap<String, EssentialsAddon> addonMap = new LabyrinthEntryMap<>();
+	private static final PantherMap<String, EssentialsAddon> addonMap = new PantherEntryMap<>();
 
 	private static final List<String> dataLog = new ArrayList<>();
 
@@ -168,7 +168,7 @@ public final class EssentialsAddonQuery {
 			}
 		}
 		int count2 = 0;
-		for (Class<? extends CommandOutput> command : e.getContext().getCommands().values()) {
+		for (Class<? extends CommandInput> command : e.getContext().getCommands().values()) {
 			try {
 				command.getDeclaredConstructor().newInstance();
 				count2++;
@@ -301,13 +301,13 @@ public final class EssentialsAddonQuery {
 	public static void register(EssentialsAddon addon) {
 		addon.onLoad();
 		addon.register();
-		if (addon.isStaged()) {
+		if (addon.isPersistent()) {
 			MyEssentialsAPI.getInstance().logInfo(" ");
 			MyEssentialsAPI.getInstance().logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 			MyEssentialsAPI.getInstance().logInfo("- Addon: " + addon.getName());
 			MyEssentialsAPI.getInstance().logInfo("- Author(s): " + Arrays.toString(addon.getAuthors()));
 			MyEssentialsAPI.getInstance().logInfo("- Description: " + addon.getDescription());
-			MyEssentialsAPI.getInstance().logInfo("- Persistent: (" + addon.isStaged() + ")");
+			MyEssentialsAPI.getInstance().logInfo("- Persistent: (" + addon.isPersistent() + ")");
 			MyEssentialsAPI.getInstance().logInfo("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 			MyEssentialsAPI.getInstance().logInfo(" ");
 			MyEssentialsAPI.getInstance().logInfo("- Listeners: (" + addon.getContext().getListeners().size() + ")");
@@ -321,7 +321,7 @@ public final class EssentialsAddonQuery {
 					MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " already loaded. Skipping.");
 				}
 			}
-			for (Class<? extends CommandOutput> command : addon.getContext().getCommands().values()) {
+			for (Class<? extends CommandInput> command : addon.getContext().getCommands().values()) {
 				try {
 					command.getDeclaredConstructor().newInstance();
 					MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (+1) Command " + command.getSimpleName() + " loaded");
@@ -336,14 +336,14 @@ public final class EssentialsAddonQuery {
 			MyEssentialsAPI.getInstance().logInfo("- Addon: " + addon.getName());
 			MyEssentialsAPI.getInstance().logInfo("- Author(s): " + Arrays.toString(addon.getAuthors()));
 			MyEssentialsAPI.getInstance().logInfo("- Description: " + addon.getDescription());
-			MyEssentialsAPI.getInstance().logInfo("- Persistent: (" + addon.isStaged() + ")");
+			MyEssentialsAPI.getInstance().logInfo("- Persistent: (" + addon.isPersistent() + ")");
 			addon.remove();
 			MyEssentialsAPI.getInstance().logInfo(" ");
 			MyEssentialsAPI.getInstance().logInfo("- Listeners: (" + addon.getContext().getListeners().size() + ")");
 			for (Listener addition : addon.getContext().getListeners()) {
 				MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (-1) Listener " + addition.getClass().getSimpleName() + " failed to load due to no persistence.");
 			}
-			for (Class<? extends CommandOutput> command : addon.getContext().getCommands().values()) {
+			for (Class<? extends CommandInput> command : addon.getContext().getCommands().values()) {
 				MyEssentialsAPI.getInstance().logInfo("- [" + addon.getName() + "] (-1) Command " + command.getSimpleName() + " failed to load due to no persistence.");
 			}
 		}
@@ -382,8 +382,7 @@ public final class EssentialsAddonQuery {
 	 * @param packageName The package location where the {@link EssentialsAddon} addons are located.
 	 */
 	public static void registerAll(@NotNull final Plugin plugin, @NotNull final String packageName) {
-		RegistryData<EssentialsAddon> data = new Registry<>(EssentialsAddon.class)
-				.source(plugin)
+		RegistryData<EssentialsAddon> data = new Registry<>(EssentialsAddon.class).source(plugin)
 				.filter(packageName)
 				.operate(addon -> {
 				});
@@ -391,7 +390,6 @@ public final class EssentialsAddonQuery {
 		for (EssentialsAddon e : data.getData()) {
 			register(e);
 		}
-
 	}
 
 	@Note("You don't need to use this!")
@@ -404,7 +402,7 @@ public final class EssentialsAddonQuery {
 			for (File f : file.listFiles()) {
 				if (f.isDirectory()) continue;
 				try {
-					EssentialsAddon addon = new EssentialsAddonClassLoader(f).getMainClass();
+					EssentialsAddon addon = new EssentialsClassLoader(f).getMainClass();
 					instance.getLogger().info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
 					instance.getLogger().info("- Injected: " + addon.getName() + " v" + addon.getVersion());
 					instance.getLogger().info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");

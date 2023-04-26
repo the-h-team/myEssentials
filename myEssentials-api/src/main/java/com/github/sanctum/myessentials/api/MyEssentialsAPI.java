@@ -10,9 +10,8 @@ package com.github.sanctum.myessentials.api;
 
 import com.github.sanctum.labyrinth.data.FileList;
 import com.github.sanctum.labyrinth.data.FileManager;
-import com.github.sanctum.labyrinth.data.container.LabyrinthCollection;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.IExecutorHandler;
 import com.github.sanctum.myessentials.model.Messenger;
 import com.github.sanctum.myessentials.model.kit.Kit;
@@ -20,6 +19,7 @@ import com.github.sanctum.myessentials.model.warp.Warp;
 import com.github.sanctum.myessentials.model.warp.WarpHolder;
 import com.github.sanctum.myessentials.util.SignEdit;
 import com.github.sanctum.myessentials.util.teleportation.TeleportRunner;
+import com.github.sanctum.panther.container.PantherCollection;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -38,7 +38,7 @@ public interface MyEssentialsAPI {
         return Bukkit.getServicesManager().load(MyEssentialsAPI.class);
     }
 
-    Command registerCommand(CommandOutput commandBuilder);
+	Command registerCommand(CommandInput commandBuilder);
 
     void unregisterCommand(Command command);
 
@@ -98,13 +98,13 @@ public interface MyEssentialsAPI {
 
     WarpHolder getWarpHolder(@NotNull OfflinePlayer player);
 
-    LabyrinthCollection<Kit.Holder> getKitHolders();
+	PantherCollection<Kit.Holder> getKitHolders();
 
-    LabyrinthCollection<WarpHolder> getWarpHolders();
+	PantherCollection<WarpHolder> getWarpHolders();
 
-    LabyrinthCollection<Kit> getKits();
+	PantherCollection<Kit> getKits();
 
-    LabyrinthCollection<Warp> getWarps();
+	PantherCollection<Warp> getWarps();
 
     Kit getKit(@NotNull String name);
 

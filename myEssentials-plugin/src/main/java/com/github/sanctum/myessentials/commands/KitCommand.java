@@ -4,20 +4,20 @@ import com.github.sanctum.labyrinth.LabyrinthProvider;
 import com.github.sanctum.labyrinth.api.Service;
 import com.github.sanctum.labyrinth.library.Cooldown;
 import com.github.sanctum.labyrinth.library.IllegalTimeFormatException;
-import com.github.sanctum.labyrinth.library.ParsedTimeFormat;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.kit.Kit;
 import com.github.sanctum.myessentials.model.kit.KitTimeStamp;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
+import com.github.sanctum.panther.util.ParsedTimeFormat;
 import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class KitCommand extends CommandOutput {
+public class KitCommand extends CommandInput {
 	public KitCommand() {
 		super(OptionLoader.TEST_COMMAND.from("kit", "/kit", "Give yourself a kit.", "mess.kit"));
 	}

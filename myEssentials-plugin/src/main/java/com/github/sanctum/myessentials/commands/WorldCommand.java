@@ -12,10 +12,10 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.labyrinth.task.TaskPredicate;
+import com.github.sanctum.labyrinth.task.BukkitTaskPredicate;
 import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.api.MyEssentialsAPI;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.HashMap;
@@ -37,7 +37,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-public final class WorldCommand extends CommandOutput {
+public final class WorldCommand extends CommandInput {
 	private final Map<UUID, Boolean> taskScheduled = new HashMap<>();
 	private final SimpleTabCompletion builder = SimpleTabCompletion.empty();
 	private final AtomicReference<Location> teleportLocation = new AtomicReference<>();
@@ -111,7 +111,7 @@ public final class WorldCommand extends CommandOutput {
 					player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(color(MyEssentialsAPI.getInstance().getPrefix() + " Searching for suitable location...")));
 					player.playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 10, 1);
 
-				}).scheduleTimer(UUID.randomUUID().toString(), 0, 3 * 20, TaskPredicate.cancelAfter(player), TaskPredicate.cancelAfter(task -> {
+				}).scheduleTimer(UUID.randomUUID().toString(), 0, 3 * 20, BukkitTaskPredicate.cancelAfter(player), BukkitTaskPredicate.cancelAfter(task -> {
 					if (taskScheduled.containsKey(player.getUniqueId()) && !taskScheduled.get(player.getUniqueId())) {
 						sendMessage(player, ConfiguredMessage.SEARCH_INTERRUPTED);
 						task.cancel();

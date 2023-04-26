@@ -8,11 +8,11 @@
  */
 package com.github.sanctum.myessentials.api;
 
-import com.github.sanctum.labyrinth.library.Deployable;
-import com.github.sanctum.labyrinth.library.HUID;
 import com.github.sanctum.labyrinth.task.TaskScheduler;
 import com.github.sanctum.myessentials.model.CommandData;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
+import com.github.sanctum.panther.util.Deployable;
+import com.github.sanctum.panther.util.HUID;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,26 +32,30 @@ public abstract class EssentialsAddon {
 
 	public EssentialsAddon() {
 		ClassLoader loader = this.getClass().getClassLoader();
-		if (!(loader instanceof EssentialsAddonClassLoader) && !MyEssentialsAPI.class.getClassLoader().equals(loader))
-			throw new InvalidAddonStateException("Addon not provided by " + EssentialsAddonClassLoader.class);
+		if (!(loader instanceof EssentialsClassLoader) && !MyEssentialsAPI.class.getClassLoader().equals(loader))
+			throw new InvalidAddonStateException("Addon not provided by " + EssentialsClassLoader.class);
 		this.classLoader = loader;
 		this.context = new EssentialsAddonContext() {
 			private final List<Listener> listeners = new ArrayList<>();
-			private final Map<CommandData, Class<? extends CommandOutput>> commands = new HashMap<>();
+			private final Map<CommandData, Class<? extends CommandInput>> commands = new HashMap<>();
 
 			@Override
 			public EssentialsAddon loadAddon(File jar) throws IOException, InvalidAddonException {
-				return new EssentialsAddonClassLoader(jar, EssentialsAddon.this).getMainClass();
+				return new EssentialsClassLoader(jar, EssentialsAddon.this).getMainClass();
 			}
 
 			@Override
 			public Deployable<Void> enableAddon(EssentialsAddon addon) {
-				return Deployable.of(null, unused -> EssentialsAddonQuery.enable(addon));
+				return Deployable.of(() -> {
+					EssentialsAddonQuery.enable(addon);
+				}, 0);
 			}
 
 			@Override
 			public Deployable<Void> disableAddon(EssentialsAddon addon) {
-				return Deployable.of(null, unused -> EssentialsAddonQuery.disable(addon));
+				return Deployable.of(() -> {
+					EssentialsAddonQuery.disable(addon);
+				}, 0);
 			}
 
 			@Override
@@ -60,7 +64,7 @@ public abstract class EssentialsAddon {
 			}
 
 			@Override
-			public Map<CommandData, Class<? extends CommandOutput>> getCommands() {
+			public Map<CommandData, Class<? extends CommandInput>> getCommands() {
 				return commands;
 			}
 
@@ -70,7 +74,7 @@ public abstract class EssentialsAddon {
 			}
 
 			@Override
-			public <T extends CommandOutput> void stage(CommandData data, Class<T> t) {
+			public <T extends CommandInput> void stage(CommandData data, Class<T> t) {
 				commands.put(data, t);
 			}
 
@@ -80,8 +84,8 @@ public abstract class EssentialsAddon {
 
 	public EssentialsAddon(EssentialsAddonContext context) {
 		ClassLoader loader = this.getClass().getClassLoader();
-		if (!(loader instanceof EssentialsAddonClassLoader) && !MyEssentialsAPI.class.getClassLoader().equals(loader))
-			throw new InvalidAddonStateException("Addon not provided by " + EssentialsAddonClassLoader.class);
+		if (!(loader instanceof EssentialsClassLoader) && !MyEssentialsAPI.class.getClassLoader().equals(loader))
+			throw new InvalidAddonStateException("Addon not provided by " + EssentialsClassLoader.class);
 		this.classLoader = loader;
 		this.context = context;
 	}
@@ -92,7 +96,7 @@ public abstract class EssentialsAddon {
 
 	protected abstract void onDisable();
 
-	public abstract boolean isStaged();
+	public abstract boolean isPersistent();
 
 	/**
 	 * Get the name of this addon.

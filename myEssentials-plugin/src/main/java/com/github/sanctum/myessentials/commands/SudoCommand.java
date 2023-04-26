@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import com.github.sanctum.myessentials.util.moderation.PlayerSearch;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SudoCommand extends CommandOutput {
+public class SudoCommand extends CommandInput {
 	public SudoCommand() {
 		super(OptionLoader.TEST_COMMAND.from("sudo", "/sudo", "Make someone perform a command.", "mess.staff.sudo", "s", "make"));
 	}

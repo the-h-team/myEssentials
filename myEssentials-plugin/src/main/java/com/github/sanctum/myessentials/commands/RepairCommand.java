@@ -1,6 +1,6 @@
 package com.github.sanctum.myessentials.commands;
 
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import com.github.sanctum.myessentials.util.OptionLoader;
 import java.util.List;
@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class RepairCommand extends CommandOutput {
+public class RepairCommand extends CommandInput {
 	public RepairCommand() {
 		super(OptionLoader.TEST_COMMAND.from("repair", "/repair", "Repair the item you currently hold.", "mess.staff.repair"));
 	}

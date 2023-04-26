@@ -2,9 +2,9 @@ package com.github.sanctum.myessentials.commands;
 
 import com.github.sanctum.labyrinth.formatting.completion.SimpleTabCompletion;
 import com.github.sanctum.labyrinth.formatting.completion.TabCompletionIndex;
-import com.github.sanctum.labyrinth.task.TaskPredicate;
+import com.github.sanctum.labyrinth.task.BukkitTaskPredicate;
 import com.github.sanctum.labyrinth.task.TaskScheduler;
-import com.github.sanctum.myessentials.model.CommandOutput;
+import com.github.sanctum.myessentials.model.CommandInput;
 import com.github.sanctum.myessentials.model.InternalCommandData;
 import com.github.sanctum.myessentials.util.ConfiguredMessage;
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class TransitionCommand extends CommandOutput {
+public class TransitionCommand extends CommandInput {
 
 	private static int i;
 	private static boolean sent;
@@ -66,7 +66,7 @@ public class TransitionCommand extends CommandOutput {
 					} else {
 						sendMessage(player, ConfiguredMessage.SET_DAY);
 					}
-				}).scheduleTimer("myEssentials:DAY", 0, 1, TaskPredicate.cancelAfter(task -> {
+				}).scheduleTimer("myEssentials:DAY", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 					if (canStop(player.getWorld(), 13000, 24000)) {
 						i = 0;
 						sent = false;
@@ -99,7 +99,7 @@ public class TransitionCommand extends CommandOutput {
 							} else {
 								sendMessage(player, ConfiguredMessage.SET_DAY);
 							}
-						}).scheduleTimer("myEssentials:DAY", 0, 1, TaskPredicate.cancelAfter(task -> {
+						}).scheduleTimer("myEssentials:DAY", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 							if (canStop(player.getWorld(), 13000, 24000)) {
 								i = 0;
 								sent = false;
@@ -129,7 +129,7 @@ public class TransitionCommand extends CommandOutput {
 							} else {
 								sendMessage(player, ConfiguredMessage.SET_NIGHT);
 							}
-						}).scheduleTimer("myEssentials:NIGHT", 0, 1, TaskPredicate.cancelAfter(task -> {
+						}).scheduleTimer("myEssentials:NIGHT", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 							if (canStop(player.getWorld(), 0, 13000)) {
 								i = 0;
 								sent = false;
@@ -173,7 +173,7 @@ public class TransitionCommand extends CommandOutput {
 							} else {
 								sendMessage(player, ConfiguredMessage.SET_DAY);
 							}
-						}).scheduleTimer("myEssentials:DAY", 0, 1, TaskPredicate.cancelAfter(task -> {
+						}).scheduleTimer("myEssentials:DAY", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 							if (canStop(player.getWorld(), 13000, 24000)) {
 								i = 0;
 								sent = false;
@@ -199,7 +199,7 @@ public class TransitionCommand extends CommandOutput {
 							} else {
 								sendMessage(player, ConfiguredMessage.SET_NIGHT);
 							}
-						}).scheduleTimer("myEssentials:NIGHT", 0, 1, TaskPredicate.cancelAfter(task -> {
+						}).scheduleTimer("myEssentials:NIGHT", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 							if (canStop(player.getWorld(), 0, 13000)) {
 								i = 0;
 								sent = false;
@@ -238,7 +238,7 @@ public class TransitionCommand extends CommandOutput {
 					} else {
 						sendMessage(sender, ConfiguredMessage.SET_DAY);
 					}
-				}).scheduleTimer("myEssentials:DAY", 0, 1, TaskPredicate.cancelAfter(task -> {
+				}).scheduleTimer("myEssentials:DAY", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 					if (canStop(Bukkit.getWorlds().get(0), 13000, 24000)) {
 						i = 0;
 						sent = false;
@@ -271,7 +271,7 @@ public class TransitionCommand extends CommandOutput {
 							} else {
 								sendMessage(sender, ConfiguredMessage.SET_DAY);
 							}
-						}).scheduleTimer("myEssentials:DAY", 0, 1, TaskPredicate.cancelAfter(task -> {
+						}).scheduleTimer("myEssentials:DAY", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 							if (canStop(Bukkit.getWorlds().get(0), 13000, 24000)) {
 								i = 0;
 								sent = false;
@@ -301,7 +301,7 @@ public class TransitionCommand extends CommandOutput {
 							} else {
 								sendMessage(sender, ConfiguredMessage.SET_NIGHT);
 							}
-						}).scheduleTimer("myEssentials:NIGHT", 0, 1, TaskPredicate.cancelAfter(task -> {
+						}).scheduleTimer("myEssentials:NIGHT", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 							if (canStop(Bukkit.getWorlds().get(0), 0, 13000)) {
 								i = 0;
 								sent = false;
@@ -345,7 +345,7 @@ public class TransitionCommand extends CommandOutput {
 							} else {
 								sendMessage(sender, ConfiguredMessage.SET_DAY);
 							}
-						}).scheduleTimer("myEssentials:DAY", 0, 1, TaskPredicate.cancelAfter(task -> {
+						}).scheduleTimer("myEssentials:DAY", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 							if (canStop(Bukkit.getWorlds().get(0), 13000, 24000)) {
 								i = 0;
 								sent = false;
@@ -371,7 +371,7 @@ public class TransitionCommand extends CommandOutput {
 							} else {
 								sendMessage(sender, ConfiguredMessage.SET_NIGHT);
 							}
-						}).scheduleTimer("myEssentials:NIGHT", 0, 1, TaskPredicate.cancelAfter(task -> {
+						}).scheduleTimer("myEssentials:NIGHT", 0, 1, BukkitTaskPredicate.cancelAfter(task -> {
 							if (canStop(Bukkit.getWorlds().get(0), 0, 13000)) {
 								i = 0;
 								sent = false;

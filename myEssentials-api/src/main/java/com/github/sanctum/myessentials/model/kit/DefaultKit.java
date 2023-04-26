@@ -1,7 +1,7 @@
 package com.github.sanctum.myessentials.model.kit;
 
-import com.github.sanctum.labyrinth.annotation.Note;
-import com.github.sanctum.labyrinth.library.ParsedTimeFormat;
+import com.github.sanctum.panther.annotation.Note;
+import com.github.sanctum.panther.util.ParsedTimeFormat;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

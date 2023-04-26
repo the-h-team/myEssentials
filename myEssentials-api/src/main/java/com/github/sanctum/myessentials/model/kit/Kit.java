@@ -2,12 +2,12 @@ package com.github.sanctum.myessentials.model.kit;
 
 import com.github.sanctum.labyrinth.LabyrinthProvider;
 import com.github.sanctum.labyrinth.api.Service;
-import com.github.sanctum.labyrinth.data.Configurable;
-import com.github.sanctum.labyrinth.data.JsonAdapter;
-import com.github.sanctum.labyrinth.data.NodePointer;
 import com.github.sanctum.labyrinth.interfacing.Nameable;
 import com.github.sanctum.labyrinth.library.Cooldown;
-import com.github.sanctum.labyrinth.library.ParsedTimeFormat;
+import com.github.sanctum.panther.file.Configurable;
+import com.github.sanctum.panther.file.JsonAdapter;
+import com.github.sanctum.panther.file.Node;
+import com.github.sanctum.panther.util.ParsedTimeFormat;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@NodePointer(value = "Kit", type = DefaultKit.class)
+@Node.Pointer(value = "com.github.sanctum.myessentials.Kit", type = DefaultKit.class)
 public interface Kit extends Nameable, JsonAdapter<Kit> {
 
 	@NotNull String getName();
@@ -176,7 +176,7 @@ public interface Kit extends Nameable, JsonAdapter<Kit> {
 	}
 
 	@Override
-	default Class<Kit> getClassType() {
+	default Class<? extends Kit> getSerializationSignature() {
 		return Kit.class;
 	}
 
